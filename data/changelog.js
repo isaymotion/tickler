@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.6.1',
+    date: '2026-11-07',
+    title: 'Bible verse and prayer',
+    items: [{ type: 'feature', text: 'My card: favourite Bible verse and favourite prayer added to Favourites.', href: '#/me' }]
+  },
+  {
     version: '1.6.0',
     date: '2026-11-07',
     title: 'Links, playlists and zodiac',

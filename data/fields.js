@@ -59,6 +59,8 @@ window.CARD_FIELDS = [
   { key: 'fandom',          group: 'favourites',  type: 'text',     print: true,  icon: 'spark' },
   { key: 'emoji',           group: 'favourites',  type: 'text',     print: true,  icon: 'spark' },
   { key: 'quote',           group: 'favourites',  type: 'textarea', print: true,  icon: 'book' },
+  { key: 'bibleVerse',      group: 'favourites',  type: 'textarea', print: true,  icon: 'book' },
+  { key: 'prayer',          group: 'favourites',  type: 'textarea', print: true,  icon: 'book' },
   { key: 'subject',         group: 'favourites',  type: 'text',     print: true,  icon: 'school' },
   { key: 'rotation',        group: 'favourites',  type: 'text',     print: true,  icon: 'school' },
   { key: 'studyMusic',      group: 'favourites',  type: 'text',     print: true,  icon: 'music' },
@@ -99,7 +101,7 @@ window.CARD_FIELDS = [
 ];
 
 /* Fields the "Guess who" clue game can ask about (needs at least 4 cards with that field filled in). */
-window.GUESS_FIELDS = ['hometown', 'medSchool', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'karaoke', 'hiddenTalent', 'funFact', 'pets', 'whyPsych', 'animal', 'superhero', 'quote', 'dreamTrip', 'superpower', 'milkTea', 'emoji'];
+window.GUESS_FIELDS = ['hometown', 'medSchool', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'karaoke', 'hiddenTalent', 'funFact', 'pets', 'whyPsych', 'animal', 'superhero', 'quote', 'bibleVerse', 'dreamTrip', 'superpower', 'milkTea', 'emoji'];
 
 /* Fields compared for "Things in common" on a person's page: exact match (whole value) or shared items (comma / newline separated). */
 window.COMMON_FIELDS = {
