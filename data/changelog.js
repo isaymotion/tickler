@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.3.0',
+    date: '2026-11-07',
+    title: 'QR, calendar and stats',
+    items: [
+      { type: 'feature', text: 'Show my QR / Scan a card: pass your card phone-to-phone with a QR code — camera or a screenshot. The QR carries the card’s text; share the file for the photo.', href: '#/share' },
+      { type: 'feature', text: 'Birthday calendar: add one birthday or the whole batch to your phone calendar as yearly events.', href: '#/birthdays' },
+      { type: 'feature', text: 'Batch stats: hometowns, med schools, languages, birthdays by month, oldest to youngest, this month’s birthdays and the most shared favourites.', href: '#/stats' }
+    ]
+  },
+  {
     version: '1.2.0',
     date: '2026-11-07',
     title: 'A much fuller card',

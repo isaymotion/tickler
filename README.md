@@ -12,6 +12,9 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **The batch** — everyone's cards in one grid, with a quick filter and sorting by name, next birthday or hometown. Tap a card for the full page (contact buttons: call, message, email).
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
 - **Share cards** — cards travel as small JSON files: share your own card, import cards from batchmates (newer copies replace older ones; your own card is never overwritten), or send the whole batch to someone starting from nothing. Uses the phone share sheet when installed.
+- **Scan a card / Show my QR** — pass a card phone-to-phone with a QR code (camera, or a screenshot of the QR). Text only; the photo travels with the file.
+- **Birthday calendar** — add one birthday or the whole batch to the phone calendar (.ics, yearly).
+- **Batch stats** — hometowns, med schools, languages, birthdays by month, oldest to youngest, most shared favourites.
 - **Print sheet** — a compact "meet the batch" page without contact details; print or save as PDF from the browser.
 - **Guess who** — a small game that asks whose hometown / hobby / favourite a clue belongs to (needs four cards with that detail).
 - Shared isaymotion shell: search from the top bar (press `/`), back/forward buttons and `Alt+Left/Right`, light/dark/match-device theme, text size (Aa), English / Tagalog, What's new with an unseen badge, footer backup (export / import / undo), installable, offline after the first visit.
@@ -27,6 +30,8 @@ README.md
 index.html              App shell (top bar, sidebar menu, footer, bottom tabs)
 css/app.css             Styles (light and dark themes)
 js/app.js               Router, menu, views (VIEWS), navigation (NAV), search, theme, backup
+js/vendor/qrcode.js     QR encoder (qrcode-generator, MIT, Kazuhiko Arase)
+js/vendor/jsQR.js       QR decoder (jsQR, Apache-2.0; loaded only on the Scan screen)
 data/app-meta.js        App name, version, attribution (window.APP_META), menu links (window.APP_LINKS)
                         and the commented MIGRATE_KEYS example
 data/changelog.js       What's new entries (window.APP_CHANGELOG)

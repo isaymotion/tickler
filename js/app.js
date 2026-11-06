@@ -111,6 +111,8 @@
     { label: 'Birthdays', tkey: 'nav.birthdays', href: '#/birthdays', icon: 'cake', group: 'Screens' },
     { label: 'Guess who', tkey: 'nav.guess', href: '#/guess', icon: 'quiz', group: 'Screens' },
     { label: 'Share cards', tkey: 'nav.share', href: '#/share', icon: 'share', group: 'Screens' },
+    { label: 'Scan a card', tkey: 'nav.scan', href: '#/scan', icon: 'qr', group: 'Screens' },
+    { label: 'Batch stats', tkey: 'nav.stats', href: '#/stats', icon: 'chart', group: 'Screens' },
     { label: 'Print sheet', tkey: 'nav.print', href: '#/print', icon: 'print', group: 'Screens' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
     { label: 'About', tkey: 'nav.about', href: '#/about', icon: 'info', group: 'App', tile: false }
@@ -612,7 +614,7 @@
       var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; })).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
-    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro']].forEach(function (s) {
+    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -732,13 +734,15 @@
     return '<div class="wrap page person">' + crumb(t('nav.batch')) +
       '<header class="person__head">' + avatar(c, 'avatar--lg') + '<div><h1>' + esc(c.name) + '</h1>' +
         (c.nickname ? '<p class="person__nick">“' + esc(c.nickname) + '”</p>' : '') +
-        (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + '</p>' : '') +
+        (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + ' <button type="button" class="link-btn" id="cal-one">' + esc(t('bt.cal.one')) + '</button></p><p class="form__status" id="cal-status" role="status"></p>' : '') +
         (c.preferredName ? '<p class="muted">' + esc(fieldLabel('preferredName')) + ': ' + esc(c.preferredName) + (c.pronouns ? ' · ' + esc(c.pronouns) : '') + '</p>' : (c.pronouns ? '<p class="muted">' + esc(c.pronouns) + '</p>' : '')) +
         (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a> <span class="muted">' + esc(tf('bt.me.complete', comp)) + '</span></p>' : '') +
       '</div></header>' + common + sections + contact +
       '<p class="person__foot muted">' + esc(tf('bt.person.updated', { date: bkDate(c.updated) || '—' })) + (me ? '' : ' · <button type="button" class="link-btn" id="rm-person" data-id="' + esc(c.id) + '">' + esc(t('bt.person.remove')) + '</button>') + '</p></div>';
   };
-  AFTER.person = function () {
+  AFTER.person = function (id) {
+    var cal = document.getElementById('cal-one');
+    if (cal) cal.addEventListener('click', function () { var c = findPerson(String(id || '')); if (!c) return; icsOut([c], 'birthday-' + slug(c.name) + '.ics', function (m) { var st = document.getElementById('cal-status'); if (st) st.textContent = m; }); });
     var b = document.getElementById('rm-person'); if (!b) return;
     b.addEventListener('click', function () {
       var c = findPerson(b.getAttribute('data-id')); if (!c) return;
@@ -874,6 +878,7 @@
     });
     return '<div class="wrap page">' + crumb(t('nav.birthdays')) +
       '<header class="page__head"><h1>' + esc(t('nav.birthdays')) + '</h1><p>' + esc(t('bt.bd.intro')) + '</p></header>' +
+      (dated.length ? '<div class="callout"><p class="callout__title">' + esc(t('bt.cal.all')) + '</p><p style="margin:0 0 10px">' + esc(t('bt.cal.allText')) + '</p><button type="button" class="btn" id="cal-all">' + icon('calendar', 'btn__ico') + esc(t('bt.cal.all')) + '</button><p class="form__status" id="cal-status" role="status"></p></div>' : '') +
       (!dated.length ? '<div class="empty"><p>' + esc(t('bt.bd.none')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a></p></div>' :
         groups.map(function (g) {
           return '<h2>' + esc(g.label) + '</h2><div class="bdlist">' + g.items.map(function (x) {
@@ -884,6 +889,11 @@
         }).join('')) +
       (undated.length ? '<h2>' + esc(t('bt.bd.noDate')) + '</h2><p class="muted">' + undated.map(function (c) { return esc(c.name); }).join(', ') + '</p>' : '') +
       '</div>';
+  };
+
+  AFTER.birthdays = function () {
+    var b = document.getElementById('cal-all'); if (!b) return;
+    b.addEventListener('click', function () { icsOut(people(), 'batch-birthdays.ics', function (m) { var st = document.getElementById('cal-status'); if (st) st.textContent = m; }); });
   };
 
   /* ---- Share cards: card files in and out ---- */
@@ -902,6 +912,7 @@
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'card'; }
   function cardsFrom(p) {   // cards inside a card file, a batch file or a Batch Tickler backup
+    if (p && p.a === 'bt' && p.k === 'card' && p.c) return [p.c];   // compact QR form
     if (!p || p.app !== CARD_APP) return null;
     if (p.kind === 'card' && p.card) return [p.card];
     if (p.kind === 'batch' && Array.isArray(p.cards)) return p.cards;
@@ -934,6 +945,7 @@
       '<header class="page__head"><h1>' + esc(t('nav.share')) + '</h1><p>' + esc(t('bt.share.intro')) + '</p></header>' +
       block('bt.share.mine', 'bt.share.mineText', me ? '<button type="button" class="btn btn--solid" id="sh-mine">' + icon('share', 'btn__ico') + esc(t('bt.share.mineBtn')) + '</button>' : '<a class="btn btn--solid" href="#/me">' + esc(t('bt.share.needMe')) + '</a>') +
       block('bt.share.import', 'bt.share.importText', '<input type="file" id="sh-file" class="sr-only" accept=".json,application/json"><label class="btn btn--solid" for="sh-file" id="sh-file-label">' + esc(t('bt.share.importBtn')) + '</label>') +
+      block('bt.qr.title', 'bt.qr.text', me ? '<button type="button" class="btn btn--solid" id="sh-qr" aria-expanded="false">' + icon('qr', 'btn__ico') + esc(t('bt.qr.btn')) + '</button> <a class="btn" href="#/scan">' + esc(t('nav.scan')) + '</a><div id="sh-qr-box" class="qr" hidden></div>' : '<a class="btn btn--solid" href="#/me">' + esc(t('bt.share.needMe')) + '</a>') +
       block('bt.share.all', 'bt.share.allText', '<button type="button" class="btn" id="sh-all"' + (n ? '' : ' disabled') + '>' + esc(t('bt.share.allBtn')) + '</button> <span class="muted">' + esc(tf('bt.share.ownAll', { n: n })) + '</span>') +
       '<p class="form__status" id="sh-status" role="status" aria-live="polite"></p></div>';
   };
@@ -941,6 +953,15 @@
     var st = document.getElementById('sh-status');
     function say(m, err) { st.textContent = m; st.classList.toggle('is-error', !!err); }
     var mine = document.getElementById('sh-mine'), all = document.getElementById('sh-all'), fi = document.getElementById('sh-file');
+    var qrBtn = document.getElementById('sh-qr'), qrBox = document.getElementById('sh-qr-box');
+    if (qrBtn) qrBtn.addEventListener('click', function () {
+      var me = getMe(); if (!me) return;
+      if (!qrBox.hidden) { qrBox.hidden = true; qrBox.innerHTML = ''; qrBtn.setAttribute('aria-expanded', 'false'); qrBtn.innerHTML = icon('qr', 'btn__ico') + esc(t('bt.qr.btn')); return; }
+      var pl = qrPayload(me), svg = qrSvg(pl.text);
+      qrBox.innerHTML = (svg ? '<div class="qr__img">' + svg + '</div>' : '') + '<p class="qr__name">' + esc(me.name) + '</p>' + (pl.kept < pl.total ? '<p class="muted">' + esc(tf('bt.qr.trimmed', { n: pl.kept, total: pl.total })) + '</p>' : '');
+      qrBox.hidden = false; qrBtn.setAttribute('aria-expanded', 'true'); qrBtn.innerHTML = esc(t('bt.qr.hide'));
+      qrBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
     if (mine) mine.addEventListener('click', function () {
       var me = getMe(); if (!me) { say(t('bt.share.needMe'), true); return; }
       fileOut({ app: CARD_APP, kind: 'card', format: 1, exported: new Date().toISOString(), card: me }, 'batch-card-' + slug(me.name) + '.json', 'bt.share.mine', say);
@@ -1018,6 +1039,190 @@
       acts.hidden = false; document.querySelector('.guess__score').textContent = tf('bt.guess.score', { right: guess.right, total: guess.total });
     });
     document.getElementById('g-next').addEventListener('click', function () { guess.q = makeQuestion(); route({ keepScroll: true }); });
+  };
+
+  /* ---- 1.3.0: QR share, scan, calendar export, batch stats ---- */
+  ICONS.qr = '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M13.5 13.5h3v3h-3zM18.5 13.5h2M20.5 16.5v4h-4M13.5 20.5h2"/>';
+  ICONS.camera = '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>';
+  ICONS.chart = '<path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/>';
+
+  /* QR payload: the card without its photo, each field trimmed, fields dropped from the end until it fits a scannable size */
+  var QR_LIMIT = 2200, QR_FIELD_MAX = 160;
+  function qrPayload(c) {
+    var keys = ['id', 'name', 'bmonth', 'bday', 'byear', 'updated'], total = 0, kept = 0;
+    var base = {}; keys.forEach(function (k) { base[k] = c[k]; });
+    var fs = FIELDS.filter(function (f) { return c[f.key]; }); total = fs.length + (c.custom.length ? 1 : 0);
+    var out = JSON.parse(JSON.stringify(base));
+    for (var i = 0; i < fs.length; i++) {
+      var trial = JSON.parse(JSON.stringify(out)); trial[fs[i].key] = String(c[fs[i].key]).slice(0, QR_FIELD_MAX);
+      if (JSON.stringify({ a: 'bt', k: 'card', c: trial }).length > QR_LIMIT) break;
+      out = trial; kept++;
+    }
+    if (c.custom.length) { var t2 = JSON.parse(JSON.stringify(out)); t2.custom = c.custom.map(function (x) { return { label: x.label, value: x.value.slice(0, QR_FIELD_MAX) }; }); if (JSON.stringify({ a: 'bt', k: 'card', c: t2 }).length <= QR_LIMIT) { out = t2; kept++; } }
+    return { text: JSON.stringify({ a: 'bt', k: 'card', c: out }), kept: kept, total: total };
+  }
+  function qrSvg(text) {
+    if (typeof window.qrcode !== 'function') return '';
+    try { var q = window.qrcode(0, 'L'); q.addData(text, 'Byte'); q.make(); return q.createSvgTag({ cellSize: 4, margin: 3, scalable: true }); } catch (e) { return ''; }
+  }
+
+  /* ICS (calendar) export: yearly all-day events */
+  function icsDate(y, m, d) { return String(y) + pad2(m) + pad2(d); }
+  function icsEscape(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+  function icsFor(list) {
+    var now = new Date(), stamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//isaymotion//Batch Tickler//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:' + icsEscape((batchName() ? batchName() + ' · ' : '') + t('nav.birthdays'))];
+    list.forEach(function (c) {
+      if (!c.bmonth) return;
+      var y = c.byear || now.getFullYear(), d = c.bday;
+      if (c.bmonth === 2 && d === 29 && !isLeap(y)) d = 28;
+      lines.push('BEGIN:VEVENT', 'UID:' + c.id + '@isaymotion.github.io', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + icsDate(y, c.bmonth, d),
+        'RRULE:FREQ=YEARLY', 'SUMMARY:' + icsEscape('🎂 ' + tf('bt.cal.summary', { name: c.name })),
+        'DESCRIPTION:' + icsEscape((c.hometown ? c.hometown + '. ' : '') + (c.giftHints ? fieldLabel('giftHints') + ': ' + c.giftHints : '')),
+        'TRANSP:TRANSPARENT', 'END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
+  }
+  function icsOut(list, name, cb) {
+    var ics = icsFor(list), file = null;
+    try { file = new File([ics], name, { type: 'text/calendar' }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: t('nav.birthdays') }).then(function () { cb(tf('bt.cal.saved', { name: name })); }).catch(function () { cb(t('bt.share.cancelled')); });
+      return;
+    }
+    var url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+    var a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    cb(tf('bt.cal.saved', { name: name }));
+  }
+
+  /* Scan: camera via getUserMedia + jsQR (loaded on demand), or a picked image */
+  var scanStream = null, scanTimer = null, jsqrLoading = null;
+  function loadJsQR() {
+    if (typeof window.jsQR === 'function') return Promise.resolve();
+    if (jsqrLoading) return jsqrLoading;
+    jsqrLoading = new Promise(function (res, rej) { var sc = document.createElement('script'); sc.src = 'js/vendor/jsQR.js'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+    return jsqrLoading;
+  }
+  function stopScan() {
+    clearTimeout(scanTimer); scanTimer = null;
+    if (scanStream) { scanStream.getTracks().forEach(function (tr) { tr.stop(); }); scanStream = null; }
+    var v = document.getElementById('scan-video'); if (v) { v.srcObject = null; v.hidden = true; }
+    var b = document.getElementById('scan-start'); if (b) { b.textContent = t('bt.scan.start'); b.setAttribute('data-on', '0'); }
+  }
+  window.addEventListener('hashchange', stopScan);
+  function decodeImageData(img) {
+    if (typeof window.jsQR !== 'function') return null;
+    var r = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+    return r && r.data ? r.data : null;
+  }
+  function handleScanned(text, say) {
+    var p; try { p = JSON.parse(text); } catch (e) { say(t('bt.scan.notCard'), true); return false; }
+    var cards = cardsFrom(p);
+    if (!cards || !cards.length) { say(t('bt.scan.notCard'), true); return false; }
+    var c = sanitizeCard(cards[0]); if (!c) { say(t('bt.scan.notCard'), true); return false; }
+    if (isMe(c)) { say(t('bt.scan.me'), true); return true; }
+    var before = findPerson(c.id), res = mergeCards([c]);
+    var msg = res.added ? tf('bt.scan.added', { name: c.name }) : res.updated ? tf('bt.scan.updated', { name: c.name }) : tf('bt.scan.same', { name: (before || c).name });
+    say(msg + ' ', false, '#/person/' + encodeURIComponent(c.id));
+    return true;
+  }
+  VIEWS.scan = function () {
+    return '<div class="wrap page scan">' + crumb(t('nav.scan')) +
+      '<header class="page__head"><h1>' + esc(t('nav.scan')) + '</h1><p>' + esc(t('bt.scan.intro')) + '</p></header>' +
+      '<div class="card scan__card"><video id="scan-video" class="scan__video" playsinline muted hidden></video><canvas id="scan-canvas" hidden></canvas>' +
+        '<div class="form__acts"><button type="button" class="btn btn--solid" id="scan-start" data-on="0">' + icon('camera', 'btn__ico') + esc(t('bt.scan.start')) + '</button>' +
+        '<input type="file" id="scan-file" class="sr-only" accept="image/*"><label class="btn" for="scan-file" id="scan-file-label">' + esc(t('bt.scan.photo')) + '</label></div>' +
+        '<p class="form__status" id="scan-status" role="status" aria-live="polite"></p><p id="scan-link" hidden><a class="btn" id="scan-open" href="#/batch">' + esc(t('bt.guess.open')) + '</a> <button type="button" class="btn" id="scan-again">' + esc(t('bt.scan.again')) + '</button></p></div></div>';
+  };
+  AFTER.scan = function () {
+    var st = document.getElementById('scan-status'), link = document.getElementById('scan-link'), open = document.getElementById('scan-open');
+    var video = document.getElementById('scan-video'), canvas = document.getElementById('scan-canvas'), startBtn = document.getElementById('scan-start'), fi = document.getElementById('scan-file');
+    function say(m, err, href) { st.textContent = m; st.classList.toggle('is-error', !!err); link.hidden = !href; if (href) open.setAttribute('href', href); }
+    function tick() {
+      if (!scanStream || !video.videoWidth) { scanTimer = setTimeout(tick, 250); return; }
+      var w = Math.min(640, video.videoWidth), h = Math.round(video.videoHeight * w / video.videoWidth);
+      canvas.width = w; canvas.height = h;
+      var cx = canvas.getContext('2d', { willReadFrequently: true }); cx.drawImage(video, 0, 0, w, h);
+      var text = decodeImageData(cx.getImageData(0, 0, w, h));
+      if (text) { stopScan(); handleScanned(text, say); return; }
+      scanTimer = setTimeout(tick, 220);
+    }
+    startBtn.addEventListener('click', function () {
+      if (startBtn.getAttribute('data-on') === '1') { stopScan(); return; }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { say(t('bt.scan.noCamera'), true); return; }
+      say(t('bt.scan.looking'));
+      loadJsQR().then(function () { return navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); }).then(function (stream) {
+        scanStream = stream; video.srcObject = stream; video.hidden = false; video.play().catch(function () {});
+        startBtn.textContent = t('bt.scan.stop'); startBtn.setAttribute('data-on', '1'); tick();
+      }).catch(function () { say(t('bt.scan.denied'), true); });
+    });
+    fi.addEventListener('change', function () {
+      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
+      say(t('bt.scan.looking'));
+      loadJsQR().then(function () {
+        var url = URL.createObjectURL(f), img = new Image();
+        img.onload = function () {
+          var text = null;
+          [1000, 600, 1600].some(function (max) {   // try a few sizes; jsQR likes modules of a few pixels
+            var k = Math.min(1, max / Math.max(img.width, img.height)), w = Math.round(img.width * k), h = Math.round(img.height * k);
+            canvas.width = w; canvas.height = h;
+            var cx = canvas.getContext('2d', { willReadFrequently: true }); cx.drawImage(img, 0, 0, w, h);
+            text = decodeImageData(cx.getImageData(0, 0, w, h)); return !!text;
+          });
+          URL.revokeObjectURL(url);
+          if (!text) { say(t('bt.scan.notFound'), true); return; }
+          handleScanned(text, say);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); say(t('bt.scan.notFound'), true); };
+        img.src = url;
+      }).catch(function () { say(t('bt.scan.notFound'), true); });
+    });
+    document.getElementById('scan-again').addEventListener('click', function () { say(''); startBtn.click(); });
+  };
+
+  /* Batch stats */
+  function countBy(list, fn) {
+    var m = {}, out = [];
+    list.forEach(function (c) { (fn(c) || []).forEach(function (v) { var k = v.toLowerCase(); if (!m[k]) { m[k] = { label: v, n: 0, who: [] }; out.push(m[k]); } m[k].n++; m[k].who.push(c.name); }); });
+    return out.sort(function (a, b) { return b.n - a.n || a.label.localeCompare(b.label); });
+  }
+  function nPeople(n) { return tf(n === 1 ? 'bt.stats.n1' : 'bt.stats.nN', { n: n }); }
+  function countList(rows, max) {
+    if (!rows.length) return '<p class="muted">' + esc(t('bt.stats.empty')) + '</p>';
+    var top = rows[0].n;
+    return '<div class="bars">' + rows.slice(0, max || 12).map(function (r) {
+      return '<div class="bar"><span class="bar__l">' + esc(r.label) + '</span><span class="bar__track"><span style="width:' + Math.max(6, Math.round(100 * r.n / top)) + '%"></span></span><span class="bar__n" title="' + esc(r.who.join(', ')) + '">' + r.n + '</span></div>';
+    }).join('') + '</div>';
+  }
+  VIEWS.stats = function () {
+    var all = people(), today = new Date(), n = all.length;
+    if (!n) return '<div class="wrap page">' + crumb(t('nav.stats')) + '<header class="page__head"><h1>' + esc(t('nav.stats')) + '</h1></header><div class="empty"><p>' + esc(t('bt.stats.empty')) + '</p></div></div>';
+    var withPhoto = all.filter(function (c) { return c.photo; }).length;
+    var avg = Math.round(all.reduce(function (s, c) { var k = completeness(c); return s + 100 * k.n / k.total; }, 0) / n);
+    var months = []; for (var i = 1; i <= 12; i++) months.push({ label: monthName(i), n: 0, who: [] });
+    all.forEach(function (c) { if (c.bmonth) { months[c.bmonth - 1].n++; months[c.bmonth - 1].who.push(c.name); } });
+    var top = Math.max.apply(null, months.map(function (m) { return m.n; }).concat([1]));
+    var aged = all.filter(function (c) { return c.byear; }).sort(function (a, b) { return (a.byear - b.byear) || (a.bmonth - b.bmonth) || (a.bday - b.bday); });
+    var thisMonth = all.filter(function (c) { return c.bmonth === today.getMonth() + 1; }).sort(function (a, b) { return a.bday - b.bday; });
+    var sharedKeys = ['shows', 'kdrama', 'movies', 'anime', 'games', 'music', 'books', 'authors', 'food', 'snack', 'hobbies', 'sports'];
+    var shared = sharedKeys.map(function (k) { return { k: k, rows: countBy(all, function (c) { return items(c[k]); }).filter(function (r) { return r.n >= 2; }) }; }).filter(function (x) { return x.rows.length; });
+    return '<div class="wrap page stats">' + crumb(t('nav.stats')) +
+      '<header class="page__head"><h1>' + esc(t('nav.stats')) + '</h1><p>' + esc(t('bt.stats.intro')) + '</p></header>' +
+      '<div class="home__stats"><div class="card stat"><span class="stat__n">' + n + '</span><span class="stat__t">' + esc(t('bt.stats.residents')) + '</span></div>' +
+        '<div class="card stat"><span class="stat__n">' + withPhoto + '</span><span class="stat__t">' + esc(t('bt.stats.withPhoto')) + '</span></div>' +
+        '<div class="card stat"><span class="stat__n">' + avg + '%</span><span class="stat__t">' + esc(t('bt.stats.avgComplete')) + '</span></div></div>' +
+      '<h2>' + esc(t('bt.stats.thisMonth')) + '</h2><div class="card">' + (thisMonth.length ? '<ul class="plain">' + thisMonth.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a> · ' + esc(bdayText(c)) + '</li>'; }).join('') + '</ul>' : '<p class="muted">' + esc(t('bt.stats.thisMonthNone')) + '</p>') + '</div>' +
+      '<h2>' + esc(t('bt.stats.months')) + '</h2><div class="card"><div class="bars bars--months">' + months.map(function (m) { return '<div class="bar"><span class="bar__l">' + esc(m.label.slice(0, 3)) + '</span><span class="bar__track"><span style="width:' + (m.n ? Math.max(6, Math.round(100 * m.n / top)) : 0) + '%"></span></span><span class="bar__n" title="' + esc(m.who.join(', ')) + '">' + (m.n || '') + '</span></div>'; }).join('') + '</div></div>' +
+      '<h2>' + esc(t('bt.stats.hometowns')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.hometown ? [c.hometown] : []; })) + '</div>' +
+      '<h2>' + esc(t('bt.stats.schools')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.medSchool ? [c.medSchool] : []; })) + '</div>' +
+      '<h2>' + esc(t('bt.stats.languages')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return items(c.languages); })) + '</div>' +
+      (aged.length ? '<h2>' + esc(t('bt.stats.ages')) + '</h2><div class="card"><ol class="plain plain--num">' + aged.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a> <span class="muted">· ' + esc(bdayText(c, true)) + '</span></li>'; }).join('') + '</ol></div>' : '') +
+      '<h2>' + esc(t('bt.stats.shared')) + '</h2>' + (shared.length ? shared.map(function (x) { return '<div class="card stats__shared"><h3>' + esc(fieldLabel(x.k)) + '</h3>' + countList(x.rows, 6) + '</div>'; }).join('') : '<div class="card"><p class="muted">' + esc(t('bt.stats.sharedNone')) + '</p></div>') +
+      '</div>';
   };
 
   TITLES.person = function () { return t('nav.batch'); };
