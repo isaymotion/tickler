@@ -39,7 +39,10 @@ window.CARD_FIELDS = [
   { key: 'snack',           group: 'favourites',  type: 'textarea', print: true,  icon: 'food' },
   { key: 'comfortFood',     group: 'favourites',  type: 'textarea', print: true,  icon: 'food' },
   { key: 'localEats',       group: 'favourites',  type: 'textarea', print: true,  icon: 'food' },
+  { key: 'dessert',         group: 'favourites',  type: 'textarea', print: true,  icon: 'food' },
   { key: 'coffeeTea',       group: 'favourites',  type: 'text',     print: true,  icon: 'food' },
+  { key: 'colour',          group: 'favourites',  type: 'text',     print: true,  icon: 'spark' },
+  { key: 'pokemon',         group: 'favourites',  type: 'text',     print: true,  icon: 'game' },
   { key: 'cantLiveWithout', group: 'favourites',  type: 'text',     print: true,  icon: 'heart' },
   { key: 'karaoke',         group: 'favourites',  type: 'text',     print: true,  icon: 'music' },
 
@@ -61,10 +64,10 @@ window.CARD_FIELDS = [
 ];
 
 /* Fields the "Guess who" clue game can ask about (needs at least 4 cards with that field filled in). */
-window.GUESS_FIELDS = ['hometown', 'medSchool', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'karaoke', 'hiddenTalent', 'funFact', 'pets', 'whyPsych'];
+window.GUESS_FIELDS = ['hometown', 'medSchool', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'karaoke', 'hiddenTalent', 'funFact', 'pets', 'whyPsych'];
 
 /* Fields compared for "Things in common" on a person's page: exact match (whole value) or shared items (comma / newline separated). */
 window.COMMON_FIELDS = {
   exact: ['hometown', 'livesNow', 'medSchool', 'internship', 'gradYear', 'coffeeTea', 'studyStyle'],
-  items: ['languages', 'interests', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'authors', 'podcasts', 'sports', 'food', 'snack', 'comfortFood', 'hobbies', 'pets', 'destress']
+  items: ['languages', 'interests', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'authors', 'podcasts', 'sports', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'comfortFood', 'hobbies', 'pets', 'destress']
 };

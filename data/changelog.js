@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.5.0',
+    date: '2026-11-07',
+    title: 'More favourites',
+    items: [
+      { type: 'feature', text: 'My card: favourite dessert, favourite colour and favourite Pokémon added to Favourites.', href: '#/me' }
+    ]
+  },
+  {
     version: '1.4.0',
     date: '2026-11-07',
     title: 'Name tags, more games, batch photo',
@@ -28,7 +36,7 @@ window.APP_CHANGELOG = [
     date: '2026-11-07',
     title: 'A much fuller card',
     items: [
-      { type: 'feature', text: 'My card: 44 fields in five groups (Basics, Background, Favourites, Life, Contact & practical) — pronouns, where you live, languages, internship, why psychiatry, K-dramas, books, authors, podcasts, snacks, karaoke song, pets, hidden talent, gift hints and more. Sections open and close; each shows how much is filled in.', href: '#/me' },
+      { type: 'feature', text: 'My card: 47 fields in five groups (Basics, Background, Favourites, Life, Contact & practical) — pronouns, where you live, languages, internship, why psychiatry, K-dramas, books, authors, podcasts, snacks, karaoke song, pets, hidden talent, gift hints and more. Sections open and close; each shows how much is filled in.', href: '#/me' },
       { type: 'feature', text: 'Your own fields: add any label and answer the list missed.', href: '#/me' },
       { type: 'feature', text: 'Things in common: a batchmate’s page shows what you share — same hometown or school, the same shows, books, food.', href: '#/batch' },
       { type: 'feature', text: 'Batch name: set it in About › Settings; it appears on the home screen and the printed sheet.', href: '#/about' },

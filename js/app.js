@@ -1284,7 +1284,7 @@
     var top = Math.max.apply(null, months.map(function (m) { return m.n; }).concat([1]));
     var aged = all.filter(function (c) { return c.byear; }).sort(function (a, b) { return (a.byear - b.byear) || (a.bmonth - b.bmonth) || (a.bday - b.bday); });
     var thisMonth = all.filter(function (c) { return c.bmonth === today.getMonth() + 1; }).sort(function (a, b) { return a.bday - b.bday; });
-    var sharedKeys = ['shows', 'kdrama', 'movies', 'anime', 'games', 'music', 'books', 'authors', 'food', 'snack', 'hobbies', 'sports'];
+    var sharedKeys = ['shows', 'kdrama', 'movies', 'anime', 'games', 'music', 'books', 'authors', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'hobbies', 'sports'];
     var shared = sharedKeys.map(function (k) { return { k: k, rows: countBy(all, function (c) { return items(c[k]); }).filter(function (r) { return r.n >= 2; }) }; }).filter(function (x) { return x.rows.length; });
     return '<div class="wrap page stats">' + crumb(t('nav.stats')) +
       '<header class="page__head"><h1>' + esc(t('nav.stats')) + '</h1><p>' + esc(t('bt.stats.intro')) + '</p></header>' +
