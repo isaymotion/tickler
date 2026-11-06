@@ -85,6 +85,38 @@ window.CARD_FIELDS = [
   { key: 'learningNow',     group: 'life',        type: 'text',     print: true,  icon: 'book' },
   { key: 'giftHints',       group: 'life',        type: 'textarea', print: true,  icon: 'cake' },
   { key: 'funFact',         group: 'life',        type: 'textarea', print: true,  icon: 'spark' },
+  { key: 'weekend',          group: 'life',        type: 'textarea',  print: true,  icon: 'spark' },
+  { key: 'guiltyPleasure',   group: 'life',        type: 'text',      print: true,  icon: 'heart' },
+  { key: 'petPeeve',         group: 'life',        type: 'text',      print: true,  icon: 'spark' },
+  { key: 'comfortShow',      group: 'life',        type: 'text',      print: true,  icon: 'tv' },
+  { key: 'lastBinge',        group: 'life',        type: 'text',      print: true,  icon: 'tv' },
+  { key: 'currentlyReading',  group: 'life',        type: 'text',      print: true,  icon: 'book' },
+  { key: 'nonNegotiable',    group: 'life',        type: 'text',      print: true,  icon: 'heart' },
+  { key: 'alwaysInBag',      group: 'life',        type: 'text',      print: true,  icon: 'tag' },
+  { key: 'childhoodDream',   group: 'life',        type: 'text',      print: true,  icon: 'spark' },
+  { key: 'childhoodNickname',  group: 'life',        type: 'text',      print: true,  icon: 'tag' },
+  { key: 'firstConcert',     group: 'life',        type: 'text',      print: true,  icon: 'music' },
+  { key: 'childhoodGame',    group: 'life',        type: 'text',      print: true,  icon: 'game' },
+  { key: 'undergrad',        group: 'life',        type: 'text',      print: true,  icon: 'school' },
+  { key: 'siblings',         group: 'life',        type: 'text',      print: true,  icon: 'users' },
+  { key: 'hometownTradition',  group: 'life',        type: 'textarea',  print: true,  icon: 'cake' },
+  { key: 'roleModel',        group: 'life',        type: 'text',      print: true,  icon: 'users' },
+  { key: 'motto',            group: 'life',        type: 'text',      print: true,  icon: 'book' },
+  { key: 'advocacy',         group: 'life',        type: 'text',      print: true,  icon: 'heart' },
+  { key: 'recharge',         group: 'life',        type: 'text',      print: true,  icon: 'heart' },
+  { key: 'proudest',         group: 'life',        type: 'textarea',  print: true,  icon: 'spark' },
+  { key: 'grateful',         group: 'life',        type: 'textarea',  print: true,  icon: 'heart' },
+  { key: 'whyProgram',       group: 'life',        type: 'textarea',  print: true,  icon: 'school' },
+  { key: 'tenYears',         group: 'life',        type: 'textarea',  print: true,  icon: 'spark' },
+  { key: 'subspecialty',     group: 'life',        type: 'text',      print: true,  icon: 'school' },
+  { key: 'studyTip',         group: 'life',        type: 'textarea',  print: true,  icon: 'book' },
+  { key: 'skillToLearn',     group: 'life',        type: 'text',      print: true,  icon: 'spark' },
+  { key: 'askMeFor',         group: 'life',        type: 'textarea',  print: true,  icon: 'chat' },
+  { key: 'hotTake',          group: 'life',        type: 'textarea',  print: true,  icon: 'spark' },
+  { key: 'ifNotDoctor',      group: 'life',        type: 'text',      print: true,  icon: 'spark' },
+  { key: 'lastPhoto',        group: 'life',        type: 'text',      print: true,  icon: 'camera' },
+  { key: 'lookalike',        group: 'life',        type: 'text',      print: true,  icon: 'users' },
+  { key: 'duetSong',         group: 'life',        type: 'text',      print: true,  icon: 'music' },
 
   /* Contact and practical (in-app only) */
   { key: 'phone',           group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
@@ -101,12 +133,12 @@ window.CARD_FIELDS = [
 ];
 
 /* Fields the "Guess who" clue game can ask about (needs at least 4 cards with that field filled in). */
-window.GUESS_FIELDS = ['hometown', 'medSchool', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'karaoke', 'hiddenTalent', 'funFact', 'pets', 'whyPsych', 'animal', 'superhero', 'quote', 'bibleVerse', 'dreamTrip', 'superpower', 'milkTea', 'emoji'];
+window.GUESS_FIELDS = ['hometown', 'medSchool', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'dessert', 'colour', 'pokemon', 'karaoke', 'hiddenTalent', 'funFact', 'pets', 'whyPsych', 'animal', 'superhero', 'quote', 'bibleVerse', 'dreamTrip', 'superpower', 'milkTea', 'emoji', 'guiltyPleasure', 'petPeeve', 'childhoodDream', 'ifNotDoctor', 'hotTake', 'roleModel', 'lookalike'];
 
 /* Fields compared for "Things in common" on a person's page: exact match (whole value) or shared items (comma / newline separated). */
 window.COMMON_FIELDS = {
-  exact: ['hometown', 'livesNow', 'medSchool', 'internship', 'gradYear', 'coffeeTea', 'studyStyle', 'colour', 'pokemon', 'season', 'animal', 'superhero', 'fandom', 'introExtro', 'mbti', 'loveLanguage', 'milkTea', 'fastFood', 'fruit', 'emoji'],
-  items: ['languages', 'interests', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'authors', 'podcasts', 'sports', 'food', 'snack', 'dessert', 'comfortFood', 'hobbies', 'pets', 'destress', 'boardGames', 'youtubers', 'disney', 'travelled', 'bucketList', 'canCook']
+  exact: ['hometown', 'livesNow', 'medSchool', 'internship', 'gradYear', 'coffeeTea', 'studyStyle', 'colour', 'pokemon', 'season', 'animal', 'superhero', 'fandom', 'introExtro', 'mbti', 'loveLanguage', 'milkTea', 'fastFood', 'fruit', 'emoji', 'undergrad', 'subspecialty', 'childhoodGame', 'guiltyPleasure'],
+  items: ['languages', 'interests', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'authors', 'podcasts', 'sports', 'food', 'snack', 'dessert', 'comfortFood', 'hobbies', 'pets', 'destress', 'boardGames', 'youtubers', 'disney', 'travelled', 'bucketList', 'canCook', 'comfortShow', 'lastBinge', 'currentlyReading', 'advocacy']
 };
 
 /* Spotify playlists: a list of up to PLAYLIST_MAX {label, url} links on the card (card.playlists). In-app only. */
