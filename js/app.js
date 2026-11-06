@@ -546,7 +546,7 @@
   var FIELDS = window.CARD_FIELDS || [];
   var GROUPS = window.CARD_GROUPS || ['basics'];
   var COMMON = window.COMMON_FIELDS || { exact: [], items: [] };
-  var MAX_CUSTOM = 12;
+  var MAX_CUSTOM = 12, PLAYLIST_MAX = window.PLAYLIST_MAX || 5;
   var GUESS_FIELDS = window.GUESS_FIELDS || [];
   var HOSP = window.HOSPITAL || {};
   var CARD_APP = 'batchtickler', MAX_PHOTO = 320, MAX_TEXT = 600;
@@ -582,8 +582,12 @@
     if (!out.id || !out.name) return null;
     FIELDS.forEach(function (f) {
       if (f.type === 'year') { var y = toInt(c[f.key], 1950, 2100); out[f.key] = y ? String(y) : ''; }
+      else if (f.type === 'url') out[f.key] = cleanLink(c[f.key]);
       else out[f.key] = cleanText(c[f.key], f.type === 'textarea' ? MAX_TEXT : 120);
     });
+    out.playlists = (Array.isArray(c.playlists) ? c.playlists : []).map(function (x) {
+      return x && typeof x === 'object' ? { label: cleanText(x.label, 60), url: spotifyUrl(x.url) } : null;
+    }).filter(function (x) { return x && x.url; }).slice(0, PLAYLIST_MAX);
     out.custom = (Array.isArray(c.custom) ? c.custom : []).map(function (x) {
       return x && typeof x === 'object' ? { label: cleanText(x.label, 60), value: cleanText(x.value, MAX_TEXT) } : null;
     }).filter(function (x) { return x && x.label && x.value; }).slice(0, MAX_CUSTOM);
@@ -593,6 +597,21 @@
     out.updated = typeof c.updated === 'string' && !isNaN(new Date(c.updated).getTime()) ? c.updated : new Date(0).toISOString();
     return out;
   }
+  function cleanLink(v) {   // a full http(s) URL, or a bare handle (letters, digits, . _ -); anything else is dropped
+    v = cleanText(v, 200);
+    if (!v) return '';
+    if (/^https?:\/\//i.test(v)) return /^https?:\/\/[\w.-]+(\/[^\s<>"']*)?$/i.test(v) ? v : '';
+    v = v.replace(/^@/, '');
+    return /^[\w.-]{1,60}$/.test(v) ? v : '';
+  }
+  function linkHref(f, v) { return /^https?:\/\//i.test(v) ? v : (f.base || '') + encodeURIComponent(v); }
+  function linkText(v) { return /^https?:\/\//i.test(v) ? v.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '') : '@' + v; }
+  function spotifyUrl(v) { v = cleanText(v, 300); return /^https:\/\/(open\.spotify\.com|spotify\.link)\/[^\s<>"']+$/i.test(v) ? v : ''; }
+  /* Zodiac from the birthday: Western sign by month/day, Chinese animal by year (year boundary approximated at 1 Jan) */
+  var SIGNS = [[1, 20, 'Capricorn'], [2, 19, 'Aquarius'], [3, 21, 'Pisces'], [4, 20, 'Aries'], [5, 21, 'Taurus'], [6, 21, 'Gemini'], [7, 23, 'Cancer'], [8, 23, 'Leo'], [9, 23, 'Virgo'], [10, 23, 'Libra'], [11, 22, 'Scorpio'], [12, 22, 'Sagittarius'], [12, 32, 'Capricorn']];
+  var ANIMALS = ['Monkey', 'Rooster', 'Dog', 'Pig', 'Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Goat'];
+  function zodiac(c) { if (!c.bmonth) return ''; for (var i = 0; i < SIGNS.length; i++) if (c.bmonth < SIGNS[i][0] || (c.bmonth === SIGNS[i][0] && c.bday < SIGNS[i][1])) return SIGNS[i][2]; return ''; }
+  function chineseZodiac(c) { return c.byear ? ANIMALS[((c.byear % 12) + 12) % 12] : ''; }
   function validDay(m, d, y) { var dim = [31, y && isLeap(y) || !y ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; return d >= 1 && d <= dim[m - 1]; }
   function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
   function getMe() { return sanitizeCard(store.get('me', null)); }
@@ -620,7 +639,7 @@
   function rebuildIndex() {
     SEARCH_INDEX.length = 0;
     people().forEach(function (c) {
-      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; })).filter(Boolean).join(' · ');
+      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; })).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
     [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro']].forEach(function (s) {
@@ -639,8 +658,8 @@
   function completeness(c) {   // filled / total over the standard fields + photo + birthday
     var fs = FIELDS.filter(function (f) { return f.print; }), n = 0;
     fs.forEach(function (f) { if (c[f.key]) n++; });
-    if (c.photo) n++; if (c.bmonth) n++;
-    return { n: n, total: fs.length + 2 };
+    if (c.photo) n++; if (c.bmonth) n++; if (c.playlists.length) n++;
+    return { n: n, total: fs.length + 3 };
   }
   function items(v) {   // "a, b\nc · d" -> ['a','b','c','d'] (original casing), short tokens dropped
     return String(v || '').split(/[,\n;·\/|]+/).map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(function (x) { return x.length > 2; });
@@ -736,14 +755,20 @@
       contact = '<h2>' + esc(groupLabel('contact')) + '</h2><div class="card facts">' + cfields.map(function (f) {
         var acts = f.key === 'phone' ? '<p class="contact__acts"><a class="btn" href="tel:' + esc(tel) + '">' + esc(t('bt.person.call')) + '</a> <a class="btn" href="sms:' + esc(tel) + '">' + esc(t('bt.person.text')) + '</a></p>'
                  : f.key === 'email' ? '<p class="contact__acts"><a class="btn" href="mailto:' + esc(c.email) + '">' + esc(t('bt.person.mail')) + '</a></p>' : '';
-        return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + esc(c[f.key]).replace(/\n/g, '<br>') + '</div>' + acts + '</div></div>';
+        var val = f.type === 'url' ? '<a href="' + esc(linkHref(f, c[f.key])) + '" target="_blank" rel="noopener">' + esc(linkText(c[f.key])) + '</a>' : esc(c[f.key]).replace(/\n/g, '<br>');
+        return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + val + '</div>' + acts + '</div></div>';
       }).join('') + '</div>';
+    }
+    if (c.playlists.length) {
+      contact = '<h2>' + esc(t('bt.f.playlists')) + '</h2><div class="card facts">' + c.playlists.map(function (pl) {
+        return '<div class="fact">' + icon('music', 'fact__ico') + '<div><div class="fact__v"><strong>' + esc(pl.label || t('bt.f.playlists')) + '</strong></div><p class="contact__acts"><a class="btn" href="' + esc(pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a></p></div></div>';
+      }).join('') + '</div>' + contact;
     }
     var comp = completeness(c);
     return '<div class="wrap page person">' + crumb(t('nav.batch')) +
       '<header class="person__head">' + avatar(c, 'avatar--lg') + '<div><h1>' + esc(c.name) + '</h1>' +
         (c.nickname ? '<p class="person__nick">“' + esc(c.nickname) + '”</p>' : '') +
-        (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + ' <button type="button" class="link-btn" id="cal-one">' + esc(t('bt.cal.one')) + '</button></p><p class="form__status" id="cal-status" role="status"></p>' : '') +
+        (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + ' <button type="button" class="link-btn" id="cal-one">' + esc(t('bt.cal.one')) + '</button></p><p class="muted person__zodiac">' + esc(t('bt.zodiac')) + ': ' + esc(zodiac(c)) + (chineseZodiac(c) ? ' · ' + esc(t('bt.zodiac.cn')) + ': ' + esc(chineseZodiac(c)) : '') + '</p><p class="form__status" id="cal-status" role="status"></p>' : '') +
         (c.preferredName ? '<p class="muted">' + esc(fieldLabel('preferredName')) + ': ' + esc(c.preferredName) + (c.pronouns ? ' · ' + esc(c.pronouns) : '') + '</p>' : (c.pronouns ? '<p class="muted">' + esc(c.pronouns) + '</p>' : '')) +
         (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a> <span class="muted">' + esc(tf('bt.me.complete', comp)) + '</span></p>' : '') +
       '</div></header>' + common + sections + contact +
@@ -769,8 +794,11 @@
   function customRow(label, value) {
     return '<div class="custom-row"><label class="field field--sm"><span class="field__l">' + esc(t('bt.custom.label')) + '</span><input type="text" name="customLabel" maxlength="60" value="' + esc(label || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.custom.value')) + '</span><input type="text" name="customValue" maxlength="300" value="' + esc(value || '') + '"></label><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></div>';
   }
+  function playlistRow(label, url) {
+    return '<div class="custom-row"><label class="field field--sm"><span class="field__l">' + esc(t('bt.pl.label')) + '</span><input type="text" name="plLabel" maxlength="60" value="' + esc(label || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.pl.url')) + '</span><input type="text" name="plUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="https://open.spotify.com/playlist/…" value="' + esc(url || '') + '"></label><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></div>';
+  }
   VIEWS.me = function () {
-    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [] };
+    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [] };
     var comp = completeness(me);
     pendingPhoto = null;
     var months = MONTHS_EN.map(function (m, i) { return [i + 1, monthName(i + 1)]; });
@@ -796,10 +824,14 @@
               var v = me[f.key] || '';
               var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
                       : f.type === 'year' ? '<input name="' + f.key + '" type="number" inputmode="numeric" min="1950" max="2100" value="' + esc(v) + '">'
+                      : f.type === 'url' ? '<input name="' + f.key + '" type="text" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="200" placeholder="' + esc(t('bt.f.urlHint')) + '" value="' + esc(v) + '">'
                       : '<input name="' + f.key + '" type="' + f.type + '" maxlength="120"' + (f.type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : f.type === 'email' ? ' autocomplete="email"' : '') + ' value="' + esc(v) + '">';
               return '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + (f.print ? '' : ' <em class="field__tag">' + esc(t('bt.f.inAppOnly')) + '</em>') + '</span>' + ctl + '</label>';
             }).join('') + '</div></details>';
         }).join('') +
+        '<details class="fgroup"><summary><span>' + esc(t('bt.f.playlists')) + '</span><span class="muted fgroup__n" data-group="playlists"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.pl.hint', { n: PLAYLIST_MAX })) + '</p><div id="pl-rows">' +
+          (me.playlists || []).map(function (x) { return playlistRow(x.label, x.url); }).join('') +
+        '</div><p><button type="button" class="btn" id="pl-add">' + esc(t('bt.pl.add')) + '</button></p></div></details>' +
         '<details class="fgroup"><summary><span>' + esc(t('bt.custom.title')) + '</span><span class="muted fgroup__n" data-group="custom"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(t('bt.custom.hint')) + '</p><div id="custom-rows">' +
           (me.custom || []).map(function (x) { return customRow(x.label, x.value); }).join('') +
         '</div><p><button type="button" class="btn" id="custom-add">' + esc(t('bt.custom.add')) + '</button></p></div></details>' +
@@ -839,13 +871,18 @@
         var fs = FIELDS.filter(function (f) { return f.group === g; }), n = fs.filter(function (f) { return form.elements[f.key] && form.elements[f.key].value.trim(); }).length;
         var el = form.querySelector('.fgroup__n[data-group="' + g + '"]'); if (el) el.textContent = n + '/' + fs.length;
       });
-      var cel = form.querySelector('.fgroup__n[data-group="custom"]'); if (cel) cel.textContent = String(form.querySelectorAll('.custom-row').length);
+      var cel = form.querySelector('.fgroup__n[data-group="custom"]'); if (cel) cel.textContent = String(form.querySelectorAll('#custom-rows .custom-row').length);
+      var pel = form.querySelector('.fgroup__n[data-group="playlists"]'); if (pel) pel.textContent = form.querySelectorAll('#pl-rows .custom-row').length + '/' + PLAYLIST_MAX;
+      var addBtn = document.getElementById('pl-add'); if (addBtn) addBtn.disabled = form.querySelectorAll('#pl-rows .custom-row').length >= PLAYLIST_MAX;
     }
     paintCounts();
     form.addEventListener('input', function () { clearTimeout(form._ct); form._ct = setTimeout(paintCounts, 200); });
     var rows = document.getElementById('custom-rows');
     document.getElementById('custom-add').addEventListener('click', function () { rows.insertAdjacentHTML('beforeend', customRow('', '')); var last = rows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
     rows.addEventListener('click', function (e) { var b = e.target.closest('.custom-rm'); if (b) { b.closest('.custom-row').remove(); paintCounts(); } });
+    var plRows = document.getElementById('pl-rows');
+    document.getElementById('pl-add').addEventListener('click', function () { if (plRows.querySelectorAll('.custom-row').length >= PLAYLIST_MAX) return; plRows.insertAdjacentHTML('beforeend', playlistRow('', '')); var last = plRows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
+    plRows.addEventListener('click', function (e) { var b = e.target.closest('.custom-rm'); if (b) { b.closest('.custom-row').remove(); paintCounts(); } });
     var tog = document.getElementById('me-toggle-all');
     tog.addEventListener('click', function () {
       var open = tog.getAttribute('data-open') !== '1';
@@ -856,8 +893,11 @@
       e.preventDefault();
       var old = getMe() || {}, c = { id: old.id || newId(), name: form.name.value };
       FIELDS.forEach(function (f) { c[f.key] = form.elements[f.key].value; });
-      c.custom = [];
-      form.querySelectorAll('.custom-row').forEach(function (r) { c.custom.push({ label: r.querySelector('[name=customLabel]').value, value: r.querySelector('[name=customValue]').value }); });
+      c.custom = []; c.playlists = [];
+      form.querySelectorAll('#custom-rows .custom-row').forEach(function (r) { c.custom.push({ label: r.querySelector('[name=customLabel]').value, value: r.querySelector('[name=customValue]').value }); });
+      var badPl = false;
+      form.querySelectorAll('#pl-rows .custom-row').forEach(function (r) { var u = r.querySelector('[name=plUrl]').value.trim(); if (u && !spotifyUrl(u)) badPl = true; if (u) c.playlists.push({ label: r.querySelector('[name=plLabel]').value, url: u }); });
+      if (badPl) { say(t('bt.pl.badUrl'), true); return; }
       var m = toInt(form.bmonth.value, 1, 12), d = toInt(form.bday.value, 1, 31), y = toInt(form.byear.value, 1900, 2100);
       if (!cleanText(c.name, 80)) { say(t('bt.me.needName'), true); form.name.focus(); return; }
       if ((m || d) && !(m && d && validDay(m, d, y))) { say(t('bt.me.badBirthday'), true); return; }

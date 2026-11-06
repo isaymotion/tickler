@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.6.0',
+    date: '2026-11-07',
+    title: 'Links, playlists and zodiac',
+    items: [
+      { type: 'feature', text: 'My card: 32 more fields — favourite season, flower, animal, board games, YouTubers, dish you can cook, milk tea, fast food, fruit, app, holiday, Disney/Pixar, superhero, fandom, emoji, quote, med school subject, rotation, study music; introvert/extrovert, MBTI, love language, morning essential, dream trip, places travelled, bucket list, superpower, three words, learning now; shirt size and blood type (in-app only).', href: '#/me' },
+      { type: 'feature', text: 'Account links: Facebook, Instagram, Spotify and Steam — paste the link or just the username; they open from the card. In-app only.', href: '#/me' },
+      { type: 'feature', text: 'Spotify playlists: up to five playlist links per card with names.', href: '#/me' },
+      { type: 'feature', text: 'Zodiac: Western sign and Chinese zodiac shown on the card, worked out from the birthday.' }
+    ]
+  },
+  {
     version: '1.5.0',
     date: '2026-11-07',
     title: 'More favourites',
