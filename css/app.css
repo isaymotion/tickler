@@ -410,3 +410,23 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .stats__shared{margin-bottom:12px} .stats__shared h3{margin:0 0 10px;font:700 .95rem/1.3 var(--sans)}
 .stats .home__stats{grid-template-columns:repeat(3,1fr);gap:10px} .stats .stat{padding:14px 12px} .stats .stat__n{font-size:1.8rem}
 @media (max-width:420px){.bar{grid-template-columns:minmax(0,1.4fr) 1fr 2.5ch}.bars--months .bar{grid-template-columns:3.5ch 1fr 2.5ch}}
+
+/* 1.4.0: name tags, guess modes, batch photo */
+.avatar--xl{width:160px;height:160px;font-size:3rem}
+.avatar--tag{width:72px;height:72px;font-size:1.4rem;margin:4px auto 6px}
+.guess__photo{display:flex;justify-content:center;margin:0 0 18px}
+.hero__img--custom{image-rendering:auto;object-position:center}
+.tags__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.tag{border:1px dashed var(--ink-3);border-radius:var(--r-md);padding:12px 12px 10px;text-align:center;break-inside:avoid;page-break-inside:avoid;display:flex;flex-direction:column}
+.tag__batch{margin:0 0 2px;font:700 .68rem/1.3 var(--sans);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3)}
+.tag h3{margin:0;font:800 1.5rem/1.1 var(--display);letter-spacing:-.01em}
+.tag__name{margin:2px 0 0;font:600 .92rem/1.3 var(--sans)}
+.tag__sub{margin:2px 0 0;font-size:.84rem;color:var(--ink-2)}
+.tag__foot{margin:auto 0 0;padding-top:8px;font-size:.66rem;color:var(--ink-3)}
+@media print{
+  .tags__grid{grid-template-columns:repeat(2,1fr);gap:0}
+  .tag{border:1px dashed #888;border-radius:0;height:66mm;color:#000;padding:6mm 5mm} .tag__batch,.tag__sub,.tag__foot,.tag__name{color:#000}
+  .avatar--tag{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#eee;border-color:#bbb;color:#000}
+  .tag h3{font-size:22pt}.tag__name{font-size:11pt}.tag__sub{font-size:9pt}
+  .page .filters{display:none}
+}

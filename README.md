@@ -8,15 +8,15 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 
 - **My card** — each resident fills in their own card on their phone: name, photo (shrunk to a small square), birthday (year optional) and 44 fields in five collapsible groups — Basics (nickname, how to address you, pronouns, hometown, where you live, commute, languages), Background (med school, internship, year graduated, past jobs, why psychiatry, interests), Favourites (TV, K-drama, movies, cartoons, anime, games, music, books, authors, podcasts, sports, food, snack, comfort food, local eats, coffee/tea, can't-live-without, karaoke song), Life (hobbies, study style, pets, hidden talent, de-stress, gift hints, fun fact) and Contact & practical (phone, email, socials, allergies/diet, emergency contact — in-app only). Plus free-form custom fields and a completeness meter. Only the owner edits it.
 - **Things in common** — a batchmate's page lists what you share (same hometown/school/year, shared shows, books, food…).
-- **Batch name** — set in About › Settings; shown on the home screen and the printed sheet.
+- **Batch name and batch photo** — set in About › Settings; the name shows on the home screen and prints, the photo replaces the home banner on that device.
 - **The batch** — everyone's cards in one grid, with a quick filter and sorting by name, next birthday or hometown. Tap a card for the full page (contact buttons: call, message, email).
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
 - **Share cards** — cards travel as small JSON files: share your own card, import cards from batchmates (newer copies replace older ones; your own card is never overwritten), or send the whole batch to someone starting from nothing. Uses the phone share sheet when installed.
 - **Scan a card / Show my QR** — pass a card phone-to-phone with a QR code (camera, or a screenshot of the QR). Text only; the photo travels with the file.
 - **Birthday calendar** — add one birthday or the whole batch to the phone calendar (.ics, yearly).
 - **Batch stats** — hometowns, med schools, languages, birthdays by month, oldest to youngest, most shared favourites.
-- **Print sheet** — a compact "meet the batch" page without contact details; print or save as PDF from the browser.
-- **Guess who** — a small game that asks whose hometown / hobby / favourite a clue belongs to (needs four cards with that detail).
+- **Print sheet** — a compact "meet the batch" page without contact details, or Name tags (8 per A4 page); print or save as PDF from the browser.
+- **Guess who** — three modes (clue → name, photo → name, name → birth month), rounds of ten, leaderboard on this phone.
 - Shared isaymotion shell: search from the top bar (press `/`), back/forward buttons and `Alt+Left/Right`, light/dark/match-device theme, text size (Aa), English / Tagalog, What's new with an unseen badge, footer backup (export / import / undo), installable, offline after the first visit.
 - No accounts, servers or tracking. Everything stays in the browser until a resident exports or shares it.
 

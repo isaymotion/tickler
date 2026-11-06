@@ -496,6 +496,7 @@
         segGroup('lang', t('about.language'), [['en', t('about.langEn')], ['tl', t('about.langTl')]], lang) +
         segGroup('theme', t('theme.title'), [['auto', t('theme.auto')], ['light', t('theme.light')], ['dark', t('theme.dark')]], getTheme()) +
         segGroup('aboutTextSize', t('textsize.title'), sizes, String(store.get('textSize', '100'))) +
+        '<div class="setting"><span class="field__l">' + esc(t('bt.banner.title')) + '</span><p class="field__h">' + esc(t('bt.banner.hint')) + '</p><p class="form__acts"><input type="file" id="banner-file" class="sr-only" accept="image/*"><label class="btn" for="banner-file" id="banner-label">' + esc(t('bt.banner.choose')) + '</label>' + (bannerSrc() ? '<button type="button" class="link-btn" id="banner-rm">' + esc(t('bt.banner.remove')) + '</button>' : '') + '</p><p class="form__status" id="banner-status" role="status"></p></div>' +
         '<label class="field setting"><span class="field__l">' + esc(t('bt.batchName')) + '</span><input type="text" name="batchName" maxlength="60" value="' + esc(batchName()) + '" placeholder="Batch 2027"><span class="field__h">' + esc(t('bt.batchNameHint')) + '</span></label>' +
       '</div>' +
       '<h2>' + esc(t('about.tips')) + '</h2><div class="card"><ul class="prose" style="margin:0;padding-left:1.2em">' +
@@ -520,6 +521,14 @@
           }).join('') + '</div>'
         : (q ? '<div class="empty"><h2>' + esc(t('search.noneTitle')) + '</h2><p>' + esc(t('search.noneText')) + '</p></div>' : ''))
       + '</div>';
+  };
+  AFTER.about = function () {
+    var fi = document.getElementById('banner-file'), rm = document.getElementById('banner-rm'), st = document.getElementById('banner-status');
+    if (fi) fi.addEventListener('change', function () {
+      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
+      shrinkBanner(f, function (data) { if (!data) { st.textContent = t('bt.me.photoTooBig'); return; } store.set('banner', data); route({ keepScroll: true }); var st2 = document.getElementById('banner-status'); if (st2) st2.textContent = t('bt.banner.saved'); });
+    });
+    if (rm) rm.addEventListener('click', function () { store.del('banner'); route({ keepScroll: true }); });
   };
   AFTER.search = function (q) { if (qInput && document.activeElement !== qInput) qInput.value = q || ''; };
 
@@ -662,7 +671,7 @@
     var me = getMe(), all = people(), today = new Date(), latest = CHANGELOG[0];
     var tiles = NAV.filter(function (n) { return n.tile !== false && n.href !== '#/'; });
     var next = all.filter(function (c) { return c.bmonth; }).map(function (c) { return { c: c, d: daysUntil(c, today) }; }).sort(function (a, b) { return a.d - b.d; })[0];
-    return '<section class="hero hero--banner"><img class="hero__img" src="img/banner.jpg" srcset="img/banner-small.jpg 704w, img/banner.jpg 1408w" sizes="100vw" alt="" width="1408" height="768">' +
+    return '<section class="hero hero--banner">' + (bannerSrc() ? '<img class="hero__img hero__img--custom" src="' + esc(bannerSrc()) + '" alt="">' : '<img class="hero__img" src="img/banner.jpg" srcset="img/banner-small.jpg 704w, img/banner.jpg 1408w" sizes="100vw" alt="" width="1408" height="768">') +
       '<div class="wrap hero__inner">' + (batchName() ? '<p class="hero__kicker">' + esc(batchName()) + '</p>' : '') + '<h1>' + esc(APP_NAME) + '</h1>' +
         '<p class="hero__lead">' + esc(META.tagline || '') + ' · ' + esc(HOSP.program || '') + '</p>' +
         '<p><a class="btn btn--solid" href="' + (me ? '#/batch' : '#/me') + '">' + esc(t(me ? 'bt.hero.ctaDone' : 'bt.hero.cta')) + '</a></p>' +
@@ -988,59 +997,126 @@
     });
   };
 
-  /* ---- Print sheet ---- */
+  /* ---- Print: batch sheet or name tags ---- */
+  var printMode = 'sheet';
   VIEWS.print = function () {
-    var all = people(), today = new Date();
-    return '<div class="wrap page print">' + crumb(t('nav.print')) +
-      '<header class="page__head no-print"><h1>' + esc(t('nav.print')) + '</h1><p>' + esc(t('bt.print.intro')) + '</p>' + (all.length ? '<p><button type="button" class="btn btn--solid" id="do-print">' + icon('print', 'btn__ico') + esc(t('bt.print.btn')) + '</button></p>' : '') + '</header>' +
-      (!all.length ? '<div class="empty"><p>' + esc(t('bt.print.empty')) + '</p></div>' :
-        '<div class="sheet"><header class="sheet__head"><h2>' + esc(batchName() ? batchName() + ' · ' + t('bt.print.title') : t('bt.print.title')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long' })) + '</p></header>' +
+    var all = people(), today = new Date(), bn = batchName();
+    var head = '<header class="page__head no-print"><h1>' + esc(t('nav.print')) + '</h1><p>' + esc(t('bt.print.intro')) + '</p>' +
+      (all.length ? '<div class="filters" role="group"><button type="button" class="filter" data-pmode="sheet" aria-pressed="' + (printMode === 'sheet') + '">' + esc(t('bt.print.modeSheet')) + '</button><button type="button" class="filter" data-pmode="tags" aria-pressed="' + (printMode === 'tags') + '">' + esc(t('bt.print.modeTags')) + '</button></div>' +
+        '<p><button type="button" class="btn btn--solid" id="do-print">' + icon('print', 'btn__ico') + esc(t('bt.print.btn')) + '</button>' + (printMode === 'tags' ? ' <span class="muted">' + esc(t('bt.print.tagsHint')) + '</span>' : '') + '</p>' : '') + '</header>';
+    if (!all.length) return '<div class="wrap page print">' + crumb(t('nav.print')) + head + '<div class="empty"><p>' + esc(t('bt.print.empty')) + '</p></div></div>';
+    var body;
+    if (printMode === 'tags') {
+      body = '<div class="sheet tags"><div class="tags__grid">' + all.map(function (c) {
+        return '<article class="tag">' + (bn ? '<p class="tag__batch">' + esc(bn) + '</p>' : '') + avatar(c, 'avatar--tag') + '<h3>' + esc(c.preferredName || c.nickname || c.name.split(/\s+/)[0]) + '</h3><p class="tag__name">' + esc(c.name) + '</p>' + (c.hometown ? '<p class="tag__sub">' + esc(c.hometown) + '</p>' : '') + '<p class="tag__foot">' + esc(HOSP.shortName || '') + ' · ' + esc(HOSP.program || '') + '</p></article>';
+      }).join('') + '</div></div>';
+    } else {
+      body = '<div class="sheet"><header class="sheet__head"><h2>' + esc(bn ? bn + ' · ' + t('bt.print.title') : t('bt.print.title')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long' })) + '</p></header>' +
         '<div class="sheet__grid">' + all.map(function (c) {
           return '<article class="sheet__card">' + avatar(c, 'avatar--print') + '<div class="sheet__body"><h3>' + esc(c.name) + (c.nickname ? ' <small>“' + esc(c.nickname) + '”</small>' : '') + '</h3>' +
             (c.bmonth ? '<p class="sheet__line"><strong>' + esc(t('bt.person.birthday')) + ':</strong> ' + esc(bdayText(c)) + '</p>' : '') +
             FIELDS.filter(function (f) { return f.print && f.key !== 'nickname' && c[f.key]; }).map(function (f) { return '<p class="sheet__line"><strong>' + esc(fieldLabel(f.key)) + ':</strong> ' + esc(c[f.key]).replace(/\n/g, ' · ') + '</p>'; }).join('') +
             c.custom.map(function (x) { return '<p class="sheet__line"><strong>' + esc(x.label) + ':</strong> ' + esc(x.value) + '</p>'; }).join('') +
             '</div></article>';
-        }).join('') + '</div><p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>') +
-      '</div>';
+        }).join('') + '</div><p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>';
+    }
+    return '<div class="wrap page print">' + crumb(t('nav.print')) + head + body + '</div>';
   };
-  AFTER.print = function () { var b = document.getElementById('do-print'); if (b) b.addEventListener('click', function () { window.print(); }); };
+  AFTER.print = function () {
+    var b = document.getElementById('do-print'); if (b) b.addEventListener('click', function () { window.print(); });
+    var ms = document.querySelectorAll('.filter[data-pmode]');
+    for (var i = 0; i < ms.length; i++) ms[i].addEventListener('click', function (e) { printMode = e.currentTarget.getAttribute('data-pmode'); route({ keepScroll: true }); });
+  };
 
-  /* ---- Guess who ---- */
-  var guess = { right: 0, total: 0, q: null };
-  function makeQuestion() {
-    var all = people(), pool = [];
+  /* ---- Guess who: three modes, rounds of 10, leaderboard on this phone ---- */
+  var ROUND = 10, GUESS_MODES = ['clue', 'photo', 'month'];
+  var guess = { mode: 'clue', right: 0, total: 0, q: null, done: false };
+  function modeLabel(m) { return t('bt.guess.mode' + m.charAt(0).toUpperCase() + m.slice(1)); }
+  function makeQuestion(mode) {
+    var all = people(), pick, others, opts;
+    if (mode === 'photo') {
+      var withPhoto = all.filter(function (c) { return c.photo; });
+      if (withPhoto.length < 4) return null;
+      pick = withPhoto[Math.floor(Math.random() * withPhoto.length)];
+      others = shuffle(all.filter(function (c) { return c.id !== pick.id; })).slice(0, 3);
+      return { mode: mode, c: pick, opts: shuffle(others.concat([pick])).map(function (c) { return { id: c.id, label: c.name }; }), answer: pick.id, answered: false };
+    }
+    if (mode === 'month') {
+      var dated = all.filter(function (c) { return c.bmonth; });
+      if (dated.length < 4) return null;
+      pick = dated[Math.floor(Math.random() * dated.length)];
+      var months = [pick.bmonth]; while (months.length < 4) { var m = 1 + Math.floor(Math.random() * 12); if (months.indexOf(m) < 0) months.push(m); }
+      return { mode: mode, c: pick, opts: shuffle(months).map(function (m) { return { id: String(m), label: monthName(m) }; }), answer: String(pick.bmonth), answered: false };
+    }
+    var pool = [];
     GUESS_FIELDS.forEach(function (k) { var have = all.filter(function (c) { return c[k]; }); if (have.length >= 4) have.forEach(function (c) { pool.push({ c: c, k: k }); }); });
     if (!pool.length) return null;
-    var pick = pool[Math.floor(Math.random() * pool.length)];
-    var others = shuffle(all.filter(function (c) { return c.id !== pick.c.id; })).slice(0, 3);
-    return { c: pick.c, k: pick.k, clue: pick.c[pick.k], opts: shuffle(others.concat([pick.c])), answered: false };
+    var p = pool[Math.floor(Math.random() * pool.length)];
+    others = shuffle(all.filter(function (c) { return c.id !== p.c.id; })).slice(0, 3);
+    return { mode: mode, c: p.c, k: p.k, clue: p.c[p.k], opts: shuffle(others.concat([p.c])).map(function (c) { return { id: c.id, label: c.name }; }), answer: p.c.id, answered: false };
   }
+  function board() { var b = store.get('guessBoard', []); return Array.isArray(b) ? b : []; }
+  function saveRound() {
+    var me = getMe(), b = board();
+    b.push({ who: me ? me.name : t('bt.guess.player'), mode: guess.mode, right: guess.right, n: guess.total, date: new Date().toISOString() });
+    b.sort(function (x, y) { return (y.right / y.n) - (x.right / x.n) || new Date(y.date) - new Date(x.date); });
+    store.set('guessBoard', b.slice(0, 10));
+  }
+  function resetRound(mode) { guess = { mode: mode || guess.mode, right: 0, total: 0, q: null, done: false }; }
   VIEWS.guess = function () {
-    if (!guess.q) guess.q = makeQuestion();
-    var q = guess.q;
-    return '<div class="wrap page guess">' + crumb(t('nav.guess')) +
-      '<header class="page__head"><h1>' + esc(t('nav.guess')) + '</h1><p>' + esc(t('bt.guess.intro')) + '</p></header>' +
-      (!q ? '<div class="empty"><p>' + esc(t('bt.guess.notEnough')) + '</p></div>' :
-        '<div class="card guess__card"><p class="guess__ask">' + esc(tf('bt.guess.whose', { field: fieldLabel(q.k).toLowerCase() })) + '</p><blockquote class="guess__clue">' + esc(q.clue).replace(/\n/g, '<br>') + '</blockquote>' +
-        '<div class="guess__opts">' + q.opts.map(function (c) { return '<button type="button" class="btn guess__opt" data-id="' + esc(c.id) + '">' + esc(c.name) + '</button>'; }).join('') + '</div>' +
-        '<p class="form__status" id="g-status" role="status" aria-live="polite"></p><p class="guess__acts" id="g-acts" hidden><button type="button" class="btn btn--solid" id="g-next">' + esc(t('bt.guess.next')) + '</button> <a class="btn" id="g-open" href="#/person/' + encodeURIComponent(q.c.id) + '">' + esc(t('bt.guess.open')) + '</a></p>' +
-        '<p class="muted guess__score">' + esc(tf('bt.guess.score', { right: guess.right, total: guess.total })) + '</p></div>') + '</div>';
+    if (!guess.q && !guess.done) guess.q = makeQuestion(guess.mode);
+    var q = guess.q, b = board();
+    var modes = '<div class="filters" role="group">' + GUESS_MODES.map(function (m) { return '<button type="button" class="filter" data-gmode="' + m + '" aria-pressed="' + (guess.mode === m) + '">' + esc(modeLabel(m)) + '</button>'; }).join('') + '</div>';
+    var boardHtml = '<h2>' + esc(t('bt.guess.board')) + '</h2><div class="card">' + (b.length ? '<ol class="plain plain--num">' + b.map(function (r) { return '<li><strong>' + esc(r.who) + '</strong> <span class="muted">' + esc(tf('bt.guess.boardRow', { right: r.right, n: r.n, mode: modeLabel(r.mode), date: bkDate(r.date) })) + '</span></li>'; }).join('') + '</ol>' : '<p class="muted">' + esc(t('bt.guess.boardEmpty')) + '</p>') + '</div>';
+    var body;
+    if (guess.done) body = '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: guess.right, n: guess.total })) + '</h2><p><button type="button" class="btn btn--solid" id="g-again">' + esc(t('bt.guess.playAgain')) + '</button></p></div>';
+    else if (!q) body = '<div class="empty"><p>' + esc(t(guess.mode === 'photo' ? 'bt.guess.needPhotos' : guess.mode === 'month' ? 'bt.guess.needDates' : 'bt.guess.notEnough')) + '</p></div>';
+    else {
+      var ask = q.mode === 'photo' ? '<p class="guess__ask">' + esc(t('bt.guess.whosePhoto')) + '</p><div class="guess__photo">' + avatar(q.c, 'avatar--xl') + '</div>'
+              : q.mode === 'month' ? '<p class="guess__ask">' + esc(tf('bt.guess.whichMonth', { name: q.c.name })) + '</p><div class="guess__photo">' + avatar(q.c, 'avatar--lg') + '</div>'
+              : '<p class="guess__ask">' + esc(tf('bt.guess.whose', { field: fieldLabel(q.k).toLowerCase() })) + '</p><blockquote class="guess__clue">' + esc(q.clue).replace(/\n/g, '<br>') + '</blockquote>';
+      body = '<div class="card guess__card"><p class="muted guess__score">' + esc(tf('bt.guess.roundOf', { i: guess.total + 1, n: ROUND })) + ' · ' + esc(tf('bt.guess.score', { right: guess.right, total: guess.total })) + '</p>' + ask +
+        '<div class="guess__opts">' + q.opts.map(function (o) { return '<button type="button" class="btn guess__opt" data-id="' + esc(o.id) + '">' + esc(o.label) + '</button>'; }).join('') + '</div>' +
+        '<p class="form__status" id="g-status" role="status" aria-live="polite"></p><p class="guess__acts" id="g-acts" hidden><button type="button" class="btn btn--solid" id="g-next">' + esc(t('bt.guess.next')) + '</button> <a class="btn" href="#/person/' + encodeURIComponent(q.c.id) + '">' + esc(t('bt.guess.open')) + '</a></p></div>';
+    }
+    return '<div class="wrap page guess">' + crumb(t('nav.guess')) + '<header class="page__head"><h1>' + esc(t('nav.guess')) + '</h1><p>' + esc(t('bt.guess.intro')) + '</p></header>' + modes + body + boardHtml + '</div>';
   };
   AFTER.guess = function () {
-    var q = guess.q; if (!q) return;
+    var ms = document.querySelectorAll('.filter[data-gmode]');
+    for (var k = 0; k < ms.length; k++) ms[k].addEventListener('click', function (e) { resetRound(e.currentTarget.getAttribute('data-gmode')); route({ keepScroll: true }); });
+    var again = document.getElementById('g-again'); if (again) again.addEventListener('click', function () { resetRound(); route({ keepScroll: true }); });
+    var q = guess.q; if (!q || guess.done) return;
     var opts = document.querySelectorAll('.guess__opt'), st = document.getElementById('g-status'), acts = document.getElementById('g-acts');
     for (var i = 0; i < opts.length; i++) opts[i].addEventListener('click', function (e) {
       if (q.answered) return; q.answered = true; guess.total++;
-      var ok = e.currentTarget.getAttribute('data-id') === q.c.id; if (ok) guess.right++;
-      for (var j = 0; j < opts.length; j++) { opts[j].disabled = true; if (opts[j].getAttribute('data-id') === q.c.id) opts[j].classList.add('is-right'); }
+      var ok = e.currentTarget.getAttribute('data-id') === q.answer; if (ok) guess.right++;
+      for (var j = 0; j < opts.length; j++) { opts[j].disabled = true; if (opts[j].getAttribute('data-id') === q.answer) opts[j].classList.add('is-right'); }
       if (!ok) e.currentTarget.classList.add('is-wrong');
-      st.textContent = ok ? t('bt.guess.right') : tf('bt.guess.wrong', { name: q.c.name });
-      acts.hidden = false; document.querySelector('.guess__score').textContent = tf('bt.guess.score', { right: guess.right, total: guess.total });
+      var answerLabel = q.mode === 'month' ? monthName(q.c.bmonth) : q.c.name;
+      st.textContent = ok ? t('bt.guess.right') : tf('bt.guess.wrong', { name: answerLabel });
+      acts.hidden = false;
+      if (guess.total >= ROUND) { document.getElementById('g-next').textContent = tf('bt.guess.roundDone', { right: guess.right, n: guess.total }); }
     });
-    document.getElementById('g-next').addEventListener('click', function () { guess.q = makeQuestion(); route({ keepScroll: true }); });
+    document.getElementById('g-next').addEventListener('click', function () {
+      if (guess.total >= ROUND) { saveRound(); guess.done = true; guess.q = null; } else guess.q = makeQuestion(guess.mode);
+      route({ keepScroll: true });
+    });
   };
 
+  /* ---- Batch photo (home banner override, this device) ---- */
+  function bannerSrc() { var b = store.get('banner', ''); return okPhoto(b) || (typeof b === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(b) && b.length < 900000) ? b : ''; }
+  function shrinkBanner(file, cb) {
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      try {
+        var k = Math.min(1, 1400 / img.width), w = Math.round(img.width * k), h = Math.round(img.height * k);
+        var cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(img, 0, 0, w, h);
+        var out = cv.toDataURL('image/jpeg', 0.8); URL.revokeObjectURL(url); cb(out.length < 900000 ? out : null);
+      } catch (e) { URL.revokeObjectURL(url); cb(null); }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
   /* ---- 1.3.0: QR share, scan, calendar export, batch stats ---- */
   ICONS.qr = '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M13.5 13.5h3v3h-3zM18.5 13.5h2M20.5 16.5v4h-4M13.5 20.5h2"/>';
   ICONS.camera = '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>';

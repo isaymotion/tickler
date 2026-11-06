@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.4.0',
+    date: '2026-11-07',
+    title: 'Name tags, more games, batch photo',
+    items: [
+      { type: 'feature', text: 'Print sheet: a Name tags mode — eight tags per A4 page with photo, preferred name, full name and hometown.', href: '#/print' },
+      { type: 'feature', text: 'Guess who: three modes (clue → name, photo → name, name → birth month), rounds of ten, and a leaderboard kept on this phone.', href: '#/guess' },
+      { type: 'feature', text: 'Batch photo: About › Settings lets each device replace the home-screen picture with a group photo, so a later batch can reuse the app.', href: '#/about' }
+    ]
+  },
+  {
     version: '1.3.0',
     date: '2026-11-07',
     title: 'QR, calendar and stats',
