@@ -142,4 +142,4 @@ window.COMMON_FIELDS = {
 };
 
 /* Spotify playlists: a list of up to PLAYLIST_MAX {label, url} links on the card (card.playlists). In-app only. */
-window.PLAYLIST_MAX = 5;
+window.PLAYLIST_MAX = 10;

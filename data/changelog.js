@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.7.1',
+    date: '2026-11-07',
+    title: 'Ten playlists',
+    items: [{ type: 'update', text: 'My card: up to ten Spotify playlists per card (was five).', href: '#/me' }]
+  },
+  {
     version: '1.7.0',
     date: '2026-11-07',
     title: 'A fuller Life section',
