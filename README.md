@@ -6,7 +6,7 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 
 ## Features
 
-- **My card** — each resident fills in their own card on their phone: name, nickname, photo (shrunk to a small square), birthday (year optional), hometown, med school, hobbies, favourite TV shows, favourite movies/cartoons/anime/games, music & artists, favourite food, a fun fact, and contact details. Only the owner edits it.
+- **My card** — each resident fills in their own card on their phone: name, nickname, photo (shrunk to a small square), birthday (year optional), hometown, med school, hobbies, favourite TV shows, favourite movies, cartoons, anime, video games (four fields), music & artists, favourite food, a fun fact, and contact details. Only the owner edits it.
 - **The batch** — everyone's cards in one grid, with a quick filter and sorting by name, next birthday or hometown. Tap a card for the full page (contact buttons: call, message, email).
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
 - **Share cards** — cards travel as small JSON files: share your own card, import cards from batchmates (newer copies replace older ones; your own card is never overwritten), or send the whole batch to someone starting from nothing. Uses the phone share sheet when installed.

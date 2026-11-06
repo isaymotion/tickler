@@ -528,7 +528,7 @@
      BATCH TICKLER SCREENS
      Data: one card per resident. The owner's own card lives under store 'me'; everyone else's under
      store 'batch' (an array). Cards travel between phones as small JSON files (Share cards screen).
-     Card = { id, name, nickname, hometown, medSchool, hobbies, shows, movies, music, food, funFact,
+     Card = { id, name, nickname, hometown, medSchool, hobbies, shows, movies, cartoons, anime, games, music, food, funFact,
               phone, email, bmonth (1-12|0), bday (1-31|0), byear (number|0), photo (data:image/jpeg… | ''), updated (ISO) }
      =================================================================================================== */
   var FIELDS = window.CARD_FIELDS || [];
@@ -545,6 +545,7 @@
   ICONS.film = '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M7.5 4v16M16.5 4v16M3.5 9h4M3.5 15h4M16.5 9h4M16.5 15h4"/>';
   ICONS.music = '<path d="M9 18.5V6l11-2v12.5"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/>';
   ICONS.food = '<path d="M5 3v8a3 3 0 0 0 3 3v7M8 3v6M11 3v6M11 11a3 3 0 0 1-3 3M17 21v-7c2 0 3-2.5 3-6s-1-5-3-5z"/>';
+  ICONS.game = '<rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 10.5v4M5 12.5h4M15.5 11.5h.01M18 13.5h.01"/>';
   ICONS.spark = '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/>';
   ICONS.phone = '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>';
   ICONS.mail = '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/>';

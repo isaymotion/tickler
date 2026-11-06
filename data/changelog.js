@@ -4,11 +4,19 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.1.0',
+    date: '2026-11-06',
+    title: 'Separate favourites',
+    items: [
+      { type: 'update', text: 'My card: favourite movies, cartoons, anime and video games are now four separate fields instead of one.', href: '#/me' }
+    ]
+  },
+  {
     version: '1.0.0',
     date: '2026-11-06',
     title: 'First release',
     items: [
-      { type: 'feature', text: 'My card: your own resident card with photo, birthday, hometown, med school, hobbies, favourite shows, movies, cartoons, anime and games, music, food, a fun fact and contact details.', href: '#/me' },
+      { type: 'feature', text: 'My card: your own resident card with photo, birthday, hometown, med school, hobbies, favourite shows, movies, cartoons, anime and games (one field in 1.0), music, food, a fun fact and contact details.', href: '#/me' },
       { type: 'feature', text: 'The batch: everyone’s cards in one grid, with a quick filter and sorting by name, birthday or hometown.', href: '#/batch' },
       { type: 'feature', text: 'Birthdays: upcoming birthdays by month, with ages when a year is given.', href: '#/birthdays' },
       { type: 'feature', text: 'Share cards: send your card as a small file, import cards from batchmates, or pass on the whole batch.', href: '#/share' },

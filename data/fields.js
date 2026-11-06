@@ -8,6 +8,9 @@ window.CARD_FIELDS = [
   { key: 'hobbies',   type: 'textarea', print: true,  icon: 'heart' },
   { key: 'shows',     type: 'textarea', print: true,  icon: 'tv' },
   { key: 'movies',    type: 'textarea', print: true,  icon: 'film' },
+  { key: 'cartoons',  type: 'textarea', print: true,  icon: 'tv' },
+  { key: 'anime',     type: 'textarea', print: true,  icon: 'spark' },
+  { key: 'games',     type: 'textarea', print: true,  icon: 'game' },
   { key: 'music',     type: 'textarea', print: true,  icon: 'music' },
   { key: 'food',      type: 'textarea', print: true,  icon: 'food' },
   { key: 'funFact',   type: 'textarea', print: true,  icon: 'spark' },
@@ -16,4 +19,4 @@ window.CARD_FIELDS = [
 ];
 
 /* Fields the "Guess who" game can ask about (needs at least 4 cards with that field filled in). */
-window.GUESS_FIELDS = ['hometown', 'hobbies', 'shows', 'movies', 'music', 'food', 'funFact', 'medSchool'];
+window.GUESS_FIELDS = ['hometown', 'hobbies', 'shows', 'movies', 'cartoons', 'anime', 'games', 'music', 'food', 'funFact', 'medSchool'];
