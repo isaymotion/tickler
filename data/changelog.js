@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.8.0',
+    date: '2026-11-07',
+    title: 'Contact & practical, expanded',
+    items: [
+      { type: 'feature', text: 'My card: Viber, Telegram/WhatsApp, second email, Discord, YouTube channel; GCash/Maya number; where you stay and nearest landmark; birthday celebration preference; scrub and shoe sizes; emergency contact split into name, number and relationship, plus a second contact; optional conditions to be aware of on duty; PRC, driver’s licence and passport expiry months — to remind us when to renew. All in-app only.', href: '#/me' },
+      { type: 'update', text: 'QR codes never carry the GCash number or duty conditions; those travel only in card files you choose to share.' },
+      { type: 'update', text: 'Show my QR scrolls the code to the middle of the screen so a screenshot catches all of it.' }
+    ]
+  },
+  {
     version: '1.7.1',
     date: '2026-11-07',
     title: 'Ten playlists',

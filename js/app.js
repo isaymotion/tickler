@@ -583,6 +583,7 @@
     FIELDS.forEach(function (f) {
       if (f.type === 'year') { var y = toInt(c[f.key], 1950, 2100); out[f.key] = y ? String(y) : ''; }
       else if (f.type === 'url') out[f.key] = cleanLink(c[f.key]);
+      else if (f.type === 'month') { var mm = /^(\d{4})-(\d{2})$/.exec(cleanText(c[f.key], 7)); out[f.key] = mm && +mm[2] >= 1 && +mm[2] <= 12 && +mm[1] >= 1990 && +mm[1] <= 2100 ? mm[0] : ''; }
       else out[f.key] = cleanText(c[f.key], f.type === 'textarea' ? MAX_TEXT : 120);
     });
     out.playlists = (Array.isArray(c.playlists) ? c.playlists : []).map(function (x) {
@@ -673,6 +674,7 @@
     });
     return out;
   }
+  function fmtMonth(v) { var m = /^(\d{4})-(\d{2})$/.exec(String(v)); return m ? monthName(+m[2]) + ' ' + m[1] : String(v); }
   function factRow(ico, k, v, extra) { return '<div class="fact">' + icon(ico, 'fact__ico') + '<div><div class="fact__k">' + esc(k) + (extra || '') + '</div><div class="fact__v">' + esc(v).replace(/\n/g, '<br>') + '</div></div></div>'; }
   function personCard(c, today) {
     var d = daysUntil(c, today), soon = d !== null && d <= 14;
@@ -753,9 +755,10 @@
     if (cfields.length) {
       var tel = c.phone.replace(/[^\d+]/g, '');
       contact = '<h2>' + esc(groupLabel('contact')) + '</h2><div class="card facts">' + cfields.map(function (f) {
-        var acts = f.key === 'phone' ? '<p class="contact__acts"><a class="btn" href="tel:' + esc(tel) + '">' + esc(t('bt.person.call')) + '</a> <a class="btn" href="sms:' + esc(tel) + '">' + esc(t('bt.person.text')) + '</a></p>'
-                 : f.key === 'email' ? '<p class="contact__acts"><a class="btn" href="mailto:' + esc(c.email) + '">' + esc(t('bt.person.mail')) + '</a></p>' : '';
-        var val = f.type === 'url' ? '<a href="' + esc(linkHref(f, c[f.key])) + '" target="_blank" rel="noopener">' + esc(linkText(c[f.key])) + '</a>' : esc(c[f.key]).replace(/\n/g, '<br>');
+        var num = String(c[f.key]).replace(/[^\d+]/g, '');
+        var acts = f.type === 'tel' && f.key !== 'gcash' && num ? '<p class="contact__acts"><a class="btn" href="tel:' + esc(num) + '">' + esc(t('bt.person.call')) + '</a> <a class="btn" href="sms:' + esc(num) + '">' + esc(t('bt.person.text')) + '</a></p>'
+                 : f.type === 'email' ? '<p class="contact__acts"><a class="btn" href="mailto:' + esc(c[f.key]) + '">' + esc(t('bt.person.mail')) + '</a></p>' : '';
+        var val = f.type === 'url' ? '<a href="' + esc(linkHref(f, c[f.key])) + '" target="_blank" rel="noopener">' + esc(linkText(c[f.key])) + '</a>' : f.type === 'month' ? esc(fmtMonth(c[f.key])) : esc(c[f.key]).replace(/\n/g, '<br>');
         return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + val + '</div>' + acts + '</div></div>';
       }).join('') + '</div>';
     }
@@ -824,9 +827,10 @@
               var v = me[f.key] || '';
               var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
                       : f.type === 'year' ? '<input name="' + f.key + '" type="number" inputmode="numeric" min="1950" max="2100" value="' + esc(v) + '">'
+                      : f.type === 'month' ? '<input name="' + f.key + '" type="month" min="1990-01" max="2100-12" value="' + esc(v) + '">'
                       : f.type === 'url' ? '<input name="' + f.key + '" type="text" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="200" placeholder="' + esc(t('bt.f.urlHint')) + '" value="' + esc(v) + '">'
                       : '<input name="' + f.key + '" type="' + f.type + '" maxlength="120"' + (f.type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : f.type === 'email' ? ' autocomplete="email"' : '') + ' value="' + esc(v) + '">';
-              return '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + (f.print ? '' : ' <em class="field__tag">' + esc(t('bt.f.inAppOnly')) + '</em>') + '</span>' + ctl + '</label>';
+              return '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + (f.print ? '' : ' <em class="field__tag">' + esc(t('bt.f.inAppOnly')) + '</em>') + '</span>' + ctl + (t('bt.h.' + f.key) !== 'bt.h.' + f.key ? '<span class="field__h">' + esc(t('bt.h.' + f.key)) + '</span>' : '') + '</label>';
             }).join('') + '</div></details>';
         }).join('') +
         '<details class="fgroup"><summary><span>' + esc(t('bt.f.playlists')) + '</span><span class="muted fgroup__n" data-group="playlists"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.pl.hint', { n: PLAYLIST_MAX })) + '</p><div id="pl-rows">' +
@@ -1009,7 +1013,7 @@
       var pl = qrPayload(me), svg = qrSvg(pl.text);
       qrBox.innerHTML = (svg ? '<div class="qr__img">' + svg + '</div>' : '') + '<p class="qr__name">' + esc(me.name) + '</p>' + (pl.kept < pl.total ? '<p class="muted">' + esc(tf('bt.qr.trimmed', { n: pl.kept, total: pl.total })) + '</p>' : '');
       qrBox.hidden = false; qrBtn.setAttribute('aria-expanded', 'true'); qrBtn.innerHTML = esc(t('bt.qr.hide'));
-      qrBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      setTimeout(function () { qrBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 50);
     });
     if (mine) mine.addEventListener('click', function () {
       var me = getMe(); if (!me) { say(t('bt.share.needMe'), true); return; }
@@ -1167,7 +1171,7 @@
   function qrPayload(c) {
     var keys = ['id', 'name', 'bmonth', 'bday', 'byear', 'updated'], total = 0, kept = 0;
     var base = {}; keys.forEach(function (k) { base[k] = c[k]; });
-    var fs = FIELDS.filter(function (f) { return c[f.key]; }); total = fs.length + (c.custom.length ? 1 : 0);
+    var fs = FIELDS.filter(function (f) { return c[f.key] && f.qr !== false; }); total = fs.length + (c.custom.length ? 1 : 0);
     var out = JSON.parse(JSON.stringify(base));
     for (var i = 0; i < fs.length; i++) {
       var trial = JSON.parse(JSON.stringify(out)); trial[fs[i].key] = String(c[fs[i].key]).slice(0, QR_FIELD_MAX);

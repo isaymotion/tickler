@@ -118,18 +118,37 @@ window.CARD_FIELDS = [
   { key: 'lookalike',        group: 'life',        type: 'text',      print: true,  icon: 'users' },
   { key: 'duetSong',         group: 'life',        type: 'text',      print: true,  icon: 'music' },
 
-  /* Contact and practical (in-app only) */
+  /* Contact and practical (in-app only). qr:false keeps a field out of QR codes as well (still in card files). */
   { key: 'phone',           group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
+  { key: 'viber',           group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
+  { key: 'telegram',        group: 'contact',     type: 'text',     print: false, icon: 'chat' },
   { key: 'email',           group: 'contact',     type: 'email',    print: false, icon: 'mail' },
+  { key: 'email2',          group: 'contact',     type: 'email',    print: false, icon: 'mail' },
   { key: 'facebook',        group: 'contact',     type: 'url',      print: false, icon: 'chat',  base: 'https://www.facebook.com/' },
   { key: 'instagram',       group: 'contact',     type: 'url',      print: false, icon: 'camera', base: 'https://www.instagram.com/' },
   { key: 'spotify',         group: 'contact',     type: 'url',      print: false, icon: 'music', base: 'https://open.spotify.com/user/' },
   { key: 'steam',           group: 'contact',     type: 'url',      print: false, icon: 'game',  base: 'https://steamcommunity.com/id/' },
+  { key: 'youtube',         group: 'contact',     type: 'url',      print: false, icon: 'tv',    base: 'https://www.youtube.com/@' },
+  { key: 'discord',         group: 'contact',     type: 'text',     print: false, icon: 'game' },
   { key: 'social',          group: 'contact',     type: 'text',     print: false, icon: 'chat' },
+  { key: 'gcash',           group: 'contact',     type: 'tel',      print: false, icon: 'phone', qr: false },
+  { key: 'staying',         group: 'contact',     type: 'text',     print: false, icon: 'pin' },
+  { key: 'landmark',        group: 'contact',     type: 'text',     print: false, icon: 'pin' },
+  { key: 'birthdayPref',    group: 'contact',     type: 'text',     print: false, icon: 'cake' },
   { key: 'shirtSize',       group: 'contact',     type: 'text',     print: false, icon: 'tag' },
+  { key: 'scrubSize',       group: 'contact',     type: 'text',     print: false, icon: 'tag' },
+  { key: 'shoeSize',        group: 'contact',     type: 'text',     print: false, icon: 'tag' },
   { key: 'bloodType',       group: 'contact',     type: 'text',     print: false, icon: 'heart' },
   { key: 'allergies',       group: 'contact',     type: 'text',     print: false, icon: 'food' },
-  { key: 'emergencyContact',group: 'contact',     type: 'text',     print: false, icon: 'phone' }
+  { key: 'dutyConditions',  group: 'contact',     type: 'textarea', print: false, icon: 'heart', qr: false },
+  { key: 'emergencyContact',group: 'contact',     type: 'text',     print: false, icon: 'phone' },
+  { key: 'emergencyNumber', group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
+  { key: 'emergencyRelation',group: 'contact',    type: 'text',     print: false, icon: 'users' },
+  { key: 'emergencyContact2',group: 'contact',    type: 'text',     print: false, icon: 'phone' },
+  { key: 'emergencyNumber2',group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
+  { key: 'prcExpiry',       group: 'contact',     type: 'month',    print: false, icon: 'calendar', hint: true },
+  { key: 'licenceExpiry',   group: 'contact',     type: 'month',    print: false, icon: 'calendar', hint: true },
+  { key: 'passportExpiry',  group: 'contact',     type: 'month',    print: false, icon: 'calendar', hint: true }
 ];
 
 /* Fields the "Guess who" clue game can ask about (needs at least 4 cards with that field filled in). */
