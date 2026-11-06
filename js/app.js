@@ -545,6 +545,7 @@
      =================================================================================================== */
   var FIELDS = window.CARD_FIELDS || [];
   var GROUPS = window.CARD_GROUPS || ['basics'];
+  var SUBS = window.CARD_SUBS || {};
   var COMMON = window.COMMON_FIELDS || { exact: [], items: [] };
   var MAX_CUSTOM = 12, PLAYLIST_MAX = window.PLAYLIST_MAX || 5;
   var GUESS_FIELDS = window.GUESS_FIELDS || [];
@@ -655,6 +656,12 @@
   }
   function fieldLabel(key) { return t('bt.f.' + key); }
   function groupLabel(g) { return t('bt.g.' + g); }
+  function subLabel(sb) { return t('bt.s.' + sb); }
+  function subChunks(g) {   // [{sub, fields}] in display order; a group without subs is one chunk with sub null
+    var fs = FIELDS.filter(function (f) { return f.group === g; }), subs = SUBS[g];
+    if (!subs) return [{ sub: null, fields: fs }];
+    return subs.map(function (sb) { return { sub: sb, fields: fs.filter(function (f) { return f.sub === sb; }) }; }).concat([{ sub: null, fields: fs.filter(function (f) { return !f.sub || subs.indexOf(f.sub) < 0; }) }]).filter(function (ch) { return ch.fields.length; });
+  }
   function batchName() { return cleanText(store.get('batchName', ''), 60); }
   function completeness(c) {   // filled / total over the standard fields + photo + birthday
     var fs = FIELDS.filter(function (f) { return f.print; }), n = 0;
@@ -741,7 +748,10 @@
     var today = new Date(), d = daysUntil(c, today), me = isMe(c);
     var me0 = getMe();
     var sections = GROUPS.filter(function (g) { return g !== 'contact'; }).map(function (g) {
-      var rows = FIELDS.filter(function (f) { return f.group === g && f.print && c[f.key] && f.key !== 'nickname'; }).map(function (f) { return factRow(f.icon, fieldLabel(f.key), c[f.key]); }).join('');
+      var rows = subChunks(g).map(function (ch) {
+        var r = ch.fields.filter(function (f) { return f.print && c[f.key] && f.key !== 'nickname'; }).map(function (f) { return factRow(f.icon, fieldLabel(f.key), f.type === 'month' ? fmtMonth(c[f.key]) : c[f.key]); }).join('');
+        return r ? (ch.sub ? '<h3 class="facts__sub">' + esc(subLabel(ch.sub)) + '</h3>' : '') + r : '';
+      }).join('');
       return rows ? '<h2>' + esc(groupLabel(g)) + '</h2><div class="card facts">' + rows + '</div>' : '';
     }).join('');
     if (c.custom.length) sections += '<h2>' + esc(groupLabel('custom')) + '</h2><div class="card facts">' + c.custom.map(function (x) { return factRow('spark', x.label, x.value); }).join('') + '</div>';
@@ -815,15 +825,15 @@
           '<input type="file" id="me-photo" class="sr-only" accept="image/*"><label class="btn" for="me-photo" id="me-photo-label">' + esc(t('bt.me.choosePhoto')) + '</label> ' +
           '<button type="button" class="link-btn" id="me-photo-rm"' + (photoSrc ? '' : ' hidden') + '>' + esc(t('bt.me.removePhoto')) + '</button></div></div>' +
         '<label class="field"><span class="field__l">' + esc(t('bt.me.name')) + ' *</span><input name="name" type="text" required maxlength="80" autocomplete="name" value="' + esc(me.name) + '"><span class="field__h">' + esc(t('bt.me.nameHint')) + '</span></label>' +
-        '<fieldset class="field fieldset"><legend class="field__l">' + esc(t('bt.me.birthday')) + '</legend><div class="field__row">' +
+        '<fieldset class="field fieldset"><legend class="field__l">' + esc(t('bt.me.birthday')) + ' *</legend><div class="field__row">' +
           sel('bmonth', t('bt.me.month'), months, me.bmonth) + sel('bday', t('bt.me.day'), days, me.bday) +
-          '<label class="field field--sm"><span class="field__l">' + esc(t('bt.me.year')) + '</span><input name="byear" type="number" inputmode="numeric" min="1900" max="2100" placeholder="' + esc(t('bt.me.none')) + '" value="' + (me.byear || '') + '"></label>' +
+          '<label class="field field--sm"><span class="field__l">' + esc(t('bt.me.year')) + ' *</span><input name="byear" type="number" inputmode="numeric" min="1900" max="2100" placeholder="1998" value="' + (me.byear || '') + '"></label>' +
         '</div></fieldset>' +
         '<p class="form__note"><span class="meter__bar" style="display:block;margin-bottom:6px"><span style="width:' + Math.round(100 * comp.n / comp.total) + '%"></span></span>' + esc(tf('bt.me.complete', comp)) + ' · ' + esc(t('bt.me.completeHint')) + ' <button type="button" class="link-btn" id="me-toggle-all" data-open="1">' + esc(t('bt.me.collapseAll')) + '</button></p>' +
         GROUPS.map(function (g, gi) {
           return '<details class="fgroup"' + (gi === 0 ? ' open' : '') + '><summary><span>' + esc(groupLabel(g)) + '</span><span class="muted fgroup__n" data-group="' + g + '"></span></summary><div class="fgroup__body">' +
             (g === 'contact' ? '<p class="field__h">' + esc(t('bt.f.contactNote')) + '</p>' : '') +
-            FIELDS.filter(function (f) { return f.group === g; }).map(function (f) {
+            subChunks(g).map(function (ch) { return (ch.sub ? '<h3 class="fgroup__sub">' + esc(subLabel(ch.sub)) + '</h3>' : '') + ch.fields.map(function (f) {
               var v = me[f.key] || '';
               var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
                       : f.type === 'year' ? '<input name="' + f.key + '" type="number" inputmode="numeric" min="1950" max="2100" value="' + esc(v) + '">'
@@ -831,7 +841,7 @@
                       : f.type === 'url' ? '<input name="' + f.key + '" type="text" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="200" placeholder="' + esc(t('bt.f.urlHint')) + '" value="' + esc(v) + '">'
                       : '<input name="' + f.key + '" type="' + f.type + '" maxlength="120"' + (f.type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : f.type === 'email' ? ' autocomplete="email"' : '') + ' value="' + esc(v) + '">';
               return '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + (f.print ? '' : ' <em class="field__tag">' + esc(t('bt.f.inAppOnly')) + '</em>') + '</span>' + ctl + (t('bt.h.' + f.key) !== 'bt.h.' + f.key ? '<span class="field__h">' + esc(t('bt.h.' + f.key)) + '</span>' : '') + '</label>';
-            }).join('') + '</div></details>';
+            }).join(''); }).join('') + '</div></details>';
         }).join('') +
         '<details class="fgroup"><summary><span>' + esc(t('bt.f.playlists')) + '</span><span class="muted fgroup__n" data-group="playlists"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.pl.hint', { n: PLAYLIST_MAX })) + '</p><div id="pl-rows">' +
           (me.playlists || []).map(function (x) { return playlistRow(x.label, x.url); }).join('') +
@@ -904,7 +914,8 @@
       if (badPl) { say(t('bt.pl.badUrl'), true); return; }
       var m = toInt(form.bmonth.value, 1, 12), d = toInt(form.bday.value, 1, 31), y = toInt(form.byear.value, 1900, 2100);
       if (!cleanText(c.name, 80)) { say(t('bt.me.needName'), true); form.name.focus(); return; }
-      if ((m || d) && !(m && d && validDay(m, d, y))) { say(t('bt.me.badBirthday'), true); return; }
+      if (!(m && d) || !validDay(m, d, y)) { say(t('bt.me.badBirthday'), true); form.bmonth.focus(); return; }
+      if (!y) { say(t('bt.me.yearRequired'), true); form.byear.focus(); return; }
       c.bmonth = m; c.bday = d; c.byear = m && d ? y : 0;
       c.photo = pendingPhoto === null ? (old.photo || '') : pendingPhoto;
       c.updated = new Date().toISOString();
@@ -1046,11 +1057,30 @@
   VIEWS.print = function () {
     var all = people(), today = new Date(), bn = batchName();
     var head = '<header class="page__head no-print"><h1>' + esc(t('nav.print')) + '</h1><p>' + esc(t('bt.print.intro')) + '</p>' +
-      (all.length ? '<div class="filters" role="group"><button type="button" class="filter" data-pmode="sheet" aria-pressed="' + (printMode === 'sheet') + '">' + esc(t('bt.print.modeSheet')) + '</button><button type="button" class="filter" data-pmode="tags" aria-pressed="' + (printMode === 'tags') + '">' + esc(t('bt.print.modeTags')) + '</button></div>' +
-        '<p><button type="button" class="btn btn--solid" id="do-print">' + icon('print', 'btn__ico') + esc(t('bt.print.btn')) + '</button>' + (printMode === 'tags' ? ' <span class="muted">' + esc(t('bt.print.tagsHint')) + '</span>' : '') + '</p>' : '') + '</header>';
+      (all.length ? '<div class="filters" role="group"><button type="button" class="filter" data-pmode="sheet" aria-pressed="' + (printMode === 'sheet') + '">' + esc(t('bt.print.modeSheet')) + '</button><button type="button" class="filter" data-pmode="tags" aria-pressed="' + (printMode === 'tags') + '">' + esc(t('bt.print.modeTags')) + '</button><button type="button" class="filter" data-pmode="full" aria-pressed="' + (printMode === 'full') + '">' + esc(t('bt.print.modeFull')) + '</button></div>' +
+        '<p><button type="button" class="btn btn--solid" id="do-print">' + icon('print', 'btn__ico') + esc(t('bt.print.btn')) + '</button>' + (printMode === 'tags' ? ' <span class="muted">' + esc(t('bt.print.tagsHint')) + '</span>' : printMode === 'full' ? ' <span class="muted">' + esc(t('bt.print.fullHint')) + '</span>' : '') + '</p>' : '') + '</header>';
     if (!all.length) return '<div class="wrap page print">' + crumb(t('nav.print')) + head + '<div class="empty"><p>' + esc(t('bt.print.empty')) + '</p></div></div>';
     var body;
-    if (printMode === 'tags') {
+    if (printMode === 'full') {
+      body = '<div class="sheet full"><header class="sheet__head"><h2>' + esc(bn ? bn + ' · ' + t('bt.print.fullTitle') : t('bt.print.fullTitle')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long', day: 'numeric' })) + ' · ' + esc(tf(all.length === 1 ? 'bt.home.count1' : 'bt.home.countN', { n: all.length })) + '</p></header>' +
+        all.map(function (c) {
+          var head = '<header class="full__head">' + avatar(c, 'avatar--print') + '<div><h3>' + esc(c.name) + (c.nickname ? ' <small>“' + esc(c.nickname) + '”</small>' : '') + '</h3>' +
+            (c.bmonth ? '<p>' + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (c.byear ? ' · ' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear()) })) : '') + ' · ' + esc(zodiac(c)) + (chineseZodiac(c) ? ' / ' + esc(chineseZodiac(c)) : '') + '</p>' : '') + '</div></header>';
+          var groups = GROUPS.map(function (g) {
+            var rows = subChunks(g).map(function (ch) {
+              var r = ch.fields.filter(function (f) { return c[f.key] && f.key !== 'nickname'; }).map(function (f) {
+                var v = f.type === 'month' ? fmtMonth(c[f.key]) : f.type === 'url' ? linkHref(f, c[f.key]) : c[f.key];
+                return '<p class="sheet__line"><strong>' + esc(fieldLabel(f.key)) + ':</strong> ' + esc(v).replace(/\n/g, ' · ') + '</p>';
+              }).join('');
+              return r ? (ch.sub ? '<p class="full__sub">' + esc(subLabel(ch.sub)) + '</p>' : '') + r : '';
+            }).join('');
+            return rows ? '<section class="full__group"><h4>' + esc(groupLabel(g)) + '</h4>' + rows + '</section>' : '';
+          }).join('');
+          if (c.playlists.length) groups += '<section class="full__group"><h4>' + esc(t('bt.f.playlists')) + '</h4>' + c.playlists.map(function (pl) { return '<p class="sheet__line"><strong>' + esc(pl.label || '—') + ':</strong> ' + esc(pl.url) + '</p>'; }).join('') + '</section>';
+          if (c.custom.length) groups += '<section class="full__group"><h4>' + esc(t('bt.print.custom')) + '</h4>' + c.custom.map(function (x) { return '<p class="sheet__line"><strong>' + esc(x.label) + ':</strong> ' + esc(x.value).replace(/\n/g, ' · ') + '</p>'; }).join('') + '</section>';
+          return '<article class="full__person">' + head + '<div class="full__cols">' + groups + '</div></article>';
+        }).join('') + '<p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>';
+    } else if (printMode === 'tags') {
       body = '<div class="sheet tags"><div class="tags__grid">' + all.map(function (c) {
         return '<article class="tag">' + (bn ? '<p class="tag__batch">' + esc(bn) + '</p>' : '') + avatar(c, 'avatar--tag') + '<h3>' + esc(c.preferredName || c.nickname || c.name.split(/\s+/)[0]) + '</h3><p class="tag__name">' + esc(c.name) + '</p>' + (c.hometown ? '<p class="tag__sub">' + esc(c.hometown) + '</p>' : '') + '<p class="tag__foot">' + esc(HOSP.shortName || '') + ' · ' + esc(HOSP.program || '') + '</p></article>';
       }).join('') + '</div></div>';

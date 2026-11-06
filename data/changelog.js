@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.9.0',
+    date: '2026-11-07',
+    title: 'Tidier card, full-directory print',
+    items: [
+      { type: 'feature', text: 'Print sheet: a Full directory mode — every card in full, contact and practical details included, one person per page, as many pages as needed. Treat that printout as personal.', href: '#/print' },
+      { type: 'update', text: 'My card: Favourites and Life are now organised into sub-sections (On screen, Games & fandoms, Music & words, Food & drink, Little things, Med school; Everyday, Growing up, About you, Horizons, Residency, Just for fun) on both the form and the card.', href: '#/me' },
+      { type: 'update', text: 'Birth year is now required with the birthday, so ages and the oldest-to-youngest list are complete.' }
+    ]
+  },
+  {
     version: '1.8.0',
     date: '2026-11-07',
     title: 'Contact & practical, expanded',
