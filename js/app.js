@@ -1,0 +1,1165 @@
+/* Batch Tickler - app shell: router, menu, search, theme, text size, language, backup, What's new.
+   Plain ES5 in one IIFE, no build step. To add a screen: add one entry to VIEWS and one to NAV
+   (see "APP VIEWS" below). Patterns come from the isaymotion Companion apps (Stahl / DSMVapp),
+   MSEtrainer and sheatrainer. */
+(function () {
+  'use strict';
+
+  /* ===== Storage (try/catch so the app works with storage blocked) ===== */
+  var PREFIX = 'bt:v1:';
+  var store = {
+    get: function (k, d) {
+      try { var v = localStorage.getItem(PREFIX + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; }
+    },
+    set: function (k, v) {
+      try { localStorage.setItem(PREFIX + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ }
+    },
+    del: function (k) { try { localStorage.removeItem(PREFIX + k); } catch (e) {} }
+  };
+
+  /* ===== Key migration (for restyled apps whose storage PREFIX changed, so saved progress survives).
+     map = { 'old:prefix:': 'sub-prefix' | function (rest, oldKey) { return 'new-suffix'; } }.
+     Every localStorage key starting with an old prefix is copied under PREFIX, then the old key is removed.
+     A string value is put in front of the rest of the key ('' just swaps the prefix); a function returns the new
+     suffix (a falsy result skips that key). An existing key under PREFIX is never overwritten. ===== */
+  function migrateKeys(map) {
+    try {
+      if (!map || typeof map !== 'object') return;
+      var keys = [], i;
+      for (i = 0; i < localStorage.length; i++) { var k0 = localStorage.key(i); if (k0) keys.push(k0); }
+      Object.keys(map).forEach(function (oldP) {
+        if (!oldP) return;
+        var to = map[oldP], growing = PREFIX.indexOf(oldP) === 0;   // new prefix extends the old one: do not re-migrate
+        keys.forEach(function (k) {
+          if (k.indexOf(oldP) !== 0) return;
+          if (growing && k.indexOf(PREFIX) === 0) return;
+          var rest = k.slice(oldP.length), suffix = typeof to === 'function' ? to(rest, k) : (typeof to === 'string' ? to + rest : null);
+          if (typeof suffix !== 'string' || !suffix) return;
+          var nk = PREFIX + suffix;
+          if (nk === k) return;
+          try {
+            if (localStorage.getItem(nk) == null) localStorage.setItem(nk, localStorage.getItem(k));
+            localStorage.removeItem(k);
+          } catch (e) { /* leave the old key in place */ }
+        });
+      });
+    } catch (e) { /* storage unavailable */ }
+  }
+  if (window.MIGRATE_KEYS) migrateKeys(window.MIGRATE_KEYS);
+
+  var META = window.APP_META || {};
+  var CHANGELOG = window.APP_CHANGELOG || [];
+  var ATTRIBUTION = META.attribution || '';
+  var APP_NAME = META.name || document.title;
+  var APP_LINKS = window.APP_LINKS || [];
+
+  /* ===== Language: 'en' (default) or 'tl' (Tagalog). Shell UI strings live in data/strings.js. ===== */
+  var STRINGS = window.STRINGS || {};
+  var lang = store.get('lang', 'en') === 'tl' ? 'tl' : 'en';
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function t(key) {
+    var s = STRINGS[lang] && has(STRINGS[lang], key) ? STRINGS[lang][key] : null;
+    if (typeof s !== 'string' || !s) s = STRINGS.en && has(STRINGS.en, key) ? STRINGS.en[key] : null;
+    return typeof s === 'string' && s ? s : key;
+  }
+  function tf(key, vars) { return t(key).replace(/\{(\w+)\}/g, function (m, k) { return vars && has(vars, k) ? String(vars[k]) : m; }); }
+  function rich(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\[\[(.+?)\]\]/g, '<kbd>$1</kbd>'); }   // **bold** and [[key]] in strings
+  function locale() { return lang === 'tl' ? 'fil' : undefined; }
+
+  /* ===== Helpers ===== */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function fmtDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso));
+    if (!m) return String(iso);
+    return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(locale(), { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  var main = document.getElementById('main');
+  var sidenav = document.getElementById('sidenav');
+  var backdrop = document.getElementById('nav-backdrop');
+  var menuBtn = document.getElementById('menu-btn');
+  var tabMenu = document.getElementById('tab-menu');
+  var qInput = document.getElementById('q');
+  var suggestBox = document.getElementById('suggest');
+
+  /* ===== Icons (inline SVG, 24x24, stroke = currentColor). NAV items refer to these by key. ===== */
+  var ICONS = {
+    home: '<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+    news: '<path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h6M9 16h6"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+    star: '<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
+    book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h7"/>',
+    list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+    external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'
+  };
+  function icon(name, cls) {
+    return '<svg class="' + (cls || 'nav-ico') + '" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || ICONS.star) + '</svg>';
+  }
+
+  /* ===== NAV: one entry per screen. Builds the sidenav (grouped by `group`) and the home tiles.
+     {label, href, icon, group}  Optional: tile:false (keep off the home grid), badge:'news' (unseen What's new count),
+     tkey:'nav.x' (label comes from data/strings.js). The "Other apps" group is added after these from window.APP_LINKS. ===== */
+  var NAV = [
+    { label: 'Home', tkey: 'nav.home', href: '#/', icon: 'home', group: 'Start', tile: false },
+    { label: 'The batch', tkey: 'nav.batch', href: '#/batch', icon: 'users', group: 'Screens' },
+    { label: 'My card', tkey: 'nav.me', href: '#/me', icon: 'card', group: 'Screens' },
+    { label: 'Birthdays', tkey: 'nav.birthdays', href: '#/birthdays', icon: 'cake', group: 'Screens' },
+    { label: 'Guess who', tkey: 'nav.guess', href: '#/guess', icon: 'quiz', group: 'Screens' },
+    { label: 'Share cards', tkey: 'nav.share', href: '#/share', icon: 'share', group: 'Screens' },
+    { label: 'Print sheet', tkey: 'nav.print', href: '#/print', icon: 'print', group: 'Screens' },
+    { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
+    { label: 'About', tkey: 'nav.about', href: '#/about', icon: 'info', group: 'App', tile: false }
+  ];
+  var NAV_GROUPS = { Start: 'nav.start', Screens: 'nav.screens', App: 'nav.app' };   // group name -> strings key
+  function navLabel(n) { return n.tkey ? t(n.tkey) : n.label; }
+
+  /* ===== Search index: fill with {title, text, href, kind}. Rebuild it from your own data if you like.
+     The shell's own entries (What's new, About) are added by shellIndex() so they follow the language. ===== */
+  var SEARCH_INDEX = [
+    /* { title: 'Example', text: 'Words people might search for.', href: '#/example', kind: 'Screen' } */
+  ];
+  function shellIndex() {
+    return [
+      { title: t('nav.whatsNew'), text: t('search.newsText'), href: '#/whats-new', kind: t('nav.app') },
+      { title: t('nav.about'), text: t('search.aboutText'), href: '#/about', kind: t('nav.app') }
+    ];
+  }
+
+  /* ===== Theme: auto (match device) / light / dark. No data-theme attribute = match device. ===== */
+  var THEME_ICONS = {
+    auto: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
+    dark: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    light: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+  };
+  var darkMQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function getTheme() {
+    var cur = store.get('theme', 'auto');
+    return cur === 'light' || cur === 'dark' ? cur : 'auto';
+  }
+  function applyTheme(mode) {
+    var root = document.documentElement;
+    if (mode === 'light' || mode === 'dark') root.setAttribute('data-theme', mode); else root.removeAttribute('data-theme');
+    var dark = mode === 'dark' || (mode !== 'light' && darkMQ && darkMQ.matches);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#0E1F20' : '#1C676E');
+    var btn = document.getElementById('theme-btn');
+    if (btn) {
+      var label = tf('theme.label', { name: t('theme.' + mode) });
+      btn.innerHTML = THEME_ICONS[mode];
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+    }
+    var opts = document.querySelectorAll('[data-theme-opt]');
+    for (var i = 0; i < opts.length; i++) opts[i].setAttribute('aria-pressed', opts[i].getAttribute('data-theme-opt') === mode ? 'true' : 'false');
+    var radios = document.querySelectorAll('input[name="theme"]');   // the Theme segment on the About page
+    for (var j = 0; j < radios.length; j++) radios[j].checked = radios[j].value === mode;
+  }
+  function setTheme(mode) {
+    if (mode !== 'light' && mode !== 'dark') mode = 'auto';
+    if (mode === 'auto') store.del('theme'); else store.set('theme', mode);
+    applyTheme(mode);
+  }
+  applyTheme(getTheme());
+  (function () {
+    var btn = document.getElementById('theme-btn');
+    if (btn) btn.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme') || 'auto';
+      setTheme({ auto: 'light', light: 'dark', dark: 'auto' }[cur]);
+    });
+    function onDeviceChange() { applyTheme(document.documentElement.getAttribute('data-theme') || 'auto'); }
+    if (darkMQ) { if (darkMQ.addEventListener) darkMQ.addEventListener('change', onDeviceChange); else if (darkMQ.addListener) darkMQ.addListener(onDeviceChange); }
+  })();
+
+  /* ===== Header height -> --top ===== */
+  function headerH() { var t = document.querySelector('.topbar'); return t ? t.offsetHeight : 64; }
+  function setTopVar() { document.documentElement.style.setProperty('--top', headerH() + 'px'); }
+  window.addEventListener('resize', setTopVar);
+  setTopVar();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(setTopVar);
+
+  /* ===== Text size (Aa panel) ===== */
+  var TEXT_SIZES = [['90', 'textsize.smaller'], ['100', 'textsize.default'], ['112.5', 'textsize.larger'], ['125', 'textsize.largest']];   // [value, strings key]
+  function syncSizeRadios(v) {   // the text-size segment on the About page
+    var radios = document.querySelectorAll('input[name="aboutTextSize"]');
+    for (var i = 0; i < radios.length; i++) radios[i].checked = radios[i].value === v;
+  }
+  function applyTextSize(v) {
+    var ok = TEXT_SIZES.some(function (z) { return z[0] === v; });
+    document.documentElement.style.fontSize = ok && v !== '100' ? v + '%' : '';
+    setTopVar();
+  }
+  (function () {
+    var btn = document.getElementById('textSizeBtn');
+    if (!btn) return;
+    var panel = document.createElement('div');
+    panel.className = 'text-size-panel'; panel.id = 'textSizePanel'; panel.hidden = true;
+    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', t('textsize.title'));
+    document.body.appendChild(panel);
+    function build() {
+      var cur = String(store.get('textSize', '100'));
+      panel.setAttribute('aria-label', t('textsize.title'));
+      panel.innerHTML = '<p class="text-size-panel__title">' + esc(t('textsize.title')) + '</p><div class="seg">' + TEXT_SIZES.map(function (z, i) {
+        return '<label><input type="radio" name="textSize" value="' + z[0] + '"' + (cur === z[0] ? ' checked' : '') + '><span style="font-size:' + (0.82 + i * 0.1).toFixed(2) + 'rem">' + esc(t(z[1])) + '</span></label>';
+      }).join('') + '</div>';
+    }
+    function open() { build(); panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); var f = panel.querySelector('input:checked'); if (f) f.focus(); }
+    function close() { if (panel.hidden) return; panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+    btn.addEventListener('click', function (e) { e.stopPropagation(); if (panel.hidden) open(); else close(); });
+    panel.addEventListener('change', function (e) {
+      if (e.target.name === 'textSize') { store.set('textSize', e.target.value); applyTextSize(e.target.value); syncSizeRadios(e.target.value); }
+    });
+    document.addEventListener('click', function (e) { if (!panel.hidden && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) { close(); btn.focus(); } });
+    window.addEventListener('hashchange', close);
+  })();
+
+  /* ===== In-app back/forward buttons (index-stamped history) ===== */
+  var HIST_KEY = PREFIX + 'hist';
+  var hist = (function () { try { return JSON.parse(sessionStorage.getItem(HIST_KEY)) || { cur: 0, max: 0 }; } catch (e) { return { cur: 0, max: 0 }; } })();
+  function saveHist() { try { sessionStorage.setItem(HIST_KEY, JSON.stringify(hist)); } catch (e) {} }
+  function stamp(i) { try { history.replaceState({ spIdx: i }, ''); } catch (e) {} }
+  function syncHist() {
+    var st = history.state;
+    if (st && typeof st.spIdx === 'number') {
+      hist.cur = st.spIdx;
+      if (hist.cur > hist.max) hist.max = hist.cur;
+    } else {
+      hist.cur = hist.cur + 1;     // a new page: anything that was ahead is discarded
+      hist.max = hist.cur;
+      stamp(hist.cur);
+    }
+    saveHist(); paintHist();
+  }
+  function paintHist() {
+    var b = document.getElementById('nav-back'), f = document.getElementById('nav-fwd');
+    if (b) b.disabled = hist.cur <= 0;
+    if (f) f.disabled = hist.cur >= hist.max;
+  }
+  (function initHist() {
+    var st = history.state;
+    if (st && typeof st.spIdx === 'number') { hist.cur = st.spIdx; if (hist.max < hist.cur) hist.max = hist.cur; }
+    else { hist = { cur: 0, max: 0 }; stamp(0); }
+    saveHist(); paintHist();
+    var b = document.getElementById('nav-back'), f = document.getElementById('nav-fwd');
+    if (b) b.addEventListener('click', function () { if (!b.disabled) history.back(); });
+    if (f) f.addEventListener('click', function () { if (!f.disabled) history.forward(); });
+  })();
+
+  /* Alt+Left / Alt+Right (ignores typing in fields and other modifiers) */
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    var typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+    if (e.altKey && !typing && !e.ctrlKey && !e.metaKey && !e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      e.preventDefault();
+      if (e.key === 'ArrowLeft') history.back(); else history.forward();
+    }
+  });
+
+  /* ===== Scroll restoration (only on back/forward, not on ordinary link clicks) ===== */
+  var scrollMemo = {}, scrollKey = location.hash || '#/', fromHistory = false, scrollPending = false;
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.addEventListener('scroll', function () {
+    if (scrollPending) return;
+    scrollPending = true;
+    setTimeout(function () { scrollPending = false; scrollMemo[scrollKey] = window.scrollY; }, 120);
+  }, { passive: true });
+  window.addEventListener('popstate', function (e) { fromHistory = !!(e.state && typeof e.state.spIdx === 'number'); });
+
+  /* ===== Menu: docked sidebar on desktop, drawer on phones/tablets ===== */
+  function isDrawerMode() { return window.matchMedia('(max-width: 1099px)').matches; }
+  function setMenuExpanded(v) { [menuBtn, tabMenu].forEach(function (b) { if (b) b.setAttribute('aria-expanded', v ? 'true' : 'false'); }); }
+  function openDrawer() {
+    if (!isDrawerMode()) return;
+    document.body.classList.add('drawer-open');
+    backdrop.hidden = false;
+    setMenuExpanded(true);
+    var target = sidenav.querySelector('.sidenav__close');
+    setTimeout(function () { if (target) target.focus(); }, 60);
+  }
+  function closeDrawer() {
+    if (!document.body.classList.contains('drawer-open')) return;
+    document.body.classList.remove('drawer-open');
+    backdrop.hidden = true;
+    setMenuExpanded(false);
+  }
+  if (menuBtn) menuBtn.addEventListener('click', function () { openDrawer(); });
+  if (tabMenu) tabMenu.addEventListener('click', function () { if (document.body.classList.contains('drawer-open')) closeDrawer(); else openDrawer(); });
+  document.getElementById('nav-close').addEventListener('click', function () { closeDrawer(); if (menuBtn) menuBtn.focus(); });
+  backdrop.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.body.classList.contains('drawer-open')) { closeDrawer(); if (menuBtn) menuBtn.focus(); } });
+  sidenav.addEventListener('click', function (e) { var a = e.target.closest('a'); if (a && a.getAttribute('href') === location.hash) closeDrawer(); });
+  var collapseBtn = document.getElementById('collapse-btn');   // desktop: hide/show the docked sidebar
+  function labelCollapse() {
+    var c = document.documentElement.classList.contains('nav-collapsed');
+    collapseBtn.setAttribute('aria-label', t(c ? 'sidebar.show' : 'sidebar.hide'));
+    collapseBtn.setAttribute('title', t(c ? 'sidebar.show' : 'sidebar.hide'));
+  }
+  collapseBtn.addEventListener('click', function () {
+    var c = !document.documentElement.classList.contains('nav-collapsed');
+    document.documentElement.classList.toggle('nav-collapsed', c);
+    store.set('navCollapsed', c); labelCollapse(); setTopVar();
+  });
+  labelCollapse();
+
+  /* APP_LINKS minus this app's own entry (matched on the repo slug at the end of the URL). Menu only: never tiles, search or tabs. */
+  function otherApps() {
+    if (!window.SHOW_OTHER_APPS) return [];   // off until she is ready to interlink the apps (data/app-meta.js)
+    var me = String(META.repo || '').toLowerCase();
+    return APP_LINKS.filter(function (a) {
+      if (!a || !a.name || !/^https?:\/\//i.test(String(a.href || ''))) return false;
+      var slug = String(a.href).replace(/[?#].*$/, '').replace(/\/+$/, '').split('/').pop().toLowerCase();
+      return !me || slug !== me;
+    });
+  }
+  function currentKey() { var p = parts(); return p.length ? p[0] : 'home'; }
+  function buildNav() {
+    var cur = location.hash || '#/';
+    if (cur === '#') cur = '#/';
+    var groups = [], byName = {};
+    NAV.forEach(function (n) {
+      var g = n.group || 'Menu';
+      if (!byName[g]) { byName[g] = { label: g, items: [] }; groups.push(byName[g]); }
+      byName[g].items.push(n);
+    });
+    var html = groups.map(function (g) {
+      return '<div class="nav-group"><div class="nav-label">' + esc(NAV_GROUPS[g.label] ? t(NAV_GROUPS[g.label]) : g.label) + '</div><ul>' + g.items.map(function (n) {
+        var active = n.href === cur;
+        return '<li><a class="nav-item' + (active ? ' is-active' : '') + '" href="' + esc(n.href) + '"' + (active ? ' aria-current="page"' : '') + '>' + icon(n.icon) + '<span>' + esc(navLabel(n)) + '</span>' +
+          (n.badge ? '<span class="badge" data-badge="' + esc(n.badge) + '" hidden></span>' : '') + '</a></li>';
+      }).join('') + '</ul></div>';
+    }).join('');
+    var others = otherApps();
+    if (others.length) {
+      html += '<div class="nav-group"><div class="nav-label">' + esc(t('nav.otherApps')) + '</div><ul>' + others.map(function (a) {
+        return '<li><a class="nav-item" href="' + esc(a.href) + '" target="_blank" rel="noopener">' + icon('external') + '<span>' + esc(a.name) + '</span><span class="sr-only"> ' + esc(t('nav.newTab')) + '</span></a></li>';
+      }).join('') + '</ul></div>';
+    }
+    document.getElementById('sidenav-body').innerHTML = html;
+    var tabs = document.querySelectorAll('.tabbar [data-tab]');
+    var key = currentKey();
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].getAttribute('data-tab') === key;
+      if (tabs[i].tagName === 'A') { tabs[i].classList.toggle('is-active', on); if (on) tabs[i].setAttribute('aria-current', 'page'); else tabs[i].removeAttribute('aria-current'); }
+    }
+  }
+
+  /* ===== What's new: unseen badge keyed on the version string ===== */
+  function latestNewsVersion() { return CHANGELOG.length ? String(CHANGELOG[0].version) : ''; }
+  function seenNewsVersion() {
+    var s = store.get('seenNews', null);
+    if (s == null) { s = latestNewsVersion(); store.set('seenNews', s); }   // brand-new visitors start up to date
+    return s;
+  }
+  function unseenNews() {
+    var seen = seenNewsVersion(), out = [];
+    for (var i = 0; i < CHANGELOG.length; i++) {
+      if (String(CHANGELOG[i].version) === seen) return out;
+      out.push(CHANGELOG[i]);
+    }
+    return out;
+  }
+  function updateNavBadges() {
+    var n = unseenNews().length;
+    var els = document.querySelectorAll('[data-badge="news"]');
+    for (var i = 0; i < els.length; i++) { els[i].textContent = n; els[i].hidden = !n; }
+  }
+
+  /* ===== Search ===== */
+  var sugIndex = -1, sugTimer = null, searchKind = '';
+  function terms(q) { return String(q).toLowerCase().replace(/[^\p{L}\p{N}\-\s.]/gu, ' ').split(/\s+/).filter(function (t) { return t.length > 0; }); }
+  function runSearch(q) {
+    var ts = terms(q);
+    if (!ts.length) return [];
+    var out = [];
+    shellIndex().concat(SEARCH_INDEX).forEach(function (e) {
+      var t = String(e.title || '').toLowerCase(), x = String(e.text || '').toLowerCase(), score = 0, ok = true;
+      ts.forEach(function (w) {
+        var iT = t.indexOf(w), iX = x.indexOf(w);
+        if (iT < 0 && iX < 0) { ok = false; return; }
+        if (iT >= 0) score += iT === 0 ? 6 : 4;
+        if (iX >= 0) score += 1;
+      });
+      if (ok) out.push({ e: e, score: score });
+    });
+    out.sort(function (a, b) { return b.score - a.score; });
+    return out.map(function (r) { return r.e; });
+  }
+  function highlight(text, ts) {
+    text = String(text == null ? '' : text);
+    if (!ts.length) return esc(text);
+    var re = new RegExp('(' + ts.map(escRe).join('|') + ')', 'gi');
+    return text.split(re).map(function (seg, i) { return i % 2 ? '<mark>' + esc(seg) + '</mark>' : esc(seg); }).join('');
+  }
+  function snippet(text, ts, len) {
+    text = String(text || '');
+    if (text.length <= len) return text;
+    var low = text.toLowerCase(), at = -1;
+    for (var i = 0; i < ts.length && at < 0; i++) at = low.indexOf(ts[i]);
+    var start = Math.max(0, (at < 0 ? 0 : at) - 40);
+    return (start > 0 ? '…' : '') + text.slice(start, start + len) + (start + len < text.length ? '…' : '');
+  }
+  function openSuggest(q) {
+    q = String(q || '').trim();
+    if (!q) { closeSuggest(); return; }
+    var ts = terms(q), res = runSearch(q), shown = res.slice(0, 6);
+    sugIndex = -1;
+    qInput.removeAttribute('aria-activedescendant');
+    if (!shown.length) {
+      suggestBox.innerHTML = '<div class="suggest__empty">' + esc(tf('search.noMatches', { q: q })) + '</div>';
+    } else {
+      suggestBox.innerHTML = shown.map(function (e, i) {
+        return '<a class="suggest__item" role="option" id="sug-' + i + '" href="' + esc(e.href) + '" aria-selected="false"><span class="suggest__meta"><span class="kind">' + esc(e.kind || '') + '</span><span>' + highlight(e.title, ts) + '</span></span><span class="suggest__text">' + highlight(snippet(e.text, ts, 140), ts) + '</span></a>';
+      }).join('') + '<a class="suggest__item suggest__all" role="option" id="sug-all" href="#/search/' + encodeURIComponent(q) + '" aria-selected="false">' + esc(tf(res.length === 1 ? 'search.seeAll1' : 'search.seeAllN', { n: res.length })) + '</a>';
+    }
+    suggestBox.hidden = false;
+    qInput.setAttribute('aria-expanded', 'true');
+  }
+  function closeSuggest() {
+    if (!suggestBox) return;
+    suggestBox.hidden = true; sugIndex = -1;
+    qInput.setAttribute('aria-expanded', 'false');
+    qInput.removeAttribute('aria-activedescendant');
+  }
+  function moveSug(d) {
+    var items = suggestBox.querySelectorAll('.suggest__item');
+    if (!items.length) return;
+    sugIndex = (sugIndex + d + items.length) % items.length;
+    items.forEach(function (it, i) { it.setAttribute('aria-selected', String(i === sugIndex)); });
+    qInput.setAttribute('aria-activedescendant', items[sugIndex].id);
+    items[sugIndex].scrollIntoView({ block: 'nearest' });
+  }
+  qInput.addEventListener('input', function () {
+    clearTimeout(sugTimer);
+    sugTimer = setTimeout(function () { openSuggest(qInput.value); }, 110);
+  });
+  qInput.addEventListener('focus', function () { if (qInput.value.trim()) openSuggest(qInput.value); });
+  qInput.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (suggestBox.hidden) openSuggest(qInput.value); moveSug(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveSug(-1); }
+    else if (e.key === 'Escape') { closeSuggest(); qInput.blur(); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      var items = suggestBox.querySelectorAll('.suggest__item');
+      var target = sugIndex > -1 && items[sugIndex] ? items[sugIndex].getAttribute('href') : (qInput.value.trim() ? '#/search/' + encodeURIComponent(qInput.value.trim()) : null);
+      closeSuggest();
+      if (target) { if (location.hash === target) route(); else location.hash = target; qInput.blur(); }
+    }
+  });
+  suggestBox.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  qInput.addEventListener('blur', function () { setTimeout(closeSuggest, 120); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !(e.target.matches && e.target.matches('input, textarea, select'))) { e.preventDefault(); qInput.focus(); qInput.select(); }
+  });
+
+  /* ===== Views ===== */
+  var VIEWS = {};
+  var AFTER = {};      // optional: AFTER.myScreen = function (arg) { ...wire events after render... }
+  var TITLES = { home: '' };   // key -> page title (the shell's own titles come from SHELL_TITLES)
+  var SHELL_TITLES = { 'whats-new': 'nav.whatsNew', about: 'nav.about', search: 'search.title' };
+
+  VIEWS['whats-new'] = function () {
+    var unseen = {};
+    unseenNews().forEach(function (e) { unseen[String(e.version)] = true; });
+    var html = '<div class="wrap page news"><header class="page__head"><h1>' + esc(t('nav.whatsNew')) + '</h1><p>' + esc(t('news.intro1')) + '<span class="news__new">' + esc(t('news.new')) + '</span>' + esc(t('news.intro2')) + '</p></header>' +
+      CHANGELOG.map(function (e) {
+        var isNew = !!unseen[String(e.version)];
+        return '<article class="news__entry' + (isNew ? ' is-new' : '') + '"><div class="news__date"><time datetime="' + esc(e.date) + '">' + esc(fmtDate(e.date)) + '</time><span class="news__ver">' + esc(tf('news.version', { v: e.version })) + '</span>' + (isNew ? '<span class="news__new">' + esc(t('news.new')) + '</span>' : '') + '</div>' +
+          '<div class="news__body"><h2>' + esc(e.title) + '</h2>' + (e.summary ? '<p>' + esc(e.summary) + '</p>' : '') + '<ul>' +
+          (e.items || []).map(function (it) {
+            var ty = String(it.type || 'feature'), tyLabel = t('news.type.' + ty);
+            if (tyLabel === 'news.type.' + ty) tyLabel = ty.charAt(0).toUpperCase() + ty.slice(1);
+            return '<li><span class="news__type news__type--' + esc(ty) + '">' + esc(tyLabel) + '</span><span class="news__text">' + esc(it.text) + (it.href ? ' <a href="' + esc(it.href) + '">' + esc(t('news.open')) + '</a>' : '') + '</span></li>';
+          }).join('') + '</ul></div></article>';
+      }).join('') +
+      '<p class="news__note">' + esc(t('news.note')) + '<a href="mailto:isaymotion@gmail.com">isaymotion@gmail.com</a>.</p></div>';
+    store.set('seenNews', latestNewsVersion());   // opening the page marks everything as seen
+    return html;
+  };
+
+  function segGroup(name, label, opts, cur) {   // opts: [[value, label], ...]; radios inside the shared .seg control
+    return '<fieldset class="setting"><legend>' + esc(label) + '</legend><div class="seg">' + opts.map(function (o) {
+      return '<label><input type="radio" name="' + esc(name) + '" value="' + esc(o[0]) + '"' + (cur === o[0] ? ' checked' : '') + '><span>' + esc(o[1]) + '</span></label>';
+    }).join('') + '</div></fieldset>';
+  }
+  VIEWS.about = function () {
+    var sizes = TEXT_SIZES.map(function (z) { return [z[0], t(z[1])]; });
+    return '<div class="wrap page"><header class="page__head"><h1>' + esc(t('nav.about')) + '</h1><p>' + esc(META.tagline || '') + '</p></header>' +
+      '<div class="prose"><p><strong>' + esc(APP_NAME) + '</strong> · ' + esc(t('about.version')) + ' ' + esc(META.version || '') + '</p><p>' + esc(ATTRIBUTION) + '</p></div>' +
+      '<h2>' + esc(t('about.settings')) + '</h2><div class="card">' +
+        segGroup('lang', t('about.language'), [['en', t('about.langEn')], ['tl', t('about.langTl')]], lang) +
+        segGroup('theme', t('theme.title'), [['auto', t('theme.auto')], ['light', t('theme.light')], ['dark', t('theme.dark')]], getTheme()) +
+        segGroup('aboutTextSize', t('textsize.title'), sizes, String(store.get('textSize', '100'))) +
+      '</div>' +
+      '<h2>' + esc(t('about.tips')) + '</h2><div class="card"><ul class="prose" style="margin:0;padding-left:1.2em">' +
+        [1, 2, 3, 4, 5].map(function (i) { return '<li>' + rich(t('about.tip' + i)) + '</li>'; }).join('') +
+      '</ul></div></div>';
+  };
+
+  VIEWS.search = function (q) {
+    q = String(q || '');
+    var ts = terms(q), res = runSearch(q);
+    var kinds = [];
+    res.forEach(function (e) { var k = e.kind || ''; if (k && kinds.indexOf(k) < 0) kinds.push(k); });
+    if (searchKind && kinds.indexOf(searchKind) < 0) searchKind = '';
+    var shown = searchKind ? res.filter(function (e) { return e.kind === searchKind; }) : res;
+    return '<div class="wrap page search-page"><header class="page__head"><h1>' + esc(t('search.title')) + '</h1><p>' +
+        esc(q ? tf(shown.length === 1 ? 'search.count1' : 'search.countN', { n: shown.length, q: q }) : t('search.prompt')) + '</p></header>' +
+      (kinds.length > 1 ? '<div class="filters" role="group" aria-label="' + esc(t('search.filterBy')) + '"><button type="button" class="filter" data-kind="" aria-pressed="' + (!searchKind) + '">' + esc(t('search.all')) + '</button>' +
+        kinds.map(function (k) { return '<button type="button" class="filter" data-kind="' + esc(k) + '" aria-pressed="' + (searchKind === k) + '">' + esc(k) + '</button>'; }).join('') + '</div>' : '') +
+      (shown.length
+        ? '<div class="results">' + shown.map(function (e) {
+            return '<div class="result"><a href="' + esc(e.href) + '"><span class="result__meta"><span class="kind">' + esc(e.kind || '') + '</span></span><span class="result__title">' + highlight(e.title, ts) + '</span><span class="result__text">' + highlight(snippet(e.text, ts, 220), ts) + '</span></a></div>';
+          }).join('') + '</div>'
+        : (q ? '<div class="empty"><h2>' + esc(t('search.noneTitle')) + '</h2><p>' + esc(t('search.noneText')) + '</p></div>' : ''))
+      + '</div>';
+  };
+  AFTER.search = function (q) { if (qInput && document.activeElement !== qInput) qInput.value = q || ''; };
+
+  function missingView() {
+    return '<div class="wrap page"><div class="empty"><h2>' + esc(t('notfound.title')) + '</h2><p>' + esc(t('notfound.text')) + '</p><p><a class="btn btn--solid" href="#/">' + esc(t('notfound.home')) + '</a></p></div></div>';
+  }
+
+  /* ===================================================================================================
+     BATCH TICKLER SCREENS
+     Data: one card per resident. The owner's own card lives under store 'me'; everyone else's under
+     store 'batch' (an array). Cards travel between phones as small JSON files (Share cards screen).
+     Card = { id, name, nickname, hometown, medSchool, hobbies, shows, movies, music, food, funFact,
+              phone, email, bmonth (1-12|0), bday (1-31|0), byear (number|0), photo (data:image/jpeg… | ''), updated (ISO) }
+     =================================================================================================== */
+  var FIELDS = window.CARD_FIELDS || [];
+  var GUESS_FIELDS = window.GUESS_FIELDS || [];
+  var HOSP = window.HOSPITAL || {};
+  var CARD_APP = 'batchtickler', MAX_PHOTO = 320, MAX_TEXT = 600;
+  var MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  ICONS.tag = '<path d="M3.5 12.5V5a1.5 1.5 0 0 1 1.5-1.5h7.5l8 8-9 9z"/><circle cx="8" cy="8" r="1.2"/>';
+  ICONS.pin = '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>';
+  ICONS.school = '<path d="M2.5 9.5L12 5l9.5 4.5L12 14zM6 11.5v5c0 1.2 2.7 2.5 6 2.5s6-1.3 6-2.5v-5M21 10v5"/>';
+  ICONS.heart = '<path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/>';
+  ICONS.tv = '<rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M8 21h8M9 3l3 3 3-3"/>';
+  ICONS.film = '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M7.5 4v16M16.5 4v16M3.5 9h4M3.5 15h4M16.5 9h4M16.5 15h4"/>';
+  ICONS.music = '<path d="M9 18.5V6l11-2v12.5"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/>';
+  ICONS.food = '<path d="M5 3v8a3 3 0 0 0 3 3v7M8 3v6M11 3v6M11 11a3 3 0 0 1-3 3M17 21v-7c2 0 3-2.5 3-6s-1-5-3-5z"/>';
+  ICONS.spark = '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/>';
+  ICONS.phone = '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>';
+  ICONS.mail = '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/>';
+  ICONS.cake = '<path d="M4 20h16M5 20v-6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6M5 16c1.5 1.5 3 1.5 4.5 0s3 1.5 4.5 0 3 1.5 4.5 0M12 12V9M12 5.5a1.5 1.5 0 0 0 0 3 1.5 1.5 0 0 0 0-3z"/>';
+  ICONS.share = '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/>';
+  ICONS.print = '<path d="M7 8V3.5h10V8M7 17H4.5a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1H17"/><rect x="7" y="14" width="10" height="6.5" rx="1"/>';
+  ICONS.card = '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.5 16.5a3.5 3.5 0 0 1 7 0M14.5 10h4M14.5 13.5h4"/>';
+  ICONS.quiz = '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17v.3"/>';
+
+  /* ---- Card store ---- */
+  function newId() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function cleanText(v, max) { return String(v == null ? '' : v).replace(/\s+\n/g, '\n').trim().slice(0, max || MAX_TEXT); }
+  function toInt(v, lo, hi) { var n = parseInt(v, 10); return isFinite(n) && n >= lo && n <= hi ? n : 0; }
+  function okPhoto(p) { return typeof p === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(p) && p.length < 400000; }
+  function sanitizeCard(c) {   // accept only known fields with safe values; returns null if unusable
+    if (!c || typeof c !== 'object') return null;
+    var out = { id: String(c.id || '').replace(/[^\w-]/g, '').slice(0, 40), name: cleanText(c.name, 80) };
+    if (!out.id || !out.name) return null;
+    FIELDS.forEach(function (f) { out[f.key] = cleanText(c[f.key], f.type === 'textarea' ? MAX_TEXT : 120); });
+    out.bmonth = toInt(c.bmonth, 1, 12); out.bday = toInt(c.bday, 1, 31); out.byear = toInt(c.byear, 1900, 2100);
+    if (!out.bmonth || !out.bday || !validDay(out.bmonth, out.bday, out.byear)) { out.bmonth = 0; out.bday = 0; out.byear = 0; }
+    out.photo = okPhoto(c.photo) ? c.photo : '';
+    out.updated = typeof c.updated === 'string' && !isNaN(new Date(c.updated).getTime()) ? c.updated : new Date(0).toISOString();
+    return out;
+  }
+  function validDay(m, d, y) { var dim = [31, y && isLeap(y) || !y ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; return d >= 1 && d <= dim[m - 1]; }
+  function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
+  function getMe() { return sanitizeCard(store.get('me', null)); }
+  function getOthers() { var a = store.get('batch', []); return (Array.isArray(a) ? a : []).map(sanitizeCard).filter(Boolean); }
+  function saveOthers(list) { store.set('batch', list); rebuildIndex(); }
+  function people() {   // everyone, me included, sorted by name
+    var me = getMe(), list = getOthers().filter(function (o) { return !me || o.id !== me.id; });
+    if (me) list.push(me);
+    return list.sort(byName);
+  }
+  function byName(a, b) { return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }); }
+  function findPerson(id) { var l = people(); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function isMe(c) { var me = getMe(); return !!(me && c && me.id === c.id); }
+  function initials(name) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
+  function monthName(m) { if (lang === 'tl') { var d = new Date(2000, m - 1, 1); try { return d.toLocaleDateString('fil', { month: 'long' }); } catch (e) {} } return MONTHS_EN[m - 1] || ''; }
+  function bdayText(c, withYear) { if (!c.bmonth) return ''; return monthName(c.bmonth) + ' ' + c.bday + (withYear && c.byear ? ', ' + c.byear : ''); }
+  function daysUntil(c, today) {   // days from today to the next occurrence of the birthday (0 = today)
+    if (!c.bmonth) return null;
+    var t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    var next = new Date(today.getFullYear(), c.bmonth - 1, Math.min(c.bday, c.bmonth === 2 && c.bday === 29 && !isLeap(today.getFullYear()) ? 28 : c.bday));
+    if (next < t0) next = new Date(today.getFullYear() + 1, c.bmonth - 1, c.bmonth === 2 && c.bday === 29 && !isLeap(today.getFullYear() + 1) ? 28 : c.bday);
+    return Math.round((next - t0) / 86400000);
+  }
+  function ageOn(c, year) { return c.byear ? year - c.byear : 0; }
+  function rebuildIndex() {
+    SEARCH_INDEX.length = 0;
+    people().forEach(function (c) {
+      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).filter(Boolean).join(' · ');
+      SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
+    });
+    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro']].forEach(function (s) {
+      SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
+    });
+  }
+
+  /* ---- Shared bits of markup ---- */
+  function avatar(c, cls) {
+    return c.photo ? '<img class="avatar ' + (cls || '') + '" src="' + esc(c.photo) + '" alt="" loading="lazy">'
+                   : '<span class="avatar avatar--txt ' + (cls || '') + '" aria-hidden="true">' + esc(initials(c.name)) + '</span>';
+  }
+  function fieldLabel(key) { return t('bt.f.' + key); }
+  function personCard(c, today) {
+    var d = daysUntil(c, today), soon = d !== null && d <= 14;
+    return '<a class="card pcard" href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c) +
+      '<span class="pcard__body"><span class="pcard__name">' + esc(c.name) + (isMe(c) ? ' <span class="badge">' + esc(t('bt.batch.you')) + '</span>' : '') + '</span>' +
+      (c.nickname ? '<span class="pcard__nick">“' + esc(c.nickname) + '”</span>' : '') +
+      (c.hometown ? '<span class="pcard__meta">' + icon('pin', 'pcard__ico') + esc(c.hometown) + '</span>' : '') +
+      (c.bmonth ? '<span class="pcard__meta' + (soon ? ' is-soon' : '') + '">' + icon('cake', 'pcard__ico') + esc(bdayText(c)) + (d === 0 ? ' · ' + esc(t('bt.home.today')) : '') + '</span>' : '') +
+      '</span></a>';
+  }
+  function crumb(label) { return '<p class="crumb"><a href="#/">' + esc(t('nav.home')) + '</a> / ' + esc(label) + '</p>'; }
+
+  /* ---- Home (overrides the starter hero with the batch banner) ---- */
+  VIEWS.home = function () {
+    var me = getMe(), all = people(), today = new Date(), latest = CHANGELOG[0];
+    var tiles = NAV.filter(function (n) { return n.tile !== false && n.href !== '#/'; });
+    var next = all.filter(function (c) { return c.bmonth; }).map(function (c) { return { c: c, d: daysUntil(c, today) }; }).sort(function (a, b) { return a.d - b.d; })[0];
+    return '<section class="hero hero--banner"><img class="hero__img" src="img/banner.jpg" srcset="img/banner-small.jpg 704w, img/banner.jpg 1408w" sizes="100vw" alt="" width="1408" height="768">' +
+      '<div class="wrap hero__inner"><h1>' + esc(APP_NAME) + '</h1>' +
+        '<p class="hero__lead">' + esc(META.tagline || '') + ' · ' + esc(HOSP.program || '') + '</p>' +
+        '<p><a class="btn btn--solid" href="' + (me ? '#/batch' : '#/me') + '">' + esc(t(me ? 'bt.hero.ctaDone' : 'bt.hero.cta')) + '</a></p>' +
+      '</div></section>' +
+      '<div class="wrap home">' +
+        '<div class="home__stats">' +
+          '<div class="card stat"><span class="stat__n">' + all.length + '</span><span class="stat__t">' + esc(tf(all.length === 1 ? 'bt.home.count1' : 'bt.home.countN', { n: all.length }).replace(/^\d+\s*/, '')) + '</span>' + (!me ? '<a class="link-btn" href="#/me">' + esc(t('bt.home.noMe')) + '</a>' : '') + '</div>' +
+          (next ? '<a class="card stat stat--link" href="#/person/' + encodeURIComponent(next.c.id) + '">' + icon('cake', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.home.nextBirthday')) + '</span><span class="stat__name">' + esc(next.c.name) + '</span><span class="stat__sub">' + esc(bdayText(next.c)) + ' · ' + esc(next.d === 0 ? t('bt.home.today') : next.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: next.d })) + '</span></a>' : '') +
+        '</div>' +
+        '<h2 class="home__h">' + esc(t('home.explore')) + '</h2><div class="cards">' + tiles.map(function (n) {
+          return '<a class="card tile" href="' + esc(n.href) + '">' + icon(n.icon, 'tile__ico') + '<h3>' + esc(navLabel(n)) + '</h3></a>';
+        }).join('') + '</div>' +
+        '<a class="card news-strip" href="#/whats-new"><span class="badge" data-badge="news" hidden></span><strong>' + esc(t('nav.whatsNew')) + '</strong>' +
+          (latest ? '<span class="muted">' + esc(tf('home.latest', { title: latest.title, version: latest.version })) + '</span>' : '') + '</a>' +
+      '</div>';
+  };
+
+  /* ---- The batch (grid) ---- */
+  var batchQ = '', batchSort = 'name';
+  VIEWS.batch = function () {
+    var all = people(), today = new Date(), q = batchQ.trim().toLowerCase();
+    var shown = q ? all.filter(function (c) { return FIELDS.map(function (f) { return c[f.key]; }).concat([c.name]).join(' ').toLowerCase().indexOf(q) >= 0; }) : all.slice();
+    if (batchSort === 'birthday') shown.sort(function (a, b) { var da = daysUntil(a, today), db = daysUntil(b, today); return (da === null ? 9e9 : da) - (db === null ? 9e9 : db) || byName(a, b); });
+    else if (batchSort === 'hometown') shown.sort(function (a, b) { return (a.hometown || '￿').localeCompare(b.hometown || '￿', undefined, { sensitivity: 'base' }) || byName(a, b); });
+    var sorts = [['name', 'bt.batch.sortName'], ['birthday', 'bt.batch.sortBirthday'], ['hometown', 'bt.batch.sortHometown']];
+    return '<div class="wrap page">' + crumb(t('nav.batch')) +
+      '<header class="page__head"><h1>' + esc(t('nav.batch')) + '</h1><p>' + esc(t('bt.batch.intro')) + '</p></header>' +
+      (all.length ? '<div class="toolbar"><label class="field field--inline"><span class="sr-only">' + esc(t('bt.batch.filter')) + '</span><input type="search" id="batch-q" placeholder="' + esc(t('bt.batch.filter')) + '" value="' + esc(batchQ) + '" autocomplete="off"></label>' +
+        '<div class="filters" role="group">' + sorts.map(function (s) { return '<button type="button" class="filter" data-sort="' + s[0] + '" aria-pressed="' + (batchSort === s[0]) + '">' + esc(t(s[1])) + '</button>'; }).join('') + '</div></div>' : '') +
+      (!all.length ? '<div class="empty"><h2>' + esc(t('bt.batch.emptyTitle')) + '</h2><p>' + esc(t('bt.batch.emptyText')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a> <a class="btn" href="#/share">' + esc(t('bt.share.importBtn')) + '</a></p></div>'
+        : shown.length ? '<div class="pgrid">' + shown.map(function (c) { return personCard(c, today); }).join('') + '</div>' : '<div class="empty"><p>' + esc(t('bt.batch.noMatch')) + '</p></div>') +
+      '</div>';
+  };
+  AFTER.batch = function () {
+    var q = document.getElementById('batch-q'); if (!q) return;
+    var timer;
+    q.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(function () { batchQ = q.value; var pos = q.selectionStart; route({ keepScroll: true }); var nq = document.getElementById('batch-q'); if (nq) { nq.focus(); try { nq.setSelectionRange(pos, pos); } catch (e) {} } }, 160); });
+  };
+
+  /* ---- One person ---- */
+  VIEWS.person = function (id) {
+    var c = findPerson(String(id || ''));
+    if (!c) return '<div class="wrap page">' + crumb(t('nav.batch')) + '<div class="empty"><h2>' + esc(t('notfound.title')) + '</h2><p>' + esc(t('bt.person.notFound')) + '</p><p><a class="btn btn--solid" href="#/batch">' + esc(t('nav.batch')) + '</a></p></div></div>';
+    var today = new Date(), d = daysUntil(c, today), me = isMe(c);
+    var rows = FIELDS.filter(function (f) { return f.print && c[f.key] && f.key !== 'nickname'; }).map(function (f) {
+      return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + esc(c[f.key]).replace(/\n/g, '<br>') + '</div></div></div>';
+    }).join('');
+    var contact = '';
+    if (c.phone || c.email) {
+      var tel = c.phone.replace(/[^\d+]/g, '');
+      contact = '<h2>' + esc(t('bt.person.contact')) + '</h2><div class="card contact">' +
+        (c.phone ? '<div class="fact">' + icon('phone', 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel('phone')) + '</div><div class="fact__v">' + esc(c.phone) + '</div><p class="contact__acts"><a class="btn" href="tel:' + esc(tel) + '">' + esc(t('bt.person.call')) + '</a> <a class="btn" href="sms:' + esc(tel) + '">' + esc(t('bt.person.text')) + '</a></p></div></div>' : '') +
+        (c.email ? '<div class="fact">' + icon('mail', 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel('email')) + '</div><div class="fact__v">' + esc(c.email) + '</div><p class="contact__acts"><a class="btn" href="mailto:' + esc(c.email) + '">' + esc(t('bt.person.mail')) + '</a></p></div></div>' : '') +
+        '</div>';
+    }
+    return '<div class="wrap page person">' + crumb(t('nav.batch')) +
+      '<header class="person__head">' + avatar(c, 'avatar--lg') + '<div><h1>' + esc(c.name) + '</h1>' +
+        (c.nickname ? '<p class="person__nick">“' + esc(c.nickname) + '”</p>' : '') +
+        (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + '</p>' : '') +
+        (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a></p>' : '') +
+      '</div></header>' +
+      (rows ? '<div class="card facts">' + rows + '</div>' : '') + contact +
+      '<p class="person__foot muted">' + esc(tf('bt.person.updated', { date: bkDate(c.updated) || '—' })) + (me ? '' : ' · <button type="button" class="link-btn" id="rm-person" data-id="' + esc(c.id) + '">' + esc(t('bt.person.remove')) + '</button>') + '</p></div>';
+  };
+  AFTER.person = function () {
+    var b = document.getElementById('rm-person'); if (!b) return;
+    b.addEventListener('click', function () {
+      var c = findPerson(b.getAttribute('data-id')); if (!c) return;
+      if (!window.confirm(tf('bt.person.confirmRemove', { name: c.name }))) return;
+      saveOthers(getOthers().filter(function (o) { return o.id !== c.id; }));
+      location.hash = '#/batch';
+    });
+  };
+
+  /* ---- My card (edit) ---- */
+  var pendingPhoto = null;   // data URL chosen but not yet saved; null = unchanged, '' = removed
+  function sel(name, label, opts, cur) {
+    return '<label class="field field--sm"><span class="field__l">' + esc(label) + '</span><select name="' + name + '"><option value="0">' + esc(t('bt.me.none')) + '</option>' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(cur) === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>';
+  }
+  VIEWS.me = function () {
+    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '' };
+    pendingPhoto = null;
+    var months = MONTHS_EN.map(function (m, i) { return [i + 1, monthName(i + 1)]; });
+    var days = []; for (var i = 1; i <= 31; i++) days.push([i, String(i)]);
+    var photoSrc = me.photo;
+    return '<div class="wrap page me">' + crumb(t('nav.me')) +
+      '<header class="page__head"><h1>' + esc(t('bt.me.title')) + '</h1><p>' + esc(t('bt.me.intro')) + '</p></header>' +
+      '<form id="me-form" class="card form" novalidate>' +
+        '<div class="form__photo"><div id="me-avatar">' + (photoSrc ? '<img class="avatar avatar--lg" src="' + esc(photoSrc) + '" alt="">' : '<span class="avatar avatar--lg avatar--txt" aria-hidden="true">' + esc(initials(me.name || '?')) + '</span>') + '</div>' +
+          '<div><span class="field__l">' + esc(t('bt.me.photo')) + '</span><p class="field__h">' + esc(t('bt.me.photoHint')) + '</p>' +
+          '<input type="file" id="me-photo" class="sr-only" accept="image/*"><label class="btn" for="me-photo" id="me-photo-label">' + esc(t('bt.me.choosePhoto')) + '</label> ' +
+          '<button type="button" class="link-btn" id="me-photo-rm"' + (photoSrc ? '' : ' hidden') + '>' + esc(t('bt.me.removePhoto')) + '</button></div></div>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.me.name')) + ' *</span><input name="name" type="text" required maxlength="80" autocomplete="name" value="' + esc(me.name) + '"><span class="field__h">' + esc(t('bt.me.nameHint')) + '</span></label>' +
+        '<fieldset class="field fieldset"><legend class="field__l">' + esc(t('bt.me.birthday')) + '</legend><div class="field__row">' +
+          sel('bmonth', t('bt.me.month'), months, me.bmonth) + sel('bday', t('bt.me.day'), days, me.bday) +
+          '<label class="field field--sm"><span class="field__l">' + esc(t('bt.me.year')) + '</span><input name="byear" type="number" inputmode="numeric" min="1900" max="2100" placeholder="' + esc(t('bt.me.none')) + '" value="' + (me.byear || '') + '"></label>' +
+        '</div></fieldset>' +
+        FIELDS.map(function (f) {
+          var v = me[f.key] || '';
+          var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
+                  : '<input name="' + f.key + '" type="' + f.type + '" maxlength="120"' + (f.type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : f.type === 'email' ? ' autocomplete="email"' : '') + ' value="' + esc(v) + '">';
+          return (f.key === 'phone' ? '<p class="field__h form__note">' + esc(t('bt.f.contactNote')) + '</p>' : '') + '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + '</span>' + ctl + '</label>';
+        }).join('') +
+        '<p class="form__status" id="me-status" role="status" aria-live="polite"></p>' +
+        '<div class="form__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.me.save')) + '</button>' + (me.id ? '<a class="btn" href="#/person/' + encodeURIComponent(me.id) + '">' + esc(t('nav.me')) + ' →</a><button type="button" class="link-btn" id="me-clear">' + esc(t('bt.me.clear')) + '</button>' : '') + '</div>' +
+      '</form></div>';
+  };
+  function shrinkPhoto(file, cb) {
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      try {
+        var s = Math.min(img.width, img.height), k = Math.min(1, MAX_PHOTO / s), w = Math.round(s * k);
+        var cv = document.createElement('canvas'); cv.width = w; cv.height = w;
+        var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, w);
+        cx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, w, w);   // centre-square crop
+        var out = cv.toDataURL('image/jpeg', 0.82);
+        URL.revokeObjectURL(url); cb(okPhoto(out) ? out : null);
+      } catch (e) { URL.revokeObjectURL(url); cb(null); }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+  AFTER.me = function () {
+    var form = document.getElementById('me-form'), status = document.getElementById('me-status');
+    var fi = document.getElementById('me-photo'), rm = document.getElementById('me-photo-rm'), av = document.getElementById('me-avatar');
+    function say(m, err) { status.textContent = m; status.classList.toggle('is-error', !!err); }
+    fi.addEventListener('change', function () {
+      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
+      shrinkPhoto(f, function (data) {
+        if (!data) { say(t('bt.me.photoTooBig'), true); return; }
+        pendingPhoto = data; av.innerHTML = '<img class="avatar avatar--lg" src="' + esc(data) + '" alt="">'; rm.hidden = false; say('');
+      });
+    });
+    rm.addEventListener('click', function () { pendingPhoto = ''; av.innerHTML = '<span class="avatar avatar--lg avatar--txt" aria-hidden="true">' + esc(initials(form.name.value || '?')) + '</span>'; rm.hidden = true; });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var old = getMe() || {}, c = { id: old.id || newId(), name: form.name.value };
+      FIELDS.forEach(function (f) { c[f.key] = form.elements[f.key].value; });
+      var m = toInt(form.bmonth.value, 1, 12), d = toInt(form.bday.value, 1, 31), y = toInt(form.byear.value, 1900, 2100);
+      if (!cleanText(c.name, 80)) { say(t('bt.me.needName'), true); form.name.focus(); return; }
+      if ((m || d) && !(m && d && validDay(m, d, y))) { say(t('bt.me.badBirthday'), true); return; }
+      c.bmonth = m; c.bday = d; c.byear = m && d ? y : 0;
+      c.photo = pendingPhoto === null ? (old.photo || '') : pendingPhoto;
+      c.updated = new Date().toISOString();
+      var clean = sanitizeCard(c);
+      if (!clean) { say(t('bt.me.needName'), true); return; }
+      store.set('me', clean); pendingPhoto = null; rebuildIndex();
+      say(t('bt.me.saved'));
+      setTimeout(function () { location.hash = '#/person/' + encodeURIComponent(clean.id); }, 500);
+    });
+    var cl = document.getElementById('me-clear');
+    if (cl) cl.addEventListener('click', function () { if (!window.confirm(t('bt.me.confirmClear'))) return; store.del('me'); rebuildIndex(); route({ keepScroll: false }); });
+  };
+
+  /* ---- Birthdays ---- */
+  VIEWS.birthdays = function () {
+    var today = new Date(), all = people();
+    var dated = all.filter(function (c) { return c.bmonth; }).map(function (c) { return { c: c, d: daysUntil(c, today) }; }).sort(function (a, b) { return a.d - b.d || byName(a.c, b.c); });
+    var undated = all.filter(function (c) { return !c.bmonth; });
+    var groups = [], seen = {};
+    dated.forEach(function (x) {
+      var key = x.d === 0 ? 'today' : x.c.bmonth === today.getMonth() + 1 && x.d < 32 ? 'month' : 'm' + x.c.bmonth;
+      if (!seen[key]) { seen[key] = { key: key, label: key === 'today' ? t('bt.bd.today') : key === 'month' ? t('bt.bd.thisMonth') : monthName(x.c.bmonth), items: [] }; groups.push(seen[key]); }
+      seen[key].items.push(x);
+    });
+    return '<div class="wrap page">' + crumb(t('nav.birthdays')) +
+      '<header class="page__head"><h1>' + esc(t('nav.birthdays')) + '</h1><p>' + esc(t('bt.bd.intro')) + '</p></header>' +
+      (!dated.length ? '<div class="empty"><p>' + esc(t('bt.bd.none')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a></p></div>' :
+        groups.map(function (g) {
+          return '<h2>' + esc(g.label) + '</h2><div class="bdlist">' + g.items.map(function (x) {
+            var c = x.c, yr = today.getFullYear() + (x.d > 0 && (c.bmonth < today.getMonth() + 1 || (c.bmonth === today.getMonth() + 1 && c.bday < today.getDate())) ? 1 : 0);
+            return '<a class="row bdrow' + (x.d === 0 ? ' is-today' : '') + '" href="#/person/' + encodeURIComponent(c.id) + '"><span class="bdrow__date"><span class="bdrow__d">' + c.bday + '</span><span class="bdrow__m">' + esc(monthName(c.bmonth).slice(0, 3)) + '</span></span>' +
+              '<span><h3>' + esc(c.name) + '</h3><p>' + esc(x.d === 0 ? t('bt.home.today') : x.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: x.d })) + (c.byear ? ' · ' + esc(tf('bt.person.turns', { n: ageOn(c, yr) })) : '') + '</p></span>' + avatar(c, 'avatar--sm') + '</a>';
+          }).join('') + '</div>';
+        }).join('')) +
+      (undated.length ? '<h2>' + esc(t('bt.bd.noDate')) + '</h2><p class="muted">' + undated.map(function (c) { return esc(c.name); }).join(', ') + '</p>' : '') +
+      '</div>';
+  };
+
+  /* ---- Share cards: card files in and out ---- */
+  function fileOut(payload, name, titleKey, cb) {   // share sheet on installed phone apps, download elsewhere
+    var json = JSON.stringify(payload, null, 1), file = null;
+    try { file = new File([json], name, { type: 'application/json' }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: t(titleKey) }).then(function () { cb(t('bt.share.shared')); }).catch(function () { cb(t('bt.share.cancelled')); });
+      return;
+    }
+    var url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    var a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    cb(tf('bt.share.saved', { name: name }));
+  }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'card'; }
+  function cardsFrom(p) {   // cards inside a card file, a batch file or a Batch Tickler backup
+    if (!p || p.app !== CARD_APP) return null;
+    if (p.kind === 'card' && p.card) return [p.card];
+    if (p.kind === 'batch' && Array.isArray(p.cards)) return p.cards;
+    if (p.data && typeof p.data === 'object') {   // footer backup format
+      var out = [];
+      try { var me = JSON.parse(p.data.me || 'null'); if (me) out.push(me); } catch (e) {}
+      try { var b = JSON.parse(p.data.batch || '[]'); if (Array.isArray(b)) out = out.concat(b); } catch (e2) {}
+      return out;
+    }
+    return null;
+  }
+  function mergeCards(incoming) {
+    var me = getMe(), list = getOthers(), res = { added: 0, updated: 0, skipped: 0 };
+    incoming.map(sanitizeCard).forEach(function (c) {
+      if (!c) { res.skipped++; return; }
+      if (me && (c.id === me.id || c.name.toLowerCase() === me.name.toLowerCase())) { res.skipped++; return; }
+      var i = -1;
+      for (var k = 0; k < list.length; k++) if (list[k].id === c.id || list[k].name.toLowerCase() === c.name.toLowerCase()) { i = k; break; }
+      if (i < 0) { list.push(c); res.added++; }
+      else if (new Date(c.updated) > new Date(list[i].updated)) { list[i] = c; res.updated++; }
+      else res.skipped++;
+    });
+    saveOthers(list);
+    return res;
+  }
+  VIEWS.share = function () {
+    var me = getMe(), n = people().length;
+    function block(title, text, action) { return '<section class="card share__blk"><h2>' + esc(t(title)) + '</h2><p>' + esc(t(text)) + '</p>' + action + '</section>'; }
+    return '<div class="wrap page share">' + crumb(t('nav.share')) +
+      '<header class="page__head"><h1>' + esc(t('nav.share')) + '</h1><p>' + esc(t('bt.share.intro')) + '</p></header>' +
+      block('bt.share.mine', 'bt.share.mineText', me ? '<button type="button" class="btn btn--solid" id="sh-mine">' + icon('share', 'btn__ico') + esc(t('bt.share.mineBtn')) + '</button>' : '<a class="btn btn--solid" href="#/me">' + esc(t('bt.share.needMe')) + '</a>') +
+      block('bt.share.import', 'bt.share.importText', '<input type="file" id="sh-file" class="sr-only" accept=".json,application/json"><label class="btn btn--solid" for="sh-file" id="sh-file-label">' + esc(t('bt.share.importBtn')) + '</label>') +
+      block('bt.share.all', 'bt.share.allText', '<button type="button" class="btn" id="sh-all"' + (n ? '' : ' disabled') + '>' + esc(t('bt.share.allBtn')) + '</button> <span class="muted">' + esc(tf('bt.share.ownAll', { n: n })) + '</span>') +
+      '<p class="form__status" id="sh-status" role="status" aria-live="polite"></p></div>';
+  };
+  AFTER.share = function () {
+    var st = document.getElementById('sh-status');
+    function say(m, err) { st.textContent = m; st.classList.toggle('is-error', !!err); }
+    var mine = document.getElementById('sh-mine'), all = document.getElementById('sh-all'), fi = document.getElementById('sh-file');
+    if (mine) mine.addEventListener('click', function () {
+      var me = getMe(); if (!me) { say(t('bt.share.needMe'), true); return; }
+      fileOut({ app: CARD_APP, kind: 'card', format: 1, exported: new Date().toISOString(), card: me }, 'batch-card-' + slug(me.name) + '.json', 'bt.share.mine', say);
+    });
+    if (all) all.addEventListener('click', function () {
+      var l = people(); if (!l.length) { say(t('bt.share.allEmpty'), true); return; }
+      var d = new Date();
+      fileOut({ app: CARD_APP, kind: 'batch', format: 1, exported: d.toISOString(), cards: l }, 'batch-cards-' + d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + '.json', 'bt.share.all', say);
+    });
+    fi.addEventListener('change', function () {
+      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
+      var r = new FileReader();
+      r.onerror = function () { say(t('backup.unreadable'), true); };
+      r.onload = function () {
+        var p; try { p = JSON.parse(r.result); } catch (e) { say(t('bt.share.notCards'), true); return; }
+        var cards = cardsFrom(p);
+        if (!cards || !cards.length) { say(t('bt.share.notCards'), true); return; }
+        var res = mergeCards(cards);
+        say(tf('bt.share.result', res) + (res.skipped && getMe() ? ' ' + t('bt.share.skippedMe') : ''));
+        var n = document.querySelector('#sh-all + .muted'); if (n) n.textContent = tf('bt.share.ownAll', { n: people().length });
+        var ab = document.getElementById('sh-all'); if (ab) ab.disabled = !people().length;
+      };
+      r.readAsText(f);
+    });
+  };
+
+  /* ---- Print sheet ---- */
+  VIEWS.print = function () {
+    var all = people(), today = new Date();
+    return '<div class="wrap page print">' + crumb(t('nav.print')) +
+      '<header class="page__head no-print"><h1>' + esc(t('nav.print')) + '</h1><p>' + esc(t('bt.print.intro')) + '</p>' + (all.length ? '<p><button type="button" class="btn btn--solid" id="do-print">' + icon('print', 'btn__ico') + esc(t('bt.print.btn')) + '</button></p>' : '') + '</header>' +
+      (!all.length ? '<div class="empty"><p>' + esc(t('bt.print.empty')) + '</p></div>' :
+        '<div class="sheet"><header class="sheet__head"><h2>' + esc(t('bt.print.title')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long' })) + '</p></header>' +
+        '<div class="sheet__grid">' + all.map(function (c) {
+          return '<article class="sheet__card">' + avatar(c, 'avatar--print') + '<div class="sheet__body"><h3>' + esc(c.name) + (c.nickname ? ' <small>“' + esc(c.nickname) + '”</small>' : '') + '</h3>' +
+            (c.bmonth ? '<p class="sheet__line"><strong>' + esc(t('bt.person.birthday')) + ':</strong> ' + esc(bdayText(c)) + '</p>' : '') +
+            FIELDS.filter(function (f) { return f.print && f.key !== 'nickname' && c[f.key]; }).map(function (f) { return '<p class="sheet__line"><strong>' + esc(fieldLabel(f.key)) + ':</strong> ' + esc(c[f.key]).replace(/\n/g, ' · ') + '</p>'; }).join('') +
+            '</div></article>';
+        }).join('') + '</div><p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>') +
+      '</div>';
+  };
+  AFTER.print = function () { var b = document.getElementById('do-print'); if (b) b.addEventListener('click', function () { window.print(); }); };
+
+  /* ---- Guess who ---- */
+  var guess = { right: 0, total: 0, q: null };
+  function makeQuestion() {
+    var all = people(), pool = [];
+    GUESS_FIELDS.forEach(function (k) { var have = all.filter(function (c) { return c[k]; }); if (have.length >= 4) have.forEach(function (c) { pool.push({ c: c, k: k }); }); });
+    if (!pool.length) return null;
+    var pick = pool[Math.floor(Math.random() * pool.length)];
+    var others = shuffle(all.filter(function (c) { return c.id !== pick.c.id; })).slice(0, 3);
+    return { c: pick.c, k: pick.k, clue: pick.c[pick.k], opts: shuffle(others.concat([pick.c])), answered: false };
+  }
+  VIEWS.guess = function () {
+    if (!guess.q) guess.q = makeQuestion();
+    var q = guess.q;
+    return '<div class="wrap page guess">' + crumb(t('nav.guess')) +
+      '<header class="page__head"><h1>' + esc(t('nav.guess')) + '</h1><p>' + esc(t('bt.guess.intro')) + '</p></header>' +
+      (!q ? '<div class="empty"><p>' + esc(t('bt.guess.notEnough')) + '</p></div>' :
+        '<div class="card guess__card"><p class="guess__ask">' + esc(tf('bt.guess.whose', { field: fieldLabel(q.k).toLowerCase() })) + '</p><blockquote class="guess__clue">' + esc(q.clue).replace(/\n/g, '<br>') + '</blockquote>' +
+        '<div class="guess__opts">' + q.opts.map(function (c) { return '<button type="button" class="btn guess__opt" data-id="' + esc(c.id) + '">' + esc(c.name) + '</button>'; }).join('') + '</div>' +
+        '<p class="form__status" id="g-status" role="status" aria-live="polite"></p><p class="guess__acts" id="g-acts" hidden><button type="button" class="btn btn--solid" id="g-next">' + esc(t('bt.guess.next')) + '</button> <a class="btn" id="g-open" href="#/person/' + encodeURIComponent(q.c.id) + '">' + esc(t('bt.guess.open')) + '</a></p>' +
+        '<p class="muted guess__score">' + esc(tf('bt.guess.score', { right: guess.right, total: guess.total })) + '</p></div>') + '</div>';
+  };
+  AFTER.guess = function () {
+    var q = guess.q; if (!q) return;
+    var opts = document.querySelectorAll('.guess__opt'), st = document.getElementById('g-status'), acts = document.getElementById('g-acts');
+    for (var i = 0; i < opts.length; i++) opts[i].addEventListener('click', function (e) {
+      if (q.answered) return; q.answered = true; guess.total++;
+      var ok = e.currentTarget.getAttribute('data-id') === q.c.id; if (ok) guess.right++;
+      for (var j = 0; j < opts.length; j++) { opts[j].disabled = true; if (opts[j].getAttribute('data-id') === q.c.id) opts[j].classList.add('is-right'); }
+      if (!ok) e.currentTarget.classList.add('is-wrong');
+      st.textContent = ok ? t('bt.guess.right') : tf('bt.guess.wrong', { name: q.c.name });
+      acts.hidden = false; document.querySelector('.guess__score').textContent = tf('bt.guess.score', { right: guess.right, total: guess.total });
+    });
+    document.getElementById('g-next').addEventListener('click', function () { guess.q = makeQuestion(); route({ keepScroll: true }); });
+  };
+
+  TITLES.person = function () { return t('nav.batch'); };
+  rebuildIndex();
+
+  /* ===== Router ===== */
+  function parts() {
+    var h = location.hash.replace(/^#\/?/, '');
+    return h.split('/').filter(Boolean).map(function (p) { try { return decodeURIComponent(p); } catch (e) { return p; } });
+  }
+  function titleFor(key) {
+    if (has(TITLES, key)) return typeof TITLES[key] === 'function' ? TITLES[key]() : TITLES[key];
+    if (has(SHELL_TITLES, key)) return t(SHELL_TITLES[key]);
+    for (var i = 0; i < NAV.length; i++) if (NAV[i].href === '#/' + key) return navLabel(NAV[i]);
+    return key;
+  }
+  function setView(key, html, title) {
+    main.innerHTML = html;
+    document.title = title ? title + ' — ' + APP_NAME : APP_NAME;
+    buildNav();
+    updateNavBadges();
+  }
+  function route(opts) {
+    opts = opts || {};
+    closeSuggest(); closeDrawer();
+    var p = parts(), key = p.length ? p[0] : 'home', restoreY = null;
+    if (!opts.keepScroll) {
+      scrollMemo[scrollKey] = window.scrollY;                 // the page we are leaving
+      scrollKey = location.hash || '#/';
+      restoreY = fromHistory && scrollMemo.hasOwnProperty(scrollKey) ? scrollMemo[scrollKey] : null;
+      fromHistory = false;
+    }
+    var html, title, args = p.slice(1);
+    if (key !== 'missing' && Object.prototype.hasOwnProperty.call(VIEWS, key) && typeof VIEWS[key] === 'function') {
+      html = VIEWS[key].apply(null, args); title = titleFor(key);
+    } else {
+      key = 'missing'; html = missingView(); title = t('notfound.title');
+    }
+    setView(key, html, title);
+    if (AFTER[key]) AFTER[key].apply(null, args);
+    if (opts.focus) main.focus({ preventScroll: true });
+    if (opts.keepScroll) return;
+    if (restoreY !== null) { window.requestAnimationFrame(function () { window.scrollTo(0, restoreY); }); return; }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', function () { syncHist(); route({ focus: true }); });
+  main.addEventListener('change', function (e) {   // About > Settings
+    var n = e.target && e.target.name, v = e.target && e.target.value;
+    if (n === 'lang') { setLang(v); var again = main.querySelector('input[name="lang"]:checked'); if (again) again.focus(); }
+    else if (n === 'theme') setTheme(v);
+    else if (n === 'aboutTextSize') { store.set('textSize', v); applyTextSize(v); }
+  });
+  main.addEventListener('click', function (e) {
+    var f = e.target.closest ? e.target.closest('.search-page .filter[data-kind]') : null;
+    if (f) { searchKind = f.getAttribute('data-kind'); route({ keepScroll: true }); }
+  });
+
+  /* ===== Mobile tab bar: hides on scroll down, shows on scroll up ===== */
+  (function initTabbar() {
+    var lastY = window.scrollY, hold = 0, ticking = false;
+    // Guard both: classList.add/remove rewrite the attribute even when nothing changes,
+    // which would re-fire the MutationObserver below forever.
+    function show() { if (document.body.classList.contains('tabbar-hidden')) document.body.classList.remove('tabbar-hidden'); }
+    function hide() { if (!document.body.classList.contains('tabbar-hidden')) document.body.classList.add('tabbar-hidden'); }
+    function update() {
+      ticking = false;
+      var y = window.scrollY, dy = y - lastY, max = document.documentElement.scrollHeight - window.innerHeight;
+      var a = document.activeElement;
+      var typing = !!(a && a.matches && a.matches('input, textarea, select'));
+      if (Date.now() < hold || document.body.classList.contains('drawer-open') || typing || y < 80 || y > max - 80) { show(); lastY = y; }
+      else if (dy > 10) { hide(); lastY = y; }
+      else if (dy < -6) { show(); lastY = y; }
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; window.requestAnimationFrame(update); } }, { passive: true });
+    window.addEventListener('hashchange', function () { hold = Date.now() + 700; show(); });
+    document.addEventListener('focusin', function (e) { if (e.target.matches && e.target.matches('input, textarea, select')) show(); });
+    new MutationObserver(function () { if (document.body.classList.contains('drawer-open')) show(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  })();
+
+  /* ===== Backup: export / import / undo (everything stored under PREFIX) ===== */
+  var BK_APP = 'batchtickler', BK_UNDO = BK_APP + ':undo-import';
+  function bkCollect() {
+    var data = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(PREFIX) === 0) data[k.slice(PREFIX.length)] = localStorage.getItem(k);
+      }
+    } catch (e) {}
+    return data;
+  }
+  function bkReplace(data) {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(PREFIX) === 0) keys.push(k); }
+    keys.forEach(function (k) { localStorage.removeItem(k); });
+    Object.keys(data).forEach(function (k) { localStorage.setItem(PREFIX + k, data[k]); });
+  }
+  function bkSummary(data) {
+    var n = Object.keys(data || {}).filter(function (k) { return k !== 'lastBackup'; }).length;
+    return n ? tf(n === 1 ? 'backup.item1' : 'backup.itemN', { n: n }) : t('backup.nothing');
+  }
+  function bkDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(locale(), { year: 'numeric', month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' });
+  }
+  function bkStatus(msg, isErr) {
+    var el = document.getElementById('bk-status');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.classList.toggle('is-error', !!isErr);
+  }
+  function bkPaint() {
+    var meta = document.getElementById('bk-meta'), un = document.getElementById('bk-undo');
+    var last = store.get('lastBackup', null);
+    if (meta) meta.textContent = tf('backup.onDevice', { summary: bkSummary(bkCollect()) }) + ' ' + (last && bkDate(last) ? tf('backup.lastExported', { date: bkDate(last) }) : t('backup.notExported'));
+    var has = false;
+    try { has = !!localStorage.getItem(BK_UNDO); } catch (e) {}
+    if (un) un.hidden = !has;
+  }
+  function bkExport() {
+    var now = new Date();
+    store.set('lastBackup', now.toISOString());
+    var data = bkCollect();
+    var payload = { app: BK_APP, format: 1, exported: now.toISOString(), attribution: ATTRIBUTION, summary: bkSummary(data), data: data };
+    var name = BK_APP + '-backup-' + now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()) + '.json';
+    var json = JSON.stringify(payload, null, 1);
+    var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+    var file = null;
+    try { file = new File([json], name, { type: 'application/json' }); } catch (e) {}
+    if (standalone && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      // Installed apps on phones cannot always download files; the share sheet can save to Files or send it on.
+      navigator.share({ files: [file], title: tf('backup.shareTitle', { app: APP_NAME }) }).then(function () {
+        bkStatus(t('backup.shared')); bkPaint();
+      }).catch(function () { bkStatus(t('backup.exportCancelled')); });
+      return;
+    }
+    var url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    var a = document.createElement('a');
+    a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    bkStatus(tf('backup.saved', { name: name }));
+    bkPaint();
+  }
+  function bkImport(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    var bad = tf('backup.notBackup', { app: APP_NAME });
+    reader.onerror = function () { bkStatus(t('backup.unreadable'), true); };
+    reader.onload = function () {
+      var p;
+      try { p = JSON.parse(reader.result); } catch (e) { bkStatus(bad, true); return; }
+      var ok = p && p.app === BK_APP && p.data && typeof p.data === 'object' &&
+        Object.keys(p.data).every(function (k) { return typeof p.data[k] === 'string' && k.length < 80; });
+      if (ok) Object.keys(p.data).forEach(function (k) { try { JSON.parse(p.data[k]); } catch (e) { ok = false; } });
+      if (!ok) { bkStatus(bad, true); return; }
+      var msg = tf('backup.confirmImport', { date: bkDate(p.exported) || t('backup.unknownDate'), backup: bkSummary(p.data), device: bkSummary(bkCollect()) });
+      if (!window.confirm(msg)) { bkStatus(t('backup.importCancelled')); return; }
+      try {
+        localStorage.setItem(BK_UNDO, JSON.stringify({ saved: new Date().toISOString(), data: bkCollect() }));
+        bkReplace(p.data);
+      } catch (e) { bkStatus(t('backup.importFailed'), true); return; }
+      bkStatus(t('backup.imported'));
+      setTimeout(function () { location.reload(); }, 700);
+    };
+    reader.readAsText(file);
+  }
+  function bkUndo() {
+    var snap; try { snap = JSON.parse(localStorage.getItem(BK_UNDO)); } catch (e) {}
+    if (!snap || !snap.data) { bkPaint(); return; }
+    if (!window.confirm(tf('backup.confirmUndo', { summary: bkSummary(snap.data) }))) return;
+    try { bkReplace(snap.data); localStorage.removeItem(BK_UNDO); } catch (e) { bkStatus(t('backup.undoFailed'), true); return; }
+    bkStatus(t('backup.restored'));
+    setTimeout(function () { location.reload(); }, 700);
+  }
+  (function initBackup() {
+    var ex = document.getElementById('bk-export'), fi = document.getElementById('bk-file'), un = document.getElementById('bk-undo');
+    if (!ex || !fi) return;
+    ex.addEventListener('click', bkExport);
+    fi.addEventListener('change', function () { bkImport(fi.files && fi.files[0]); fi.value = ''; });
+    if (un) un.addEventListener('click', bkUndo);
+    bkPaint();
+  })();
+
+  /* ===== Language switching: static markup (data-i18n / data-i18n-attr in index.html), then re-render ===== */
+  function applyStatic() {
+    document.documentElement.setAttribute('lang', lang);
+    var els = document.querySelectorAll('[data-i18n]'), i, v;
+    for (i = 0; i < els.length; i++) { v = t(els[i].getAttribute('data-i18n')); if (v !== els[i].getAttribute('data-i18n')) els[i].textContent = v; }
+    els = document.querySelectorAll('[data-i18n-attr]');
+    for (i = 0; i < els.length; i++) {
+      var pairs = els[i].getAttribute('data-i18n-attr').split(';');
+      for (var j = 0; j < pairs.length; j++) {
+        var at = pairs[j].indexOf(':'), key = pairs[j].slice(at + 1);
+        if (at > 0 && t(key) !== key) els[i].setAttribute(pairs[j].slice(0, at), t(key));
+      }
+    }
+    var brand = document.querySelector('.brand');
+    if (brand) brand.setAttribute('aria-label', tf('brand.home', { name: APP_NAME }));
+    var panel = document.getElementById('textSizePanel');
+    if (panel) panel.setAttribute('aria-label', t('textsize.title'));
+    labelCollapse();
+    applyTheme(getTheme());
+  }
+  function setLang(l) {
+    lang = l === 'tl' ? 'tl' : 'en';
+    store.set('lang', lang);
+    applyStatic();
+    bkPaint();
+    rebuildIndex();
+    var panel = document.getElementById('textSizePanel');
+    if (panel && !panel.hidden) { panel.hidden = true; var tb = document.getElementById('textSizeBtn'); if (tb) tb.setAttribute('aria-expanded', 'false'); }
+    route({ keepScroll: true });   // re-render the current view and the menu in the new language
+  }
+
+  /* ===== Start ===== */
+  applyStatic();
+  route();
+
+  /* ===== Service worker (https or localhost only) ===== */
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+})();
