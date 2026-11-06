@@ -662,6 +662,8 @@
       '</div>';
   };
   AFTER.batch = function () {
+    var sorts = document.querySelectorAll('.toolbar .filter[data-sort]');
+    for (var i = 0; i < sorts.length; i++) sorts[i].addEventListener('click', function (e) { batchSort = e.currentTarget.getAttribute('data-sort'); route({ keepScroll: true }); });
     var q = document.getElementById('batch-q'); if (!q) return;
     var timer;
     q.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(function () { batchQ = q.value; var pos = q.selectionStart; route({ keepScroll: true }); var nq = document.getElementById('batch-q'); if (nq) { nq.focus(); try { nq.setSelectionRange(pos, pos); } catch (e) {} } }, 160); });
