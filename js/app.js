@@ -494,6 +494,7 @@
         segGroup('lang', t('about.language'), [['en', t('about.langEn')], ['tl', t('about.langTl')]], lang) +
         segGroup('theme', t('theme.title'), [['auto', t('theme.auto')], ['light', t('theme.light')], ['dark', t('theme.dark')]], getTheme()) +
         segGroup('aboutTextSize', t('textsize.title'), sizes, String(store.get('textSize', '100'))) +
+        '<label class="field setting"><span class="field__l">' + esc(t('bt.batchName')) + '</span><input type="text" name="batchName" maxlength="60" value="' + esc(batchName()) + '" placeholder="Batch 2027"><span class="field__h">' + esc(t('bt.batchNameHint')) + '</span></label>' +
       '</div>' +
       '<h2>' + esc(t('about.tips')) + '</h2><div class="card"><ul class="prose" style="margin:0;padding-left:1.2em">' +
         [1, 2, 3, 4, 5].map(function (i) { return '<li>' + rich(t('about.tip' + i)) + '</li>'; }).join('') +
@@ -532,6 +533,9 @@
               phone, email, bmonth (1-12|0), bday (1-31|0), byear (number|0), photo (data:image/jpeg… | ''), updated (ISO) }
      =================================================================================================== */
   var FIELDS = window.CARD_FIELDS || [];
+  var GROUPS = window.CARD_GROUPS || ['basics'];
+  var COMMON = window.COMMON_FIELDS || { exact: [], items: [] };
+  var MAX_CUSTOM = 12;
   var GUESS_FIELDS = window.GUESS_FIELDS || [];
   var HOSP = window.HOSPITAL || {};
   var CARD_APP = 'batchtickler', MAX_PHOTO = 320, MAX_TEXT = 600;
@@ -545,6 +549,7 @@
   ICONS.film = '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M7.5 4v16M16.5 4v16M3.5 9h4M3.5 15h4M16.5 9h4M16.5 15h4"/>';
   ICONS.music = '<path d="M9 18.5V6l11-2v12.5"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/>';
   ICONS.food = '<path d="M5 3v8a3 3 0 0 0 3 3v7M8 3v6M11 3v6M11 11a3 3 0 0 1-3 3M17 21v-7c2 0 3-2.5 3-6s-1-5-3-5z"/>';
+  ICONS.chat = '<path d="M4 5.5h16v10H9l-5 4z"/><path d="M8 10.5h8"/>';
   ICONS.game = '<rect x="2.5" y="7" width="19" height="11" rx="4"/><path d="M7 10.5v4M5 12.5h4M15.5 11.5h.01M18 13.5h.01"/>';
   ICONS.spark = '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/>';
   ICONS.phone = '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>';
@@ -564,7 +569,13 @@
     if (!c || typeof c !== 'object') return null;
     var out = { id: String(c.id || '').replace(/[^\w-]/g, '').slice(0, 40), name: cleanText(c.name, 80) };
     if (!out.id || !out.name) return null;
-    FIELDS.forEach(function (f) { out[f.key] = cleanText(c[f.key], f.type === 'textarea' ? MAX_TEXT : 120); });
+    FIELDS.forEach(function (f) {
+      if (f.type === 'year') { var y = toInt(c[f.key], 1950, 2100); out[f.key] = y ? String(y) : ''; }
+      else out[f.key] = cleanText(c[f.key], f.type === 'textarea' ? MAX_TEXT : 120);
+    });
+    out.custom = (Array.isArray(c.custom) ? c.custom : []).map(function (x) {
+      return x && typeof x === 'object' ? { label: cleanText(x.label, 60), value: cleanText(x.value, MAX_TEXT) } : null;
+    }).filter(function (x) { return x && x.label && x.value; }).slice(0, MAX_CUSTOM);
     out.bmonth = toInt(c.bmonth, 1, 12); out.bday = toInt(c.bday, 1, 31); out.byear = toInt(c.byear, 1900, 2100);
     if (!out.bmonth || !out.bday || !validDay(out.bmonth, out.bday, out.byear)) { out.bmonth = 0; out.bday = 0; out.byear = 0; }
     out.photo = okPhoto(c.photo) ? c.photo : '';
@@ -598,7 +609,7 @@
   function rebuildIndex() {
     SEARCH_INDEX.length = 0;
     people().forEach(function (c) {
-      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).filter(Boolean).join(' · ');
+      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; })).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
     [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro']].forEach(function (s) {
@@ -612,6 +623,27 @@
                    : '<span class="avatar avatar--txt ' + (cls || '') + '" aria-hidden="true">' + esc(initials(c.name)) + '</span>';
   }
   function fieldLabel(key) { return t('bt.f.' + key); }
+  function groupLabel(g) { return t('bt.g.' + g); }
+  function batchName() { return cleanText(store.get('batchName', ''), 60); }
+  function completeness(c) {   // filled / total over the standard fields + photo + birthday
+    var fs = FIELDS.filter(function (f) { return f.print; }), n = 0;
+    fs.forEach(function (f) { if (c[f.key]) n++; });
+    if (c.photo) n++; if (c.bmonth) n++;
+    return { n: n, total: fs.length + 2 };
+  }
+  function items(v) {   // "a, b\nc · d" -> ['a','b','c','d'] (original casing), short tokens dropped
+    return String(v || '').split(/[,\n;·\/|]+/).map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(function (x) { return x.length > 2; });
+  }
+  function inCommon(a, b) {
+    var out = [];
+    COMMON.exact.forEach(function (k) { if (a[k] && b[k] && a[k].toLowerCase() === b[k].toLowerCase()) out.push(tf('bt.common.same', { field: fieldLabel(k).toLowerCase(), value: a[k] })); });
+    COMMON.items.forEach(function (k) {
+      var ia = items(a[k]), ib = items(b[k]).map(function (x) { return x.toLowerCase(); }), hit = ia.filter(function (x) { return ib.indexOf(x.toLowerCase()) >= 0; });
+      if (hit.length) out.push(tf('bt.common.shared', { field: fieldLabel(k).toLowerCase(), value: hit.join(', ') }));
+    });
+    return out;
+  }
+  function factRow(ico, k, v, extra) { return '<div class="fact">' + icon(ico, 'fact__ico') + '<div><div class="fact__k">' + esc(k) + (extra || '') + '</div><div class="fact__v">' + esc(v).replace(/\n/g, '<br>') + '</div></div></div>'; }
   function personCard(c, today) {
     var d = daysUntil(c, today), soon = d !== null && d <= 14;
     return '<a class="card pcard" href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c) +
@@ -629,7 +661,7 @@
     var tiles = NAV.filter(function (n) { return n.tile !== false && n.href !== '#/'; });
     var next = all.filter(function (c) { return c.bmonth; }).map(function (c) { return { c: c, d: daysUntil(c, today) }; }).sort(function (a, b) { return a.d - b.d; })[0];
     return '<section class="hero hero--banner"><img class="hero__img" src="img/banner.jpg" srcset="img/banner-small.jpg 704w, img/banner.jpg 1408w" sizes="100vw" alt="" width="1408" height="768">' +
-      '<div class="wrap hero__inner"><h1>' + esc(APP_NAME) + '</h1>' +
+      '<div class="wrap hero__inner">' + (batchName() ? '<p class="hero__kicker">' + esc(batchName()) + '</p>' : '') + '<h1>' + esc(APP_NAME) + '</h1>' +
         '<p class="hero__lead">' + esc(META.tagline || '') + ' · ' + esc(HOSP.program || '') + '</p>' +
         '<p><a class="btn btn--solid" href="' + (me ? '#/batch' : '#/me') + '">' + esc(t(me ? 'bt.hero.ctaDone' : 'bt.hero.cta')) + '</a></p>' +
       '</div></section>' +
@@ -675,24 +707,35 @@
     var c = findPerson(String(id || ''));
     if (!c) return '<div class="wrap page">' + crumb(t('nav.batch')) + '<div class="empty"><h2>' + esc(t('notfound.title')) + '</h2><p>' + esc(t('bt.person.notFound')) + '</p><p><a class="btn btn--solid" href="#/batch">' + esc(t('nav.batch')) + '</a></p></div></div>';
     var today = new Date(), d = daysUntil(c, today), me = isMe(c);
-    var rows = FIELDS.filter(function (f) { return f.print && c[f.key] && f.key !== 'nickname'; }).map(function (f) {
-      return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + esc(c[f.key]).replace(/\n/g, '<br>') + '</div></div></div>';
+    var me0 = getMe();
+    var sections = GROUPS.filter(function (g) { return g !== 'contact'; }).map(function (g) {
+      var rows = FIELDS.filter(function (f) { return f.group === g && f.print && c[f.key] && f.key !== 'nickname'; }).map(function (f) { return factRow(f.icon, fieldLabel(f.key), c[f.key]); }).join('');
+      return rows ? '<h2>' + esc(groupLabel(g)) + '</h2><div class="card facts">' + rows + '</div>' : '';
     }).join('');
-    var contact = '';
-    if (c.phone || c.email) {
-      var tel = c.phone.replace(/[^\d+]/g, '');
-      contact = '<h2>' + esc(t('bt.person.contact')) + '</h2><div class="card contact">' +
-        (c.phone ? '<div class="fact">' + icon('phone', 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel('phone')) + '</div><div class="fact__v">' + esc(c.phone) + '</div><p class="contact__acts"><a class="btn" href="tel:' + esc(tel) + '">' + esc(t('bt.person.call')) + '</a> <a class="btn" href="sms:' + esc(tel) + '">' + esc(t('bt.person.text')) + '</a></p></div></div>' : '') +
-        (c.email ? '<div class="fact">' + icon('mail', 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel('email')) + '</div><div class="fact__v">' + esc(c.email) + '</div><p class="contact__acts"><a class="btn" href="mailto:' + esc(c.email) + '">' + esc(t('bt.person.mail')) + '</a></p></div></div>' : '') +
-        '</div>';
+    if (c.custom.length) sections += '<h2>' + esc(groupLabel('custom')) + '</h2><div class="card facts">' + c.custom.map(function (x) { return factRow('spark', x.label, x.value); }).join('') + '</div>';
+    var common = '';
+    if (me0 && !me) {
+      var hits = inCommon(me0, c);
+      common = '<h2>' + esc(t('bt.common.title')) + '</h2><div class="card common">' + (hits.length ? '<ul>' + hits.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('') + '</ul>' : '<p class="muted">' + esc(t('bt.common.none')) + '</p>') + '</div>';
     }
+    var contact = '';
+    var cfields = FIELDS.filter(function (f) { return f.group === 'contact' && c[f.key]; });
+    if (cfields.length) {
+      var tel = c.phone.replace(/[^\d+]/g, '');
+      contact = '<h2>' + esc(groupLabel('contact')) + '</h2><div class="card facts">' + cfields.map(function (f) {
+        var acts = f.key === 'phone' ? '<p class="contact__acts"><a class="btn" href="tel:' + esc(tel) + '">' + esc(t('bt.person.call')) + '</a> <a class="btn" href="sms:' + esc(tel) + '">' + esc(t('bt.person.text')) + '</a></p>'
+                 : f.key === 'email' ? '<p class="contact__acts"><a class="btn" href="mailto:' + esc(c.email) + '">' + esc(t('bt.person.mail')) + '</a></p>' : '';
+        return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + esc(c[f.key]).replace(/\n/g, '<br>') + '</div>' + acts + '</div></div>';
+      }).join('') + '</div>';
+    }
+    var comp = completeness(c);
     return '<div class="wrap page person">' + crumb(t('nav.batch')) +
       '<header class="person__head">' + avatar(c, 'avatar--lg') + '<div><h1>' + esc(c.name) + '</h1>' +
         (c.nickname ? '<p class="person__nick">“' + esc(c.nickname) + '”</p>' : '') +
         (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + '</p>' : '') +
-        (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a></p>' : '') +
-      '</div></header>' +
-      (rows ? '<div class="card facts">' + rows + '</div>' : '') + contact +
+        (c.preferredName ? '<p class="muted">' + esc(fieldLabel('preferredName')) + ': ' + esc(c.preferredName) + (c.pronouns ? ' · ' + esc(c.pronouns) : '') + '</p>' : (c.pronouns ? '<p class="muted">' + esc(c.pronouns) + '</p>' : '')) +
+        (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a> <span class="muted">' + esc(tf('bt.me.complete', comp)) + '</span></p>' : '') +
+      '</div></header>' + common + sections + contact +
       '<p class="person__foot muted">' + esc(tf('bt.person.updated', { date: bkDate(c.updated) || '—' })) + (me ? '' : ' · <button type="button" class="link-btn" id="rm-person" data-id="' + esc(c.id) + '">' + esc(t('bt.person.remove')) + '</button>') + '</p></div>';
   };
   AFTER.person = function () {
@@ -710,8 +753,12 @@
   function sel(name, label, opts, cur) {
     return '<label class="field field--sm"><span class="field__l">' + esc(label) + '</span><select name="' + name + '"><option value="0">' + esc(t('bt.me.none')) + '</option>' + opts.map(function (o) { return '<option value="' + o[0] + '"' + (String(cur) === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></label>';
   }
+  function customRow(label, value) {
+    return '<div class="custom-row"><label class="field field--sm"><span class="field__l">' + esc(t('bt.custom.label')) + '</span><input type="text" name="customLabel" maxlength="60" value="' + esc(label || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.custom.value')) + '</span><input type="text" name="customValue" maxlength="300" value="' + esc(value || '') + '"></label><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></div>';
+  }
   VIEWS.me = function () {
-    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '' };
+    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [] };
+    var comp = completeness(me);
     pendingPhoto = null;
     var months = MONTHS_EN.map(function (m, i) { return [i + 1, monthName(i + 1)]; });
     var days = []; for (var i = 1; i <= 31; i++) days.push([i, String(i)]);
@@ -728,12 +775,21 @@
           sel('bmonth', t('bt.me.month'), months, me.bmonth) + sel('bday', t('bt.me.day'), days, me.bday) +
           '<label class="field field--sm"><span class="field__l">' + esc(t('bt.me.year')) + '</span><input name="byear" type="number" inputmode="numeric" min="1900" max="2100" placeholder="' + esc(t('bt.me.none')) + '" value="' + (me.byear || '') + '"></label>' +
         '</div></fieldset>' +
-        FIELDS.map(function (f) {
-          var v = me[f.key] || '';
-          var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
-                  : '<input name="' + f.key + '" type="' + f.type + '" maxlength="120"' + (f.type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : f.type === 'email' ? ' autocomplete="email"' : '') + ' value="' + esc(v) + '">';
-          return (f.key === 'phone' ? '<p class="field__h form__note">' + esc(t('bt.f.contactNote')) + '</p>' : '') + '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + '</span>' + ctl + '</label>';
+        '<p class="form__note"><span class="meter__bar" style="display:block;margin-bottom:6px"><span style="width:' + Math.round(100 * comp.n / comp.total) + '%"></span></span>' + esc(tf('bt.me.complete', comp)) + ' · ' + esc(t('bt.me.completeHint')) + ' <button type="button" class="link-btn" id="me-toggle-all" data-open="1">' + esc(t('bt.me.collapseAll')) + '</button></p>' +
+        GROUPS.map(function (g, gi) {
+          return '<details class="fgroup"' + (gi === 0 ? ' open' : '') + '><summary><span>' + esc(groupLabel(g)) + '</span><span class="muted fgroup__n" data-group="' + g + '"></span></summary><div class="fgroup__body">' +
+            (g === 'contact' ? '<p class="field__h">' + esc(t('bt.f.contactNote')) + '</p>' : '') +
+            FIELDS.filter(function (f) { return f.group === g; }).map(function (f) {
+              var v = me[f.key] || '';
+              var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
+                      : f.type === 'year' ? '<input name="' + f.key + '" type="number" inputmode="numeric" min="1950" max="2100" value="' + esc(v) + '">'
+                      : '<input name="' + f.key + '" type="' + f.type + '" maxlength="120"' + (f.type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : f.type === 'email' ? ' autocomplete="email"' : '') + ' value="' + esc(v) + '">';
+              return '<label class="field"><span class="field__l">' + esc(fieldLabel(f.key)) + (f.print ? '' : ' <em class="field__tag">' + esc(t('bt.f.inAppOnly')) + '</em>') + '</span>' + ctl + '</label>';
+            }).join('') + '</div></details>';
         }).join('') +
+        '<details class="fgroup"><summary><span>' + esc(t('bt.custom.title')) + '</span><span class="muted fgroup__n" data-group="custom"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(t('bt.custom.hint')) + '</p><div id="custom-rows">' +
+          (me.custom || []).map(function (x) { return customRow(x.label, x.value); }).join('') +
+        '</div><p><button type="button" class="btn" id="custom-add">' + esc(t('bt.custom.add')) + '</button></p></div></details>' +
         '<p class="form__status" id="me-status" role="status" aria-live="polite"></p>' +
         '<div class="form__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.me.save')) + '</button>' + (me.id ? '<a class="btn" href="#/person/' + encodeURIComponent(me.id) + '">' + esc(t('nav.me')) + ' →</a><button type="button" class="link-btn" id="me-clear">' + esc(t('bt.me.clear')) + '</button>' : '') + '</div>' +
       '</form></div>';
@@ -765,10 +821,30 @@
       });
     });
     rm.addEventListener('click', function () { pendingPhoto = ''; av.innerHTML = '<span class="avatar avatar--lg avatar--txt" aria-hidden="true">' + esc(initials(form.name.value || '?')) + '</span>'; rm.hidden = true; });
+    function paintCounts() {
+      GROUPS.forEach(function (g) {
+        var fs = FIELDS.filter(function (f) { return f.group === g; }), n = fs.filter(function (f) { return form.elements[f.key] && form.elements[f.key].value.trim(); }).length;
+        var el = form.querySelector('.fgroup__n[data-group="' + g + '"]'); if (el) el.textContent = n + '/' + fs.length;
+      });
+      var cel = form.querySelector('.fgroup__n[data-group="custom"]'); if (cel) cel.textContent = String(form.querySelectorAll('.custom-row').length);
+    }
+    paintCounts();
+    form.addEventListener('input', function () { clearTimeout(form._ct); form._ct = setTimeout(paintCounts, 200); });
+    var rows = document.getElementById('custom-rows');
+    document.getElementById('custom-add').addEventListener('click', function () { rows.insertAdjacentHTML('beforeend', customRow('', '')); var last = rows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
+    rows.addEventListener('click', function (e) { var b = e.target.closest('.custom-rm'); if (b) { b.closest('.custom-row').remove(); paintCounts(); } });
+    var tog = document.getElementById('me-toggle-all');
+    tog.addEventListener('click', function () {
+      var open = tog.getAttribute('data-open') !== '1';
+      form.querySelectorAll('details.fgroup').forEach(function (d) { d.open = open; });
+      tog.setAttribute('data-open', open ? '1' : '0'); tog.textContent = t(open ? 'bt.me.collapseAll' : 'bt.me.expandAll');
+    });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var old = getMe() || {}, c = { id: old.id || newId(), name: form.name.value };
       FIELDS.forEach(function (f) { c[f.key] = form.elements[f.key].value; });
+      c.custom = [];
+      form.querySelectorAll('.custom-row').forEach(function (r) { c.custom.push({ label: r.querySelector('[name=customLabel]').value, value: r.querySelector('[name=customValue]').value }); });
       var m = toInt(form.bmonth.value, 1, 12), d = toInt(form.bday.value, 1, 31), y = toInt(form.byear.value, 1900, 2100);
       if (!cleanText(c.name, 80)) { say(t('bt.me.needName'), true); form.name.focus(); return; }
       if ((m || d) && !(m && d && validDay(m, d, y))) { say(t('bt.me.badBirthday'), true); return; }
@@ -897,11 +973,12 @@
     return '<div class="wrap page print">' + crumb(t('nav.print')) +
       '<header class="page__head no-print"><h1>' + esc(t('nav.print')) + '</h1><p>' + esc(t('bt.print.intro')) + '</p>' + (all.length ? '<p><button type="button" class="btn btn--solid" id="do-print">' + icon('print', 'btn__ico') + esc(t('bt.print.btn')) + '</button></p>' : '') + '</header>' +
       (!all.length ? '<div class="empty"><p>' + esc(t('bt.print.empty')) + '</p></div>' :
-        '<div class="sheet"><header class="sheet__head"><h2>' + esc(t('bt.print.title')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long' })) + '</p></header>' +
+        '<div class="sheet"><header class="sheet__head"><h2>' + esc(batchName() ? batchName() + ' · ' + t('bt.print.title') : t('bt.print.title')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long' })) + '</p></header>' +
         '<div class="sheet__grid">' + all.map(function (c) {
           return '<article class="sheet__card">' + avatar(c, 'avatar--print') + '<div class="sheet__body"><h3>' + esc(c.name) + (c.nickname ? ' <small>“' + esc(c.nickname) + '”</small>' : '') + '</h3>' +
             (c.bmonth ? '<p class="sheet__line"><strong>' + esc(t('bt.person.birthday')) + ':</strong> ' + esc(bdayText(c)) + '</p>' : '') +
             FIELDS.filter(function (f) { return f.print && f.key !== 'nickname' && c[f.key]; }).map(function (f) { return '<p class="sheet__line"><strong>' + esc(fieldLabel(f.key)) + ':</strong> ' + esc(c[f.key]).replace(/\n/g, ' · ') + '</p>'; }).join('') +
+            c.custom.map(function (x) { return '<p class="sheet__line"><strong>' + esc(x.label) + ':</strong> ' + esc(x.value) + '</p>'; }).join('') +
             '</div></article>';
         }).join('') + '</div><p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>') +
       '</div>';
@@ -992,6 +1069,7 @@
     if (n === 'lang') { setLang(v); var again = main.querySelector('input[name="lang"]:checked'); if (again) again.focus(); }
     else if (n === 'theme') setTheme(v);
     else if (n === 'aboutTextSize') { store.set('textSize', v); applyTextSize(v); }
+    else if (n === 'batchName') store.set('batchName', cleanText(v, 60));
   });
   main.addEventListener('click', function (e) {
     var f = e.target.closest ? e.target.closest('.search-page .filter[data-kind]') : null;
