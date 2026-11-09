@@ -10,6 +10,7 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **Things in common** — a batchmate's page lists what you share (same hometown/school/year, shared shows, books, food…).
 - **Batch name and batch photo** — set in About › Settings; the name shows on the home screen and prints, the photo replaces the home banner on that device.
 - **The batch** — everyone's cards in one grid, with a quick filter and sorting by name, next birthday or hometown. Tap a card for the full page (contact buttons: call, message, email).
+- **Today in the batch** (Home) — a featured Spotify playlist and a featured fact of the day (one question, everyone's answers). Picks change at midnight and match on every phone with the same cards; *Show another* browses more.
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
 - **Share cards** — cards travel as small JSON files: share your own card, import cards from batchmates (newer copies replace older ones; your own card is never overwritten), or send the whole batch to someone starting from nothing. Uses the phone share sheet when installed.
 - **Scan a card / Show my QR** — pass a card phone-to-phone with a QR code (camera, or a screenshot of the QR). Text only; the photo travels with the file.

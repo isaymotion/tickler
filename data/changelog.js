@@ -4,6 +4,16 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.10.0',
+    date: '2026-11-09',
+    title: 'Today in the batch',
+    items: [
+      { type: 'feature', text: 'Home: Featured Spotify playlist today — one playlist from the batch\'s cards each day, with who shared it and an Open in Spotify button.', href: '#/' },
+      { type: 'feature', text: 'Home: Featured fact of the day — one question a day (favourite cartoons, comfort food, hidden talent…) with every batchmate\'s answer. Tap a name to open their card.', href: '#/' },
+      { type: 'update', text: 'Both picks change at midnight and are the same on every phone that has the same cards. Show another browses more without changing tomorrow\'s pick.' }
+    ]
+  },
+  {
     version: '1.9.0',
     date: '2026-11-07',
     title: 'Tidier card, full-directory print',

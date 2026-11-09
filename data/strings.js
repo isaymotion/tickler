@@ -12,6 +12,11 @@ window.STRINGS = {
     'nav.guess': 'Guess who',
     'bt.hero.cta': 'Fill in my card',
     'bt.hero.ctaDone': 'See the batch',
+    'bt.today.h': 'Today in the batch',
+    'bt.today.pl': 'Featured Spotify playlist today',
+    'bt.today.fact': 'Featured fact of the day',
+    'bt.today.by': 'Shared by {name}',
+    'bt.today.another': 'Show another',
     'bt.home.count1': '{n} resident in your batch so far.',
     'bt.home.countN': '{n} residents in your batch so far.',
     'bt.home.nextBirthday': 'Next birthday',
@@ -468,6 +473,11 @@ window.STRINGS = {
     'nav.guess': 'Hulaan kung sino',
     'bt.hero.cta': 'Punan ang card ko',
     'bt.hero.ctaDone': 'Tingnan ang batch',
+    'bt.today.h': 'Ngayong araw sa batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.pl': 'Tampok na Spotify playlist ngayon',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.fact': 'Tampok na kaalaman ngayong araw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.by': 'Ibinahagi ni {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.another': 'Iba pa',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.home.count1': '{n} residente na sa batch mo.',
     'bt.home.countN': '{n} residente na sa batch mo.',
     'bt.home.nextBirthday': 'Susunod na kaarawan',

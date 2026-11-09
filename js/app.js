@@ -694,6 +694,49 @@
   }
   function crumb(label) { return '<p class="crumb"><a href="#/">' + esc(t('nav.home')) + '</a> / ' + esc(label) + '</p>'; }
 
+  /* ---- Today's picks (1.10.0): same pick on every phone with the same batch, changes at local midnight ---- */
+  var pickOff = { pl: 0, fact: 0 };   // "Another" taps; session only, reset on a new day
+  var pickDay = 0;
+  function dayNum(d) { return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
+  function dayHash(n, salt) { var h = (n * 2654435761 + salt * 40503) >>> 0; h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13; return h >>> 0; }
+  function clip(s, n) { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1).trim() + '…' : s; }
+  function todaysPicks(all, today) {
+    var dn = dayNum(today);
+    if (dn !== pickDay) { pickDay = dn; pickOff.pl = 0; pickOff.fact = 0; }
+    var pls = [];
+    all.forEach(function (c) { c.playlists.forEach(function (pl) { pls.push({ c: c, pl: pl }); }); });
+    pls.sort(function (a, b) { return byName(a.c, b.c) || (a.pl.url < b.pl.url ? -1 : a.pl.url > b.pl.url ? 1 : 0); });
+    var need = all.length > 1 ? 2 : 1;
+    var facts = (window.GUESS_FIELDS || []).filter(function (k) { return all.filter(function (c) { return c[k] && String(c[k]).trim(); }).length >= need; });
+    var pl = pls.length ? pls[(dayHash(dn, 1) + pickOff.pl) % pls.length] : null;
+    var fk = facts.length ? facts[(dayHash(dn, 2) + pickOff.fact) % facts.length] : null;
+    return { pl: pl, plN: pls.length, fk: fk, factN: facts.length };
+  }
+  function todayHTML(all, today) {
+    var tp = todaysPicks(all, today), out = '';
+    if (tp.pl) {
+      var c = tp.pl.c;
+      out += '<section class="card today" aria-labelledby="today-pl-h"><p class="today__k">' + icon('music', 'today__ico') + '<span id="today-pl-h">' + esc(t('bt.today.pl')) + '</span></p>' +
+        '<div class="today__pl"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div><h3>' + esc(tp.pl.pl.label || t('bt.f.playlists')) + '</h3><p class="muted">' + esc(tf('bt.today.by', { name: c.preferredName || c.nickname || c.name })) + '</p></div></div>' +
+        '<p class="today__acts"><a class="btn btn--solid" href="' + esc(tp.pl.pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a>' +
+        (tp.plN > 1 ? '<button type="button" class="btn" data-another="pl">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
+    }
+    if (tp.fk) {
+      var f = FIELDS.filter(function (x) { return x.key === tp.fk; })[0] || { icon: 'star' };
+      var who = all.filter(function (c) { return c[tp.fk] && String(c[tp.fk]).trim(); });
+      out += '<section class="card today" aria-labelledby="today-fact-h"><p class="today__k">' + icon('star', 'today__ico') + '<span id="today-fact-h">' + esc(t('bt.today.fact')) + '</span></p>' +
+        '<h3 class="today__q">' + icon(f.icon, 'fact__ico') + esc(fieldLabel(tp.fk)) + '</h3><ul class="today__list">' +
+        who.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '<span><strong>' + esc(c.preferredName || c.nickname || c.name) + '</strong><span class="today__a">' + esc(clip(c[tp.fk], 140)) + '</span></span></a></li>'; }).join('') +
+        '</ul>' + (tp.factN > 1 ? '<p class="today__acts"><button type="button" class="btn" data-another="fact">' + esc(t('bt.today.another')) + '</button></p>' : '') + '</section>';
+    }
+    return out ? '<h2 class="home__h">' + esc(t('bt.today.h')) + '</h2><div class="today-grid">' + out + '</div>' : '';
+  }
+  AFTER.home = function () {
+    main.querySelectorAll('[data-another]').forEach(function (b) {
+      b.addEventListener('click', function () { var k = b.getAttribute('data-another'); pickOff[k]++; route({ keepScroll: true }); var nb = main.querySelector('[data-another="' + k + '"]'); if (nb) nb.focus({ preventScroll: true }); });
+    });
+  };
+
   /* ---- Home (overrides the starter hero with the batch banner) ---- */
   VIEWS.home = function () {
     var me = getMe(), all = people(), today = new Date(), latest = CHANGELOG[0];
@@ -708,7 +751,7 @@
         '<div class="home__stats">' +
           '<div class="card stat"><span class="stat__n">' + all.length + '</span><span class="stat__t">' + esc(tf(all.length === 1 ? 'bt.home.count1' : 'bt.home.countN', { n: all.length }).replace(/^\d+\s*/, '')) + '</span>' + (!me ? '<a class="link-btn" href="#/me">' + esc(t('bt.home.noMe')) + '</a>' : '') + '</div>' +
           (next ? '<a class="card stat stat--link" href="#/person/' + encodeURIComponent(next.c.id) + '">' + icon('cake', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.home.nextBirthday')) + '</span><span class="stat__name">' + esc(next.c.name) + '</span><span class="stat__sub">' + esc(bdayText(next.c)) + ' · ' + esc(next.d === 0 ? t('bt.home.today') : next.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: next.d })) + '</span></a>' : '') +
-        '</div>' +
+        '</div>' + todayHTML(all, today) +
         '<h2 class="home__h">' + esc(t('home.explore')) + '</h2><div class="cards">' + tiles.map(function (n) {
           return '<a class="card tile" href="' + esc(n.href) + '">' + icon(n.icon, 'tile__ico') + '<h3>' + esc(navLabel(n)) + '</h3></a>';
         }).join('') + '</div>' +
