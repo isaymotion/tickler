@@ -4,6 +4,23 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.11.0',
+    date: '2026-11-10',
+    title: 'Fun pack: bingo, map, Wrapped and more',
+    items: [
+      { type: 'feature', text: 'Birthday banner: on someone\'s birthday, Home shows a banner with confetti and a Greet them button that opens your share sheet with a ready greeting.', href: '#/' },
+      { type: 'feature', text: 'Who said it?: read one batchmate\'s answer and guess whose it is. Start it from the fact of the day or pick any question.', href: '#/whosaid' },
+      { type: 'feature', text: 'Batch Bingo: a bingo card made from the batch\'s cards (hometowns, foods, shows, languages…). Find someone who matches, tap the square, get five in a row.', href: '#/bingo' },
+      { type: 'feature', text: 'Batch twins: the pairs with the most things in common, on Batch stats.', href: '#/stats' },
+      { type: 'feature', text: 'Spotlight of the week on Home: one batchmate each week, with a few things from their card.', href: '#/' },
+      { type: 'feature', text: 'Icebreakers: 36 conversation starters for duty breaks, or questions drawn from batchmates\' cards with a peek at their answer.', href: '#/icebreakers' },
+      { type: 'feature', text: 'Hometown map: everyone\'s hometown as dots on a map of the Philippines, works offline. Writing "city, province" on your card helps it find the place.', href: '#/map' },
+      { type: 'feature', text: 'Batch Wrapped: the batch in a few swipeable slides — numbers, birthday season, favourites, most common hometown, batch twins.', href: '#/wrapped' },
+      { type: 'feature', text: 'Residency day counter on Home. Set the start date in About › Settings.', href: '#/about' },
+      { type: 'update', text: 'The menu has a new Play group for the games.' }
+    ]
+  },
+  {
     version: '1.10.0',
     date: '2026-11-09',
     title: 'Today in the batch',

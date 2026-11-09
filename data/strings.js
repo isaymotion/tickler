@@ -12,6 +12,112 @@ window.STRINGS = {
     'nav.guess': 'Guess who',
     'bt.hero.cta': 'Fill in my card',
     'bt.hero.ctaDone': 'See the batch',
+    'nav.play': 'Play',
+    'nav.map': 'Hometown map',
+    'nav.whosaid': 'Who said it?',
+    'nav.bingo': 'Batch Bingo',
+    'nav.icebreakers': 'Icebreakers',
+    'nav.wrapped': 'Batch Wrapped',
+    'bt.day.title': 'Residency',
+    'bt.day.set': 'Set your start date in About to count the days.',
+    'bt.day.tomorrow': 'Starts tomorrow!',
+    'bt.day.inN': 'Starts in {n} days',
+    'bt.day.dayN': 'Day {n}',
+    'bt.day.year': 'Year {n} of residency',
+    'bt.day.m1': 'Day one. Welcome to residency!',
+    'bt.day.mN': 'Day {n}: a milestone!',
+    'bt.day.mYear': '{n} year(s) of residency today!',
+    'bt.day.setting': 'Residency start date',
+    'bt.day.hint': 'For the day counter on the home screen. Stays on this device.',
+    'bt.bdt.kicker': 'Birthday today',
+    'bt.bdt.title': 'Happy birthday, {names}!',
+    'bt.bdt.you': 'Happy birthday to you!',
+    'bt.bdt.youToo': 'And happy birthday to you too!',
+    'bt.bdt.greet': 'Greet them',
+    'bt.bdt.copied': 'Greeting copied. Paste it in your chat.',
+    'bt.bdt.msg': 'Happy birthday, {name}! 🎂 Wishing you a great year ahead. From your batchmates.',
+    'bt.bdt.msgBatch': 'Happy birthday, {name}! 🎂 Wishing you a great year ahead. From your {batch} batchmates.',
+    'bt.spot.h': 'Spotlight of the week',
+    'bt.spot.open': 'Read their card',
+    'bt.ws.intro': 'One question, everyone’s answers: read an answer and guess who gave it.',
+    'bt.ws.notEnough': 'Needs at least two cards that answer the same question.',
+    'bt.ws.topic': 'Question',
+    'bt.ws.other': 'Another question',
+    'bt.ws.ask': 'Who gave this as their {field}?',
+    'bt.bingo.intro': 'Find batchmates who match each square. Tap a square when you find someone. Five in a row (or column, or diagonal) wins.',
+    'bt.bingo.notEnough': 'Not enough details on the cards yet. Import a few more cards first.',
+    'bt.bingo.win': 'BINGO! 🎉',
+    'bt.bingo.winN': 'BINGO × {n}! 🎉',
+    'bt.bingo.free': 'Free',
+    'bt.bingo.new': 'New card',
+    'bt.bingo.newConfirm': 'Start a new bingo card? Your marks on this one will be cleared.',
+    'bt.bingo.how': 'Squares come from the batch’s cards. Ask around instead of peeking; Show who matches is for checking.',
+    'bt.bingo.reveal': 'Show who matches',
+    'bt.bingo.hide': 'Hide names',
+    'bt.twins.h': 'Batch twins',
+    'bt.twins.intro': 'The pairs with the most things in common.',
+    'bt.twins.n1': '1 thing in common',
+    'bt.twins.nN': '{n} things in common',
+    'bt.twins.top': 'closest match',
+    'bt.twins.more': 'and {n} more',
+    'bt.twins.none': 'No two cards share anything yet.',
+    'bt.ice.intro': 'Conversation starters for duty breaks, lunch and batch nights.',
+    'bt.ice.modeQ': 'Questions',
+    'bt.ice.modeCard': 'From the cards',
+    'bt.ice.ask': 'Ask this',
+    'bt.ice.askWho': 'Try asking {name}.',
+    'bt.ice.next': 'Next',
+    'bt.ice.otherWho': 'Someone else',
+    'bt.ice.noCards': 'Import some batchmates’ cards first.',
+    'bt.ice.cardQ': 'Ask {name} about their {field}.',
+    'bt.ice.theirCard': 'Their card says',
+    'bt.ice.reveal': 'Peek at their card',
+    'bt.map.intro': 'Where everyone is from, based on the Hometown on each card.',
+    'bt.map.noData': 'The map data did not load.',
+    'bt.map.aria': 'Map of the Philippines with the batch’s hometowns',
+    'bt.map.hosp': 'the hospital',
+    'bt.map.tap': 'Tap a dot to see who is from there.',
+    'bt.map.places': '{n} places',
+    'bt.map.empty': 'No hometowns found on the map yet.',
+    'bt.map.off': 'Not on the map',
+    'bt.map.offHint': 'Hometowns the map did not recognise (abroad, or spelled differently). Writing “city, province” helps.',
+    'bt.map.none': '{n} without a hometown on their card.',
+    'bt.map.src': 'Map outline: Natural Earth (public domain). Dots are approximate.',
+    'bt.wrap.intro': 'The batch in a few slides. Tap Next or swipe.',
+    'bt.wrap.notEnough': 'Needs at least two cards.',
+    'bt.wrap.prev': 'Back',
+    'bt.wrap.next': 'Next',
+    'bt.wrap.again': 'Start over',
+    'bt.wrap.note': 'Made from the cards on this device.',
+    'bt.wrap.theBatch': 'The batch',
+    'bt.wrap.k0': 'Batch Wrapped {year}',
+    'bt.wrap.s0': 'Let’s look back at who we are.',
+    'bt.wrap.k1': 'In numbers',
+    'bt.wrap.s1': 'residents on this device',
+    'bt.wrap.towns': 'hometowns',
+    'bt.wrap.schools': 'medical schools',
+    'bt.wrap.langs': 'languages',
+    'bt.wrap.k2': 'Birthday season',
+    'bt.wrap.s2': '{n} birthdays that month',
+    'bt.wrap.s2one': 'the first birthday on the list',
+    'bt.wrap.zodiac': 'Most common sign: {sign} ({n})',
+    'bt.wrap.k3': 'Born between',
+    'bt.wrap.s3': '{n} birth years in one batch',
+    'bt.wrap.k4': 'Batch favourites',
+    'bt.wrap.b4': 'What we love',
+    'bt.wrap.food': 'Food: {v} ({n})',
+    'bt.wrap.shows': 'Show: {v} ({n})',
+    'bt.wrap.music': 'Music: {v} ({n})',
+    'bt.wrap.movies': 'Movie: {v} ({n})',
+    'bt.wrap.games': 'Game: {v} ({n})',
+    'bt.wrap.hobbies': 'Hobby: {v} ({n})',
+    'bt.wrap.k5': 'Most common hometown',
+    'bt.wrap.s5': 'home to {n} of us',
+    'bt.wrap.k6': 'Playlists shared',
+    'bt.wrap.s6': 'Spotify playlists on the batch’s cards',
+    'bt.wrap.s6one': 'Spotify playlist on the batch’s cards',
+    'bt.wrap.k7': 'Here’s to residency',
+    'bt.wrap.s7': 'Glad you’re in this batch.',
     'bt.today.h': 'Today in the batch',
     'bt.today.pl': 'Featured Spotify playlist today',
     'bt.today.fact': 'Featured fact of the day',
@@ -473,6 +579,112 @@ window.STRINGS = {
     'nav.guess': 'Hulaan kung sino',
     'bt.hero.cta': 'Punan ang card ko',
     'bt.hero.ctaDone': 'Tingnan ang batch',
+    'nav.play': 'Laro',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.map': 'Mapa ng probinsya',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.whosaid': 'Sino ang nagsabi?',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.bingo': 'Batch Bingo',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.icebreakers': 'Icebreakers',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.wrapped': 'Batch Wrapped',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.title': 'Residency',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.set': 'Ilagay ang start date sa About para mabilang ang araw.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.tomorrow': 'Magsisimula bukas!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.inN': 'Magsisimula sa loob ng {n} araw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.dayN': 'Araw {n}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.year': 'Taon {n} ng residency',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.m1': 'Unang araw. Welcome sa residency!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.mN': 'Araw {n}: isang milestone!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.mYear': '{n} taon na ng residency ngayon!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.setting': 'Petsa ng simula ng residency',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.hint': 'Para sa bilang ng araw sa home screen. Nasa device na ito lang.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.kicker': 'Kaarawan ngayon',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.title': 'Maligayang kaarawan, {names}!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.you': 'Maligayang kaarawan sa iyo!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.youToo': 'At maligayang kaarawan din sa iyo!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.greet': 'Batiin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.copied': 'Nakopya ang bati. I-paste sa chat mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.msg': 'Happy birthday, {name}! 🎂 Masayang taon sa iyo. Mula sa mga kabatch mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bdt.msgBatch': 'Happy birthday, {name}! 🎂 Masayang taon sa iyo. Mula sa mga kabatch mo sa {batch}.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.spot.h': 'Spotlight ngayong linggo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.spot.open': 'Basahin ang card niya',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ws.intro': 'Isang tanong, sagot ng lahat: basahin ang sagot at hulaan kung kanino.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ws.notEnough': 'Kailangan ng dalawang card man lang na sumagot sa parehong tanong.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ws.topic': 'Tanong',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ws.other': 'Ibang tanong',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ws.ask': 'Kanino ang sagot na ito sa {field}?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.intro': 'Hanapin ang mga kabatch na tugma sa bawat kahon. I-tap ang kahon kapag may nahanap ka. Lima nang sunod-sunod (pahalang, pababa o pahilis) ang panalo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.notEnough': 'Kulang pa ang detalye sa mga card. Mag-import muna ng ilan pang card.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.win': 'BINGO! 🎉',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.winN': 'BINGO × {n}! 🎉',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.free': 'Libre',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.new': 'Bagong card',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.newConfirm': 'Magsimula ng bagong bingo card? Mabubura ang mga marka sa card na ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.how': 'Galing sa mga card ng batch ang mga kahon. Magtanong-tanong sa halip na sumilip; pang-check ang Ipakita kung sino.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.reveal': 'Ipakita kung sino',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.hide': 'Itago ang pangalan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.h': 'Batch twins',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.intro': 'Ang mga pares na pinakamaraming pagkakapareho.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.n1': '1 pagkakapareho',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.nN': '{n} pagkakapareho',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.top': 'pinakamalapit',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.more': 'at {n} pa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.twins.none': 'Wala pang dalawang card na may pagkakapareho.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.intro': 'Pambukas ng usapan sa break sa duty, tanghalian at batch night.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.modeQ': 'Mga tanong',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.modeCard': 'Mula sa mga card',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.ask': 'Itanong ito',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.askWho': 'Subukang tanungin si {name}.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.next': 'Susunod',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.otherWho': 'Iba naman',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.noCards': 'Mag-import muna ng mga card ng kabatch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.cardQ': 'Tanungin si {name} tungkol sa {field} niya.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.theirCard': 'Sabi ng card niya',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.reveal': 'Silipin ang card niya',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.intro': 'Kung taga-saan ang lahat, batay sa Hometown sa bawat card.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.noData': 'Hindi nag-load ang datos ng mapa.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.aria': 'Mapa ng Pilipinas na may mga hometown ng batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.hosp': 'ang ospital',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.tap': 'I-tap ang tuldok para makita kung sino ang taga-roon.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.places': '{n} lugar',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.empty': 'Wala pang hometown na nasa mapa.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.off': 'Wala sa mapa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.offHint': 'Mga hometown na hindi nakilala ng mapa (abroad, o iba ang baybay). Makakatulong ang “siyudad, probinsya”.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.none': '{n} na walang hometown sa card.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.src': 'Balangkas ng mapa: Natural Earth (public domain). Tantiya lang ang mga tuldok.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.intro': 'Ang batch sa ilang slide. I-tap ang Susunod o mag-swipe.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.notEnough': 'Kailangan ng dalawang card man lang.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.prev': 'Bumalik',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.next': 'Susunod',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.again': 'Ulitin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.note': 'Ginawa mula sa mga card sa device na ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.theBatch': 'Ang batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k0': 'Batch Wrapped {year}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s0': 'Balikan natin kung sino tayo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k1': 'Sa bilang',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s1': 'residente sa device na ito',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.towns': 'hometown',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.schools': 'medical school',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.langs': 'wika',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k2': 'Panahon ng kaarawan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s2': '{n} kaarawan sa buwang iyon',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s2one': 'ang unang kaarawan sa listahan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.zodiac': 'Pinakakaraniwang sign: {sign} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k3': 'Ipinanganak mula',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s3': '{n} taon ng kapanganakan sa iisang batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k4': 'Paborito ng batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.b4': 'Ang mga gusto natin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.food': 'Pagkain: {v} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.shows': 'Show: {v} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.music': 'Musika: {v} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.movies': 'Pelikula: {v} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.games': 'Laro: {v} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.hobbies': 'Hobby: {v} ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k5': 'Pinakakaraniwang hometown',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s5': 'tahanan ng {n} sa atin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k6': 'Mga playlist na ibinahagi',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s6': 'Spotify playlist sa mga card ng batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s6one': 'Spotify playlist sa mga card ng batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k7': 'Para sa residency',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s7': 'Masaya kaming kasama ka sa batch na ito.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.today.h': 'Ngayong araw sa batch',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.today.pl': 'Tampok na Spotify playlist ngayon',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.today.fact': 'Tampok na kaalaman ngayong araw',  // Tagalog draft — Dr. Navarro reviews before release

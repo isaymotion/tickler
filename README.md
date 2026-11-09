@@ -11,6 +11,11 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **Batch name and batch photo** — set in About › Settings; the name shows on the home screen and prints, the photo replaces the home banner on that device.
 - **The batch** — everyone's cards in one grid, with a quick filter and sorting by name, next birthday or hometown. Tap a card for the full page (contact buttons: call, message, email).
 - **Today in the batch** (Home) — a featured Spotify playlist and a featured fact of the day (one question, everyone's answers). Picks change at midnight and match on every phone with the same cards; *Show another* browses more.
+- **Birthday banner** (Home) — confetti and a *Greet them* button (share sheet / copy) on a batchmate's birthday.
+- **Spotlight of the week** (Home) — one batchmate per week; **Residency day counter** (Home, start date set in About).
+- **Play** — *Guess who*, *Who said it?* (guess whose answer it is), *Batch Bingo* (board built from the cards, saved on the phone), *Icebreakers* (36 questions + questions from the cards), *Batch Wrapped* (swipeable year-in-review slides).
+- **Hometown map** — offline map of the Philippines (`data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; unrecognised hometowns listed separately.
+- **Batch twins** (Batch stats) — the pairs with the most things in common.
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
 - **Share cards** — cards travel as small JSON files: share your own card, import cards from batchmates (newer copies replace older ones; your own card is never overwritten), or send the whole batch to someone starting from nothing. Uses the phone share sheet when installed.
 - **Scan a card / Show my QR** — pass a card phone-to-phone with a QR code (camera, or a screenshot of the QR). Text only; the photo travels with the file.
@@ -39,6 +44,8 @@ data/changelog.js       What's new entries (window.APP_CHANGELOG)
 data/hospital.js        Hospital, program, posts and year levels (window.HOSPITAL), shared across apps
 data/strings.js         UI strings in English and Tagalog (window.STRINGS)
 data/fields.js          Resident-card field list (window.CARD_FIELDS) and the Guess-who fields
+data/icebreakers.js     Icebreaker questions (English + Tagalog drafts)
+data/places.js          Offline hometown map: Philippines outline + place coordinates (Natural Earth, public domain)
 img/banner.jpg          Home banner (plus banner-small.jpg for phones)
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png, favicon-32.png, favicon-64.png,
                         favicon.ico, apple-touch-icon.png, icon-source.png (the original artwork)

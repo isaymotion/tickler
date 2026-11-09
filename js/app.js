@@ -109,7 +109,12 @@
     { label: 'The batch', tkey: 'nav.batch', href: '#/batch', icon: 'users', group: 'Screens' },
     { label: 'My card', tkey: 'nav.me', href: '#/me', icon: 'card', group: 'Screens' },
     { label: 'Birthdays', tkey: 'nav.birthdays', href: '#/birthdays', icon: 'cake', group: 'Screens' },
-    { label: 'Guess who', tkey: 'nav.guess', href: '#/guess', icon: 'quiz', group: 'Screens' },
+    { label: 'Hometown map', tkey: 'nav.map', href: '#/map', icon: 'pin', group: 'Screens' },
+    { label: 'Guess who', tkey: 'nav.guess', href: '#/guess', icon: 'quiz', group: 'Play' },
+    { label: 'Who said it?', tkey: 'nav.whosaid', href: '#/whosaid', icon: 'chat', group: 'Play' },
+    { label: 'Batch Bingo', tkey: 'nav.bingo', href: '#/bingo', icon: 'game', group: 'Play' },
+    { label: 'Icebreakers', tkey: 'nav.icebreakers', href: '#/icebreakers', icon: 'spark', group: 'Play' },
+    { label: 'Batch Wrapped', tkey: 'nav.wrapped', href: '#/wrapped', icon: 'star', group: 'Play' },
     { label: 'Share cards', tkey: 'nav.share', href: '#/share', icon: 'share', group: 'Screens' },
     { label: 'Scan a card', tkey: 'nav.scan', href: '#/scan', icon: 'qr', group: 'Screens' },
     { label: 'Batch stats', tkey: 'nav.stats', href: '#/stats', icon: 'chart', group: 'Screens' },
@@ -117,7 +122,7 @@
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
     { label: 'About', tkey: 'nav.about', href: '#/about', icon: 'info', group: 'App', tile: false }
   ];
-  var NAV_GROUPS = { Start: 'nav.start', Screens: 'nav.screens', App: 'nav.app' };   // group name -> strings key
+  var NAV_GROUPS = { Start: 'nav.start', Screens: 'nav.screens', Play: 'nav.play', App: 'nav.app' };   // group name -> strings key
   function navLabel(n) { return n.tkey ? t(n.tkey) : n.label; }
 
   /* ===== Search index: fill with {title, text, href, kind}. Rebuild it from your own data if you like.
@@ -498,6 +503,7 @@
         segGroup('aboutTextSize', t('textsize.title'), sizes, String(store.get('textSize', '100'))) +
         '<div class="setting"><span class="field__l">' + esc(t('bt.banner.title')) + '</span><p class="field__h">' + esc(t('bt.banner.hint')) + '</p><p class="form__acts"><input type="file" id="banner-file" class="sr-only" accept="image/*"><label class="btn" for="banner-file" id="banner-label">' + esc(t('bt.banner.choose')) + '</label>' + (bannerSrc() ? '<button type="button" class="link-btn" id="banner-rm">' + esc(t('bt.banner.remove')) + '</button>' : '') + '</p><p class="form__status" id="banner-status" role="status"></p></div>' +
         '<label class="field setting"><span class="field__l">' + esc(t('bt.batchName')) + '</span><input type="text" name="batchName" maxlength="60" value="' + esc(batchName()) + '" placeholder="Batch 2027"><span class="field__h">' + esc(t('bt.batchNameHint')) + '</span></label>' +
+        '<label class="field setting"><span class="field__l">' + esc(t('bt.day.setting')) + '</span><input type="date" name="startDate" value="' + esc(startDate()) + '"><span class="field__h">' + esc(t('bt.day.hint')) + '</span></label>' +
       '</div>' +
       '<h2>' + esc(t('about.tips')) + '</h2><div class="card"><ul class="prose" style="margin:0;padding-left:1.2em">' +
         [1, 2, 3, 4, 5].map(function (i) { return '<li>' + rich(t('about.tip' + i)) + '</li>'; }).join('') +
@@ -644,7 +650,7 @@
       var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; })).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
-    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro']].forEach(function (s) {
+    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -727,11 +733,13 @@
       out += '<section class="card today" aria-labelledby="today-fact-h"><p class="today__k">' + icon('star', 'today__ico') + '<span id="today-fact-h">' + esc(t('bt.today.fact')) + '</span></p>' +
         '<h3 class="today__q">' + icon(f.icon, 'fact__ico') + esc(fieldLabel(tp.fk)) + '</h3><ul class="today__list">' +
         who.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '<span><strong>' + esc(c.preferredName || c.nickname || c.name) + '</strong><span class="today__a">' + esc(clip(c[tp.fk], 140)) + '</span></span></a></li>'; }).join('') +
-        '</ul>' + (tp.factN > 1 ? '<p class="today__acts"><button type="button" class="btn" data-another="fact">' + esc(t('bt.today.another')) + '</button></p>' : '') + '</section>';
+        '</ul><p class="today__acts">' + (all.length > 1 ? '<a class="btn btn--solid" href="#/whosaid/' + encodeURIComponent(tp.fk) + '">' + esc(t('nav.whosaid')) + '</a>' : '') + (tp.factN > 1 ? '<button type="button" class="btn" data-another="fact">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
     }
+    out += spotlightHTML(all, today);
     return out ? '<h2 class="home__h">' + esc(t('bt.today.h')) + '</h2><div class="today-grid">' + out + '</div>' : '';
   }
   AFTER.home = function () {
+    main.querySelectorAll('[data-greet]').forEach(function (b) { b.addEventListener('click', function () { var c = findPerson(b.getAttribute('data-greet')); if (c) greet(c, document.getElementById('greet-status')); }); });
     main.querySelectorAll('[data-another]').forEach(function (b) {
       b.addEventListener('click', function () { var k = b.getAttribute('data-another'); pickOff[k]++; route({ keepScroll: true }); var nb = main.querySelector('[data-another="' + k + '"]'); if (nb) nb.focus({ preventScroll: true }); });
     });
@@ -747,10 +755,10 @@
         '<p class="hero__lead">' + esc(META.tagline || '') + ' · ' + esc(HOSP.program || '') + '</p>' +
         '<p><a class="btn btn--solid" href="' + (me ? '#/batch' : '#/me') + '">' + esc(t(me ? 'bt.hero.ctaDone' : 'bt.hero.cta')) + '</a></p>' +
       '</div></section>' +
-      '<div class="wrap home">' +
+      '<div class="wrap home">' + birthdayBanner(all, today) +
         '<div class="home__stats">' +
           '<div class="card stat"><span class="stat__n">' + all.length + '</span><span class="stat__t">' + esc(tf(all.length === 1 ? 'bt.home.count1' : 'bt.home.countN', { n: all.length }).replace(/^\d+\s*/, '')) + '</span>' + (!me ? '<a class="link-btn" href="#/me">' + esc(t('bt.home.noMe')) + '</a>' : '') + '</div>' +
-          (next ? '<a class="card stat stat--link" href="#/person/' + encodeURIComponent(next.c.id) + '">' + icon('cake', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.home.nextBirthday')) + '</span><span class="stat__name">' + esc(next.c.name) + '</span><span class="stat__sub">' + esc(bdayText(next.c)) + ' · ' + esc(next.d === 0 ? t('bt.home.today') : next.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: next.d })) + '</span></a>' : '') +
+          (next ? '<a class="card stat stat--link" href="#/person/' + encodeURIComponent(next.c.id) + '">' + icon('cake', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.home.nextBirthday')) + '</span><span class="stat__name">' + esc(next.c.name) + '</span><span class="stat__sub">' + esc(bdayText(next.c)) + ' · ' + esc(next.d === 0 ? t('bt.home.today') : next.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: next.d })) + '</span></a>' : '') + residencyStat(today) +
         '</div>' + todayHTML(all, today) +
         '<h2 class="home__h">' + esc(t('home.explore')) + '</h2><div class="cards">' + tiles.map(function (n) {
           return '<a class="card tile" href="' + esc(n.href) + '">' + icon(n.icon, 'tile__ico') + '<h3>' + esc(navLabel(n)) + '</h3></a>';
@@ -1413,10 +1421,383 @@
       '<h2>' + esc(t('bt.stats.hometowns')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.hometown ? [c.hometown] : []; })) + '</div>' +
       '<h2>' + esc(t('bt.stats.schools')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.medSchool ? [c.medSchool] : []; })) + '</div>' +
       '<h2>' + esc(t('bt.stats.languages')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return items(c.languages); })) + '</div>' +
+      (n > 1 ? twinsHTML(all) : '') +
       (aged.length ? '<h2>' + esc(t('bt.stats.ages')) + '</h2><div class="card"><ol class="plain plain--num">' + aged.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a> <span class="muted">· ' + esc(bdayText(c, true)) + '</span></li>'; }).join('') + '</ol></div>' : '') +
       '<h2>' + esc(t('bt.stats.shared')) + '</h2>' + (shared.length ? shared.map(function (x) { return '<div class="card stats__shared"><h3>' + esc(fieldLabel(x.k)) + '</h3>' + countList(x.rows, 6) + '</div>'; }).join('') : '<div class="card"><p class="muted">' + esc(t('bt.stats.sharedNone')) + '</p></div>') +
       '</div>';
   };
+
+  /* ===================== 1.11.0: FUN FEATURES =====================
+     Birthday banner, Who said it?, Batch Bingo, Batch twins, Weekly spotlight, Icebreakers,
+     Hometown map, Batch Wrapped, Residency day counter. Everything is computed from the cards on
+     this device; the only new stored keys are `startDate` (YYYY-MM-DD) and `bingo` (current board). */
+  function mulberry(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+  function shuffled(list, rnd) { var a = list.slice(); rnd = rnd || Math.random; for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rnd() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function short(c) { return c.preferredName || c.nickname || c.name; }
+  function filled(c, k) { return !!(c[k] && String(c[k]).trim()); }
+  function others() { var me = getMe(); return people().filter(function (c) { return !me || c.id !== me.id; }); }
+  function weekNum(d) { return Math.floor((dayNum(d) + 3) / 7); }   // Monday-based week count since 1970
+  function personLink(c) { return '<a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>'; }
+
+  /* ---- 9. Residency day counter ---- */
+  function startDate() { var v = String(store.get('startDate', '') || ''); return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
+  function residencyDay(today) {
+    var s = startDate(); if (!s) return null;
+    var p = s.split('-'), start = new Date(+p[0], +p[1] - 1, +p[2]);
+    var diff = dayNum(today) - dayNum(start);
+    return { before: diff < 0, days: diff < 0 ? -diff : diff + 1, start: start };
+  }
+  function milestone(n) {
+    if (n === 1) return t('bt.day.m1');
+    if (n === 100 || n === 200 || n === 500 || n === 1000) return tf('bt.day.mN', { n: n });
+    if (n > 1 && (n - 1) % 365 === 0) return tf('bt.day.mYear', { n: (n - 1) / 365 });
+    return '';
+  }
+  function residencyStat(today) {
+    var r = residencyDay(today);
+    if (!r) return getMe() ? '<a class="card stat stat--link" href="#/about">' + icon('calendar', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.day.title')) + '</span><span class="stat__sub">' + esc(t('bt.day.set')) + '</span></a>' : '';
+    if (r.before) return '<div class="card stat">' + icon('calendar', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.day.title')) + '</span><span class="stat__name">' + esc(r.days === 1 ? t('bt.day.tomorrow') : tf('bt.day.inN', { n: r.days })) + '</span><span class="stat__sub">' + esc(r.start.toLocaleDateString(locale(), { year: 'numeric', month: 'long', day: 'numeric' })) + '</span></div>';
+    var yr = Math.min(Math.floor((r.days - 1) / 365) + 1, (HOSP.yearLevels || [1, 2, 3]).length);
+    var m = milestone(r.days);
+    return '<div class="card stat' + (m ? ' stat--party' : '') + '">' + icon('calendar', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.day.title')) + '</span><span class="stat__name">' + esc(tf('bt.day.dayN', { n: r.days.toLocaleString() })) + '</span><span class="stat__sub">' + esc(m || tf('bt.day.year', { n: yr })) + '</span></div>';
+  }
+
+  /* ---- 1. Birthday-today banner ---- */
+  function birthdayBanner(all, today) {
+    var bd = all.filter(function (c) { return c.bmonth && daysUntil(c, today) === 0; });
+    if (!bd.length) return '';
+    var meToday = bd.filter(isMe)[0], rest = bd.filter(function (c) { return !isMe(c); });
+    var bits = ''; for (var i = 0; i < 18; i++) bits += '<span style="--i:' + i + '"></span>';
+    return '<section class="card bday-today" aria-labelledby="bdt-h"><div class="confetti" aria-hidden="true">' + bits + '</div>' +
+      '<p class="today__k">' + icon('cake', 'today__ico') + esc(t('bt.bdt.kicker')) + '</p>' +
+      '<h2 id="bdt-h">' + esc(meToday && !rest.length ? t('bt.bdt.you') : tf('bt.bdt.title', { names: rest.map(short).join(' & ') })) + '</h2>' +
+      (meToday && rest.length ? '<p>' + esc(t('bt.bdt.youToo')) + '</p>' : '') +
+      '<div class="bday-today__people">' + rest.map(function (c) {
+        return '<div class="bday-today__p"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c) + '</a><div><strong>' + esc(c.name) + '</strong>' + (c.byear ? '<span class="muted">' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear()) })) + '</span>' : '') +
+          '<p class="today__acts"><button type="button" class="btn btn--solid" data-greet="' + esc(c.id) + '">' + esc(t('bt.bdt.greet')) + '</button></p></div></div>';
+      }).join('') + '</div><p class="form__status" id="greet-status" role="status"></p></section>';
+  }
+  function greetText(c) { var bn = batchName(); return tf(bn ? 'bt.bdt.msgBatch' : 'bt.bdt.msg', { name: short(c), batch: bn }); }
+  function greet(c, st) {
+    var text = greetText(c);
+    if (navigator.share) { navigator.share({ text: text }).then(function () { st.textContent = t('bt.share.shared'); }).catch(function () {}); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { st.textContent = t('bt.bdt.copied'); }, function () { st.textContent = text; });
+    else st.textContent = text;
+  }
+
+  /* ---- 5. Weekly spotlight ---- */
+  function spotlightHTML(all, today) {
+    if (all.length < 2) return '';
+    var wk = weekNum(today), c = all[dayHash(wk, 3) % all.length];
+    var keys = shuffled((window.GUESS_FIELDS || []).filter(function (k) { return filled(c, k) && k !== 'hometown'; }), mulberry(dayHash(wk, 4))).slice(0, 3);
+    return '<section class="card today" aria-labelledby="today-sp-h"><p class="today__k">' + icon('spark', 'today__ico') + '<span id="today-sp-h">' + esc(t('bt.spot.h')) + '</span></p>' +
+      '<div class="today__pl"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c) + '</a><div><h3>' + esc(c.name) + '</h3>' + (c.hometown ? '<p class="muted">' + esc(c.hometown) + '</p>' : '') + '</div></div>' +
+      (keys.length ? '<ul class="today__facts">' + keys.map(function (k) { return '<li><span class="today__fk">' + esc(fieldLabel(k)) + '</span><span class="today__a">' + esc(clip(c[k], 120)) + '</span></li>'; }).join('') + '</ul>' : '') +
+      '<p class="today__acts"><a class="btn" href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.spot.open')) + '</a></p></section>';
+  }
+
+  /* ---- 2. Who said it? ---- */
+  var ws = { k: '', order: [], i: 0, right: 0, answered: false, pick: '' };
+  function wsFields(all) { var need = Math.min(2, all.length); return (window.GUESS_FIELDS || []).filter(function (k) { return all.filter(function (c) { return filled(c, k); }).length >= need; }); }
+  function wsStart(k) {
+    var all = people();
+    ws = { k: k, order: shuffled(all.filter(function (c) { return filled(c, k); })).map(function (c) { return c.id; }), i: 0, right: 0, answered: false, pick: '', opts: null };
+  }
+  function wsOpts(c, all) { return shuffled([c].concat(shuffled(all.filter(function (x) { return x.id !== c.id; })).slice(0, 3))); }
+  VIEWS.whosaid = function (k) {
+    var all = people(), fields = wsFields(all);
+    var head = '<div class="wrap page guess">' + crumb(t('nav.whosaid')) + '<header class="page__head"><h1>' + esc(t('nav.whosaid')) + '</h1><p>' + esc(t('bt.ws.intro')) + '</p></header>';
+    if (all.length < 2 || !fields.length) return head + '<div class="empty"><p>' + esc(t('bt.ws.notEnough')) + '</p></div></div>';
+    if (!k || fields.indexOf(k) < 0) k = (todaysPicks(all, new Date()).fk && fields.indexOf(todaysPicks(all, new Date()).fk) >= 0) ? todaysPicks(all, new Date()).fk : fields[0];
+    if (ws.k !== k || !ws.order.length) wsStart(k);
+    var sel = '<label class="field field--inline"><span class="field__l">' + esc(t('bt.ws.topic')) + '</span><select id="ws-k">' + fields.map(function (f) { return '<option value="' + esc(f) + '"' + (f === k ? ' selected' : '') + '>' + esc(fieldLabel(f)) + '</option>'; }).join('') + '</select></label>';
+    var body;
+    if (ws.i >= ws.order.length) {
+      body = '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: ws.right, n: ws.order.length })) + '</h2><p class="guess__acts"><button type="button" class="btn btn--solid" id="ws-again">' + esc(t('bt.guess.playAgain')) + '</button><button type="button" class="btn" id="ws-other">' + esc(t('bt.ws.other')) + '</button></p></div>';
+    } else {
+      var c = findPerson(ws.order[ws.i]);
+      if (!c) { ws.i++; return VIEWS.whosaid(k); }
+      if (!ws.opts || ws.opts.id !== c.id) ws.opts = { id: c.id, list: wsOpts(c, all).map(function (x) { return { id: x.id, label: x.name }; }) };
+      body = '<div class="card guess__card"><p class="muted guess__score">' + esc(tf('bt.guess.roundOf', { i: ws.i + 1, n: ws.order.length })) + ' · ' + esc(tf('bt.guess.score', { right: ws.right, total: ws.i })) + '</p>' +
+        '<p class="guess__ask">' + esc(tf('bt.ws.ask', { field: fieldLabel(k).toLowerCase() })) + '</p><blockquote class="guess__clue">' + esc(c[k]).replace(/\n/g, '<br>') + '</blockquote>' +
+        '<div class="guess__opts">' + ws.opts.list.map(function (o) { return '<button type="button" class="btn guess__opt" data-wsid="' + esc(o.id) + '">' + esc(o.label) + '</button>'; }).join('') + '</div>' +
+        '<p class="form__status" id="ws-status" role="status" aria-live="polite"></p><p class="guess__acts" id="ws-acts" hidden><button type="button" class="btn btn--solid" id="ws-next">' + esc(t('bt.guess.next')) + '</button> <a class="btn" href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.guess.open')) + '</a></p></div>';
+    }
+    return head + sel + body + '</div>';
+  };
+  AFTER.whosaid = function () {
+    var s = document.getElementById('ws-k');
+    if (s) s.addEventListener('change', function () { ws.k = ''; location.hash = '#/whosaid/' + encodeURIComponent(s.value); });
+    var again = document.getElementById('ws-again'); if (again) again.addEventListener('click', function () { wsStart(ws.k); route({ keepScroll: true }); });
+    var other = document.getElementById('ws-other'); if (other) other.addEventListener('click', function () {
+      var f = wsFields(people()).filter(function (x) { return x !== ws.k; }); if (!f.length) return;
+      ws.k = ''; location.hash = '#/whosaid/' + encodeURIComponent(f[Math.floor(Math.random() * f.length)]);
+    });
+    var opts = document.querySelectorAll('[data-wsid]'), answer = ws.order[ws.i];
+    for (var i = 0; i < opts.length; i++) opts[i].addEventListener('click', function (e) {
+      if (ws.answered) return; ws.answered = true;
+      var ok = e.currentTarget.getAttribute('data-wsid') === answer; if (ok) ws.right++;
+      for (var j = 0; j < opts.length; j++) { opts[j].disabled = true; if (opts[j].getAttribute('data-wsid') === answer) opts[j].classList.add('is-right'); }
+      if (!ok) e.currentTarget.classList.add('is-wrong');
+      var c = findPerson(answer);
+      document.getElementById('ws-status').textContent = ok ? t('bt.guess.right') : tf('bt.guess.wrong', { name: c ? c.name : '' });
+      document.getElementById('ws-acts').hidden = false;
+      document.getElementById('ws-next').focus({ preventScroll: true });
+    });
+    var nx = document.getElementById('ws-next'); if (nx) nx.addEventListener('click', function () { ws.i++; ws.answered = false; route({ keepScroll: true }); });
+  };
+
+  /* ---- 3. Batch Bingo ---- */
+  var BINGO_FIELDS = ['hometown', 'medSchool', 'languages', 'hobbies', 'shows', 'kdrama', 'movies', 'cartoons', 'anime', 'games', 'music', 'books', 'food', 'snack', 'dessert', 'comfortFood', 'sports', 'pets', 'travelled', 'bucketList', 'boardGames', 'karaoke', 'hiddenTalent', 'colour', 'pokemon', 'milkTea', 'superhero', 'dreamTrip', 'canCook', 'destress', 'animal'];
+  function bingoPool(list) {
+    var seen = {}, pool = [];
+    list.forEach(function (c) {
+      BINGO_FIELDS.forEach(function (k) {
+        if (!filled(c, k)) return;
+        var vals = (COMMON.exact.indexOf(k) >= 0 || k === 'hometown' || k === 'medSchool') ? [String(c[k]).trim()] : items(c[k]);
+        vals.forEach(function (v) {
+          if (v.length > 34) return;
+          var id = k + '|' + v.toLowerCase(); if (seen[id]) return; seen[id] = 1;
+          pool.push({ k: k, v: v });
+        });
+      });
+    });
+    return pool;
+  }
+  function bingoWho(sq, list) {
+    var v = sq.v.toLowerCase();
+    return list.filter(function (c) { return filled(c, sq.k) && (String(c[sq.k]).trim().toLowerCase() === v || items(c[sq.k]).some(function (x) { return x.toLowerCase() === v; })); });
+  }
+  function newBingo() {
+    var list = others().length >= 2 ? others() : people(), pool = bingoPool(list), size = pool.length >= 24 ? 5 : pool.length >= 15 ? 4 : pool.length >= 8 ? 3 : 0;
+    if (!size) { store.del('bingo'); return null; }
+    var seed = Math.floor(Math.random() * 4294967296), rnd = mulberry(seed);
+    // spread squares across people: round-robin over each person's own shuffled squares
+    var byField = {}; shuffled(pool, rnd).forEach(function (s) { (byField[s.k] = byField[s.k] || []).push(s); });
+    var keys = shuffled(Object.keys(byField), rnd), pick = [], need = size * size - (size % 2 ? 1 : 0);
+    while (pick.length < need) { var any = false; keys.forEach(function (k) { if (pick.length < need && byField[k].length) { pick.push(byField[k].shift()); any = true; } }); if (!any) break; }
+    pick = shuffled(pick, rnd);
+    if (size % 2) pick.splice(Math.floor(size * size / 2), 0, { free: true });
+    var b = { size: size, squares: pick, marks: size % 2 ? [Math.floor(size * size / 2)] : [], made: todayISO() };
+    store.set('bingo', b); return b;
+  }
+  function todayISO() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function getBingo() {
+    var b = store.get('bingo', null);
+    if (!b || !Array.isArray(b.squares) || [3, 4, 5].indexOf(b.size) < 0 || b.squares.length !== b.size * b.size) return null;
+    b.squares = b.squares.map(function (s) { return s && s.free ? { free: true } : { k: cleanText(s && s.k, 40), v: cleanText(s && s.v, 60) }; });
+    b.marks = (Array.isArray(b.marks) ? b.marks : []).filter(function (i) { return i === +i && i >= 0 && i < b.size * b.size; });
+    return b;
+  }
+  function bingoLines(b) {
+    var n = b.size, lines = [], i, j, m = {}; b.marks.forEach(function (x) { m[x] = 1; });
+    for (i = 0; i < n; i++) { var r = [], c = []; for (j = 0; j < n; j++) { r.push(i * n + j); c.push(j * n + i); } lines.push(r, c); }
+    var d1 = [], d2 = []; for (i = 0; i < n; i++) { d1.push(i * n + i); d2.push(i * n + n - 1 - i); } lines.push(d1, d2);
+    return lines.filter(function (l) { return l.every(function (x) { return m[x]; }); });
+  }
+  function bingoLabel(k) { var l = fieldLabel(k).replace(/^(favourite|favorite|paboritong|paborito)\s+/i, ''); return l.charAt(0).toUpperCase() + l.slice(1); }
+  var bingoReveal = false;
+  VIEWS.bingo = function () {
+    var b = getBingo() || newBingo();
+    var head = '<div class="wrap page bingo">' + crumb(t('nav.bingo')) + '<header class="page__head"><h1>' + esc(t('nav.bingo')) + '</h1><p>' + esc(t('bt.bingo.intro')) + '</p></header>';
+    if (!b) return head + '<div class="empty"><p>' + esc(t('bt.bingo.notEnough')) + '</p></div></div>';
+    var list = people(), won = bingoLines(b), inWin = {}; won.forEach(function (l) { l.forEach(function (x) { inWin[x] = 1; }); });
+    return head + (won.length ? '<p class="bingo__win" role="status">' + esc(won.length === 1 ? t('bt.bingo.win') : tf('bt.bingo.winN', { n: won.length })) + '</p>' : '') +
+      '<div class="bingo__grid bingo__grid--' + b.size + '" role="grid">' + b.squares.map(function (s, i) {
+        var on = b.marks.indexOf(i) >= 0;
+        if (s.free) return '<div class="bingo__sq is-free is-on' + (inWin[i] ? ' is-win' : '') + '" role="gridcell"><span class="bingo__v">' + esc(t('bt.bingo.free')) + '</span></div>';
+        var wl = bingoReveal ? bingoWho(s, list).map(short) : [], who = wl.length > 2 ? wl.slice(0, 2).join(', ') + ' +' + (wl.length - 2) : wl.join(', ');
+        return '<button type="button" class="bingo__sq' + (on ? ' is-on' : '') + (inWin[i] ? ' is-win' : '') + '" role="gridcell" aria-pressed="' + on + '" data-sq="' + i + '"><span class="bingo__k">' + esc(bingoLabel(s.k)) + '</span><span class="bingo__v">' + esc(s.v) + '</span>' + (who ? '<span class="bingo__who">' + esc(who) + '</span>' : '') + '</button>';
+      }).join('') + '</div>' +
+      '<p class="guess__acts"><button type="button" class="btn" id="bingo-reveal" aria-pressed="' + bingoReveal + '">' + esc(t(bingoReveal ? 'bt.bingo.hide' : 'bt.bingo.reveal')) + '</button><button type="button" class="btn" id="bingo-new">' + esc(t('bt.bingo.new')) + '</button></p>' +
+      '<p class="muted">' + esc(t('bt.bingo.how')) + '</p></div>';
+  };
+  AFTER.bingo = function () {
+    main.querySelectorAll('[data-sq]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var b = getBingo(); if (!b) return; var i = +el.getAttribute('data-sq'), at = b.marks.indexOf(i);
+        if (at >= 0) b.marks.splice(at, 1); else b.marks.push(i);
+        store.set('bingo', b); route({ keepScroll: true });
+        var again = main.querySelector('[data-sq="' + i + '"]'); if (again) again.focus({ preventScroll: true });
+      });
+    });
+    var r = document.getElementById('bingo-reveal'); if (r) r.addEventListener('click', function () { bingoReveal = !bingoReveal; route({ keepScroll: true }); });
+    var n = document.getElementById('bingo-new'); if (n) n.addEventListener('click', function () { if (!window.confirm(t('bt.bingo.newConfirm'))) return; newBingo(); route({ keepScroll: true }); });
+  };
+
+  /* ---- 4. Batch twins ---- */
+  function twins(all, max) {
+    var pairs = [];
+    for (var i = 0; i < all.length; i++) for (var j = i + 1; j < all.length; j++) {
+      var hits = inCommon(all[i], all[j]); if (hits.length) pairs.push({ a: all[i], b: all[j], hits: hits });
+    }
+    return pairs.sort(function (x, y) { return y.hits.length - x.hits.length || byName(x.a, y.a); }).slice(0, max || 5);
+  }
+  function twinsHTML(all) {
+    var tw = twins(all, 5);
+    return '<h2>' + esc(t('bt.twins.h')) + '</h2><p class="muted">' + esc(t('bt.twins.intro')) + '</p>' + (tw.length ? '<div class="twins">' + tw.map(function (p, i) {
+      return '<div class="card twin"><div class="twin__pair">' + avatar(p.a, 'avatar--sm') + avatar(p.b, 'avatar--sm') + '<div><strong>' + personLink(p.a) + ' &amp; ' + personLink(p.b) + '</strong><span class="muted">' + esc(tf(p.hits.length === 1 ? 'bt.twins.n1' : 'bt.twins.nN', { n: p.hits.length })) + (i === 0 ? ' · ' + esc(t('bt.twins.top')) : '') + '</span></div></div>' +
+        '<ul class="twin__hits">' + p.hits.slice(0, 4).map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('') + (p.hits.length > 4 ? '<li class="muted">' + esc(tf('bt.twins.more', { n: p.hits.length - 4 })) + '</li>' : '') + '</ul></div>';
+    }).join('') + '</div>' : '<div class="card"><p class="muted">' + esc(t('bt.twins.none')) + '</p></div>');
+  }
+
+  /* ---- 6. Icebreakers ---- */
+  var ice = { mode: 'q', i: -1, deck: [], who: '', cardQ: null, revealed: false };
+  function iceList() { var L = window.ICEBREAKERS || { en: [] }; return (L[lang] && L[lang].length === L.en.length) ? L[lang] : L.en; }
+  function iceNext() {
+    ice.revealed = false;
+    var o = others();
+    if (ice.mode === 'q') {
+      if (!ice.deck.length) ice.deck = shuffled(iceList().map(function (x, i) { return i; }));
+      ice.i = ice.deck.shift();
+      ice.who = o.length ? o[Math.floor(Math.random() * o.length)].id : '';
+    } else {
+      var pool = [];
+      o.forEach(function (c) { (window.GUESS_FIELDS || []).forEach(function (k) { if (filled(c, k)) pool.push({ id: c.id, k: k }); }); });
+      ice.cardQ = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+    }
+  }
+  VIEWS.icebreakers = function () {
+    if (ice.mode === 'q' ? ice.i < 0 : !ice.cardQ) iceNext();
+    var modes = '<div class="filters" role="group">' + [['q', 'bt.ice.modeQ'], ['card', 'bt.ice.modeCard']].map(function (m) { return '<button type="button" class="filter" data-ice="' + m[0] + '" aria-pressed="' + (ice.mode === m[0]) + '">' + esc(t(m[1])) + '</button>'; }).join('') + '</div>';
+    var body;
+    if (ice.mode === 'q') {
+      var who = ice.who && findPerson(ice.who);
+      body = '<div class="card guess__card ice"><p class="guess__ask">' + esc(t('bt.ice.ask')) + '</p><blockquote class="guess__clue ice__q">' + esc(iceList()[ice.i] || '') + '</blockquote>' +
+        (who ? '<div class="today__pl">' + avatar(who, 'avatar--sm') + '<p>' + esc(tf('bt.ice.askWho', { name: short(who) })) + '</p></div>' : '') +
+        '<p class="guess__acts"><button type="button" class="btn btn--solid" id="ice-next">' + esc(t('bt.ice.next')) + '</button>' + (who ? '<button type="button" class="btn" id="ice-who">' + esc(t('bt.ice.otherWho')) + '</button>' : '') + '</p></div>';
+    } else if (!ice.cardQ) body = '<div class="empty"><p>' + esc(t('bt.ice.noCards')) + '</p></div>';
+    else {
+      var c = findPerson(ice.cardQ.id), k = ice.cardQ.k;
+      body = '<div class="card guess__card ice"><p class="guess__ask">' + esc(t('bt.ice.ask')) + '</p><div class="today__pl">' + avatar(c) + '<blockquote class="guess__clue ice__q">' + esc(tf('bt.ice.cardQ', { name: short(c), field: fieldLabel(k).toLowerCase() })) + '</blockquote></div>' +
+        (ice.revealed ? '<p class="ice__a"><span class="today__fk">' + esc(t('bt.ice.theirCard')) + '</span>' + esc(c[k]).replace(/\n/g, '<br>') + '</p>' : '') +
+        '<p class="guess__acts"><button type="button" class="btn btn--solid" id="ice-next">' + esc(t('bt.ice.next')) + '</button>' + (!ice.revealed ? '<button type="button" class="btn" id="ice-reveal">' + esc(t('bt.ice.reveal')) + '</button>' : '') + '<a class="btn" href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.guess.open')) + '</a></p></div>';
+    }
+    return '<div class="wrap page guess">' + crumb(t('nav.icebreakers')) + '<header class="page__head"><h1>' + esc(t('nav.icebreakers')) + '</h1><p>' + esc(t('bt.ice.intro')) + '</p></header>' + modes + body + '</div>';
+  };
+  AFTER.icebreakers = function () {
+    main.querySelectorAll('[data-ice]').forEach(function (b) { b.addEventListener('click', function () { ice.mode = b.getAttribute('data-ice'); iceNext(); route({ keepScroll: true }); }); });
+    var nx = document.getElementById('ice-next'); if (nx) nx.addEventListener('click', function () { iceNext(); route({ keepScroll: true }); var a = document.getElementById('ice-next'); if (a) a.focus({ preventScroll: true }); });
+    var w = document.getElementById('ice-who'); if (w) w.addEventListener('click', function () { var o = others().filter(function (c) { return c.id !== ice.who; }); if (o.length) ice.who = o[Math.floor(Math.random() * o.length)].id; route({ keepScroll: true }); });
+    var rv = document.getElementById('ice-reveal'); if (rv) rv.addEventListener('click', function () { ice.revealed = true; route({ keepScroll: true }); });
+  };
+
+  /* ---- 7. Hometown map (offline outline + place table in data/places.js) ---- */
+  function normPlace(s) { return ' ' + String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\bsta\.?\s/g, 'santa ').replace(/\bsto\.?\s/g, 'santo ').replace(/\bmt\.?\s/g, 'mountain ').replace(/\bgen\.?\s/g, 'general ').replace(/[^a-z0-9ñ]+/g, ' ').replace(/\s+/g, ' ') + ' '; }
+  var placeIdx = null;
+  function placeIndex() {
+    if (placeIdx) return placeIdx;
+    placeIdx = (window.PH_PLACES || []).map(function (p) { return { p: p, names: [p.n].concat(p.aka || []).map(normPlace).map(function (s) { return s.trim(); }).filter(Boolean), prov: normPlace(p.p).trim() }; });
+    return placeIdx;
+  }
+  function locate(hometown) {
+    var h = normPlace(hometown); if (h.trim().length < 2) return null;
+    var best = null, bestScore = -1;
+    placeIndex().forEach(function (e) {
+      e.names.forEach(function (n) {
+        if (h.indexOf(' ' + n + ' ') < 0) return;
+        var score = n.length + (e.p.kind === 'province' ? 0 : 100) + (e.prov && e.p.kind !== 'province' && h.indexOf(' ' + e.prov + ' ') >= 0 ? 200 : 0);
+        if (score > bestScore) { bestScore = score; best = e.p; }
+      });
+    });
+    return best;
+  }
+  var mapSel = '';
+  VIEWS.map = function () {
+    var all = people(), M = window.PH_MAP;
+    var head = '<div class="wrap page map">' + crumb(t('nav.map')) + '<header class="page__head"><h1>' + esc(t('nav.map')) + '</h1><p>' + esc(t('bt.map.intro')) + '</p></header>';
+    if (!M) return head + '<div class="empty"><p>' + esc(t('bt.map.noData')) + '</p></div></div>';
+    var spots = {}, off = [], none = [];
+    all.forEach(function (c) {
+      if (!filled(c, 'hometown')) { none.push(c); return; }
+      var p = locate(c.hometown); if (!p) { off.push(c); return; }
+      var key = p.n + '|' + p.p; (spots[key] = spots[key] || { p: p, who: [] }).who.push(c);
+    });
+    var list = Object.keys(spots).map(function (k) { return spots[k]; }).sort(function (a, b) { return b.who.length - a.who.length || a.p.n.localeCompare(b.p.n); });
+    if (mapSel && !spots[mapSel]) mapSel = '';
+    var hosp = (window.PH_PLACES || []).filter(function (p) { return p.n === 'Mariveles'; })[0];
+    var svg = '<svg class="map__svg" viewBox="0 0 ' + M.w + ' ' + M.h + '" role="img" aria-label="' + esc(t('bt.map.aria')) + '"><path class="map__land" d="' + M.path + '"/>' +
+      (hosp ? '<g class="map__hosp" transform="translate(' + hosp.x + ' ' + hosp.y + ')"><path d="M0-9l2.6 5.6 6.1.7-4.5 4.2 1.2 6L0 4.5-5.4 7.5l1.2-6-4.5-4.2 6.1-.7z"/></g>' : '') +
+      list.slice().reverse().map(function (s) {
+        var key = s.p.n + '|' + s.p.p, r = 7 + Math.sqrt(s.who.length) * 5;
+        return '<g class="map__spot' + (mapSel === key ? ' is-sel' : '') + '" tabindex="0" role="button" data-spot="' + esc(key) + '" aria-label="' + esc(s.p.n + ': ' + s.who.length) + '"><circle cx="' + s.p.x + '" cy="' + s.p.y + '" r="' + r.toFixed(1) + '"/>' + (s.who.length > 1 ? '<text x="' + s.p.x + '" y="' + s.p.y + '" dy=".35em">' + s.who.length + '</text>' : '') + '</g>';
+      }).join('') + '</svg>';
+    var listHTML = list.map(function (s) {
+      var key = s.p.n + '|' + s.p.p;
+      return '<li' + (mapSel === key ? ' class="is-sel"' : '') + ' id="spot-' + esc(key.replace(/[^A-Za-z0-9]/g, '-')) + '"><button type="button" class="link-btn" data-spot="' + esc(key) + '"><strong>' + esc(s.p.n) + '</strong>' + (s.p.kind !== 'province' && s.p.p !== s.p.n ? ' <span class="muted">' + esc(s.p.p) + '</span>' : '') + ' · ' + s.who.length + '</button><span class="map__who">' + s.who.map(personLink).join(', ') + '</span></li>';
+    }).join('');
+    return head + '<div class="map__wrap"><div class="card map__card">' + svg + '<p class="muted map__legend">' + (hosp ? icon('star', 'map__star') + esc(t('bt.map.hosp')) + ' · ' : '') + esc(t('bt.map.tap')) + '</p></div>' +
+      '<div><h2 style="margin-top:0">' + esc(tf('bt.map.places', { n: list.length })) + '</h2><div class="card"><ul class="plain map__list">' + (listHTML || '<li class="muted">' + esc(t('bt.map.empty')) + '</li>') + '</ul></div>' +
+      (off.length ? '<h2>' + esc(t('bt.map.off')) + '</h2><div class="card"><p class="muted">' + esc(t('bt.map.offHint')) + '</p><ul class="plain">' + off.map(function (c) { return '<li>' + personLink(c) + ' <span class="muted">· ' + esc(c.hometown) + '</span></li>'; }).join('') + '</ul></div>' : '') +
+      (none.length ? '<p class="muted">' + esc(tf('bt.map.none', { n: none.length })) + '</p>' : '') + '</div></div>' +
+      '<p class="muted map__src">' + esc(t('bt.map.src')) + '</p></div>';
+  };
+  AFTER.map = function () {
+    main.querySelectorAll('[data-spot]').forEach(function (el) {
+      function pick() { var k = el.getAttribute('data-spot'); mapSel = mapSel === k ? '' : k; route({ keepScroll: true }); var li = mapSel && document.getElementById('spot-' + mapSel.replace(/[^A-Za-z0-9]/g, '-')); if (li && el.tagName.toLowerCase() === 'g') li.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+      el.addEventListener('click', pick);
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    });
+  };
+
+  /* ---- 8. Batch Wrapped ---- */
+  var wrapI = 0;
+  function topOf(all, fn) { var r = countBy(all, fn); return r.length && r[0].n >= 2 ? r[0] : null; }
+  function wrappedSlides(all, today) {
+    var S = [], bn = batchName() || t('bt.wrap.theBatch'), yr = today.getFullYear();
+    var towns = countBy(all, function (c) { return c.hometown ? [c.hometown] : []; }), schools = countBy(all, function (c) { return c.medSchool ? [c.medSchool] : []; }), langs = countBy(all, function (c) { return items(c.languages); });
+    S.push({ k: tf('bt.wrap.k0', { year: yr }), big: bn, sub: t('bt.wrap.s0') });
+    S.push({ k: t('bt.wrap.k1'), big: String(all.length), sub: t('bt.wrap.s1'), rows: [[towns.length, t('bt.wrap.towns')], [schools.length, t('bt.wrap.schools')], [langs.length, t('bt.wrap.langs')]].filter(function (r) { return r[0]; }).map(function (r) { return r[0] + ' ' + r[1]; }) });
+    var mon = countBy(all, function (c) { return c.bmonth ? [monthName(c.bmonth)] : []; });
+    if (mon.length) {
+      var zs = topOf(all, function (c) { return zodiac(c) ? [zodiac(c)] : []; });
+      S.push({ k: t('bt.wrap.k2'), big: mon[0].label, sub: tf(mon[0].n === 1 ? 'bt.wrap.s2one' : 'bt.wrap.s2', { n: mon[0].n }), rows: zs ? [tf('bt.wrap.zodiac', { sign: zs.label, n: zs.n })] : [] });
+    }
+    var yrs = all.filter(function (c) { return c.byear; }).map(function (c) { return c.byear; });
+    if (yrs.length > 1) { var lo = Math.min.apply(null, yrs), hi = Math.max.apply(null, yrs); if (hi > lo) S.push({ k: t('bt.wrap.k3'), big: lo + '–' + hi, sub: tf('bt.wrap.s3', { n: hi - lo + 1 }) }); }
+    var favs = [['food', 'bt.wrap.food'], ['shows', 'bt.wrap.shows'], ['music', 'bt.wrap.music'], ['movies', 'bt.wrap.movies'], ['games', 'bt.wrap.games'], ['hobbies', 'bt.wrap.hobbies']].map(function (f) { var top = topOf(all, function (c) { return items(c[f[0]]); }); return top ? tf(f[1], { v: top.label, n: top.n }) : ''; }).filter(Boolean);
+    if (favs.length) S.push({ k: t('bt.wrap.k4'), big: t('bt.wrap.b4'), rows: favs });
+    if (towns.length && towns[0].n >= 2) S.push({ k: t('bt.wrap.k5'), big: towns[0].label, sub: tf('bt.wrap.s5', { n: towns[0].n }) });
+    var tw = twins(all, 1)[0];
+    if (tw) S.push({ k: t('bt.twins.h'), big: short(tw.a) + ' & ' + short(tw.b), sub: tf(tw.hits.length === 1 ? 'bt.twins.n1' : 'bt.twins.nN', { n: tw.hits.length }), rows: tw.hits.slice(0, 3), pair: [tw.a, tw.b] });
+    var pls = 0; all.forEach(function (c) { pls += c.playlists.length; });
+    if (pls) S.push({ k: t('bt.wrap.k6'), big: String(pls), sub: t(pls === 1 ? 'bt.wrap.s6one' : 'bt.wrap.s6') });
+    var r = residencyDay(today);
+    S.push({ k: t('bt.wrap.k7'), big: r && !r.before ? tf('bt.day.dayN', { n: r.days.toLocaleString() }) : bn, sub: t('bt.wrap.s7') });
+    return S;
+  }
+  VIEWS.wrapped = function () {
+    var all = people(), today = new Date();
+    var head = '<div class="wrap page wrapped-page">' + crumb(t('nav.wrapped')) + '<header class="page__head"><h1>' + esc(t('nav.wrapped')) + '</h1><p>' + esc(t('bt.wrap.intro')) + '</p></header>';
+    if (all.length < 2) return head + '<div class="empty"><p>' + esc(t('bt.wrap.notEnough')) + '</p></div></div>';
+    var S = wrappedSlides(all, today); if (wrapI >= S.length) wrapI = S.length - 1; if (wrapI < 0) wrapI = 0;
+    var s = S[wrapI];
+    return head + '<section class="wrapped wrapped--' + (wrapI % 4) + '" aria-roledescription="slide" aria-label="' + esc((wrapI + 1) + ' / ' + S.length) + '">' +
+      '<div class="wrapped__dots" aria-hidden="true">' + S.map(function (x, i) { return '<span' + (i === wrapI ? ' class="is-on"' : '') + '></span>'; }).join('') + '</div>' +
+      '<p class="wrapped__k">' + esc(s.k) + '</p>' + (s.pair ? '<div class="wrapped__pair">' + avatar(s.pair[0], 'avatar--lg') + avatar(s.pair[1], 'avatar--lg') + '</div>' : '') +
+      '<p class="wrapped__big">' + esc(s.big) + '</p>' + (s.sub ? '<p class="wrapped__sub">' + esc(s.sub) + '</p>' : '') +
+      (s.rows && s.rows.length ? '<ul class="wrapped__rows">' + s.rows.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+      '</section><p class="guess__acts wrapped__nav"><button type="button" class="btn" id="wr-prev"' + (wrapI === 0 ? ' disabled' : '') + '>' + esc(t('bt.wrap.prev')) + '</button><span class="muted">' + (wrapI + 1) + ' / ' + S.length + '</span>' +
+      (wrapI < S.length - 1 ? '<button type="button" class="btn btn--solid" id="wr-next">' + esc(t('bt.wrap.next')) + '</button>' : '<button type="button" class="btn btn--solid" id="wr-again">' + esc(t('bt.wrap.again')) + '</button>') + '</p>' +
+      '<p class="muted">' + esc(t('bt.wrap.note')) + '</p></div>';
+  };
+  function wrapGo(d) { wrapI += d; route({ keepScroll: true }); var b = document.getElementById(d < 0 ? 'wr-prev' : 'wr-next') || document.getElementById('wr-again') || document.getElementById('wr-prev'); if (b && !b.disabled) b.focus({ preventScroll: true }); }
+  AFTER.wrapped = function () {
+    var p = document.getElementById('wr-prev'), n = document.getElementById('wr-next'), a = document.getElementById('wr-again'), sec = main.querySelector('.wrapped');
+    if (p) p.addEventListener('click', function () { wrapGo(-1); });
+    if (n) n.addEventListener('click', function () { wrapGo(1); });
+    if (a) a.addEventListener('click', function () { wrapI = 0; route({ keepScroll: true }); });
+    if (sec) {   // swipe left / right on the slide
+      var x0 = null;
+      sec.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      sec.addEventListener('touchend', function (e) { if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50) { if (dx < 0 && n) wrapGo(1); else if (dx > 0 && p && !p.disabled) wrapGo(-1); } });
+    }
+  };
+  document.addEventListener('keydown', function (e) {
+    if (currentKey() !== 'wrapped' || e.altKey || e.metaKey || e.ctrlKey || /input|textarea|select/i.test((e.target && e.target.tagName) || '')) return;
+    if (e.key === 'ArrowRight' && document.getElementById('wr-next')) wrapGo(1);
+    else if (e.key === 'ArrowLeft' && document.getElementById('wr-prev') && !document.getElementById('wr-prev').disabled) wrapGo(-1);
+  });
 
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();
@@ -1468,6 +1849,7 @@
     else if (n === 'theme') setTheme(v);
     else if (n === 'aboutTextSize') { store.set('textSize', v); applyTextSize(v); }
     else if (n === 'batchName') store.set('batchName', cleanText(v, 60));
+    else if (n === 'startDate') { if (/^\d{4}-\d{2}-\d{2}$/.test(v)) store.set('startDate', v); else store.del('startDate'); }
   });
   main.addEventListener('click', function (e) {
     var f = e.target.closest ? e.target.closest('.search-page .filter[data-kind]') : null;
