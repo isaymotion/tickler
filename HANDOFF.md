@@ -87,3 +87,7 @@ Playwright is preinstalled; block non-127.0.0.1 requests in tests. Press sticky-
 
 ## 9. Files to re-attach
 None. QA harness: `git clone -b dev-tools https://github.com/isaymotion/tickler tickler-devtools` then `python3 tickler-devtools/qa/flow_test.py ./tickler` (README on that branch; needs Playwright + Pillow; expect all PASS except the random-clue `8c`). If the design skill is missing from the session, ask her to re-save `isaymotion-app-design.skill` and `isaymotion-study-app.skill`. Batch Tickler source is in the `tickler` repo; her banner and icon originals are committed there (`img/banner.jpg`, `icons/icon-source.png`).
+
+
+## 1.10.0 (2026-11-09)
+Home gains "Today in the batch": featured Spotify playlist and featured fact of the day (`todayHTML`, `todaysPicks`, `AFTER.home` in js/app.js; `.today*` CSS; `bt.today.*` strings). Test: `python3 qa/today_test.py ./tickler <outdir>` (seeds cards, checks both cards, Show another, empty-batch hide; screenshots to outdir).
