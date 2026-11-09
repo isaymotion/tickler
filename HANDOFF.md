@@ -91,3 +91,6 @@ None. QA harness: `git clone -b dev-tools https://github.com/isaymotion/tickler 
 
 ## 1.10.0 (2026-11-09)
 Home gains "Today in the batch": featured Spotify playlist and featured fact of the day (`todayHTML`, `todaysPicks`, `AFTER.home` in js/app.js; `.today*` CSS; `bt.today.*` strings). Test: `python3 qa/today_test.py ./tickler <outdir>` (seeds cards, checks both cards, Show another, empty-batch hide; screenshots to outdir).
+
+## 1.11.0 (2026-11-10) — Fun pack
+Block "1.11.0: FUN FEATURES" in js/app.js (before `TITLES.person`): birthday banner + greet (Home), residency day counter (`startDate` key, About setting), weekly spotlight (Home today-grid), `#/whosaid`, `#/bingo` (`bingo` key), twins (Stats), `#/icebreakers` (data/icebreakers.js), `#/map` (data/places.js: Natural Earth outline + 244 places, `locate()` matcher), `#/wrapped`. New NAV group Play. Test: `python3 qa/fun_test.py ./tickler <outdir>` (59 checks).
