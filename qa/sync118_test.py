@@ -72,6 +72,10 @@ def handle(op, payload):
             import datetime
             upd = int(datetime.datetime.fromisoformat(card['updated'].replace('Z', '+00:00')).timestamp() * 1000)
             b['cards'][card['id']] = {'owner': u['uid'], 'updated': upd, 'shared': shared, 'card': card}; return True
+        if op == 'deleteCard':
+            need_user(); b = B(a[0]); ex = b['cards'].get(a[1])
+            if ex and ex['owner'] != u['uid'] and not is_admin(): raise Denied()
+            b['cards'].pop(a[1], None); return True
         if op == 'cardsSince':
             need_member(a[0]); return [dict(v, id=k) for k, v in B(a[0])['cards'].items() if a[1] < 0 or v['updated'] > a[1]]
         if op == 'putEvent':
@@ -95,7 +99,7 @@ window.BT_CLOUD = function (cfg) {
   var api = { user: user, ready: function () { return Promise.resolve(user()); },
     signIn: function () { window.__mockSigned = true; sessionStorage.setItem('mockSigned', '1'); return Promise.resolve(user()); },
     signOut: function () { window.__mockSigned = false; sessionStorage.removeItem('mockSigned'); return Promise.resolve(); } };
-  ['getBatch','setBatchInfo','myBatches','createBatch','status','request','cancelRequest','requests','approve','decline','members','removeMember','leave','putCard','cardsSince','putEvent','eventsSince'].forEach(function (op) { api[op] = function () { return call.apply(null, [op].concat([].slice.call(arguments))); }; });
+  ['getBatch','setBatchInfo','myBatches','createBatch','status','request','cancelRequest','requests','approve','decline','members','removeMember','leave','putCard','deleteCard','cardsSince','putEvent','eventsSince'].forEach(function (op) { api[op] = function () { return call.apply(null, [op].concat([].slice.call(arguments))); }; });
   return api;
 };
 """
@@ -215,6 +219,30 @@ with sync_playwright() as p:
     go(Bp, '#/events'); ok('Welcome dinner\n' not in txt(Bp) and pg_ev(Bp) == 0, 'event removed on the resident phone')
     pushes = calls.count('putEvent'); go(Bp, '#/sync'); click(Bp, '#sy-now'); Bp.wait_for_timeout(400)
     ok(calls.count('putEvent') == pushes, 'pulled events are not sent back')
+
+    # --- 1.19.2: same Google account on a second device (laptop) gets its own card + sharing ticks
+    def me_of(pg): return pg.evaluate("JSON.parse(localStorage.getItem('bt:v1:me')||'null')")
+    DB['batches'][code]['cards']['pA']['shared'] = {'emergency': True, 'contact': False}
+    def second(me):
+        L = phone('isaymotion@gmail.com', 'uA', 'Isa N', me, 'dark')
+        L.evaluate("c=>{sessionStorage.setItem('mockSigned','1');localStorage.setItem('bt:v1:cloud',JSON.stringify({code:c,name:'B',state:'member'}))}", code)
+        L.reload(); L.wait_for_timeout(1800); return L
+    L = second(None)
+    m = me_of(L); ok(m and m['id'] == 'pA', 'laptop without My card adopts own cloud card (%s)' % (m and m['id']))
+    ok(st(L).get('consent') == {'emergency': True, 'contact': False}, 'laptop copies the sharing ticks (%s)' % st(L).get('consent'))
+    ok(not any(c['id'] == 'pA' for c in batch(L)), 'own card not listed as a batchmate')
+    go(L, '#/sync'); ok(L.locator('input[name=consent][value=emergency]').is_checked() and not L.locator('input[name=consent][value=contact]').is_checked(), 'ticks shown on the laptop sync screen')
+    go(L, '#/me'); ok(L.locator('input[name=name]').first.input_value() == m['name'], 'My card form filled on the laptop')
+    nput = calls.count('putCard'); L.wait_for_timeout(3500); ok(calls.count('putCard') == nput, 'adopted card is not pushed straight back')
+    L.evaluate("()=>{var m=JSON.parse(localStorage.getItem('bt:v1:me'));m.hometown='Orion, Bataan';m.updated=new Date().toISOString();localStorage.setItem('bt:v1:me',JSON.stringify(m));}")
+    go(L, '#/sync'); click(L, '#sy-now'); L.wait_for_timeout(500)
+    go(A, '#/sync'); click(A, '#sy-now'); A.wait_for_timeout(600)
+    ok(me_of(A)['hometown'] == 'Orion, Bataan', 'edit on the laptop reaches My card on the first device')
+    DB['batches'][code]['cards']['pX'] = {'owner': 'uA', 'updated': 1, 'shared': {}, 'card': card('pX', 'Isa N', updated='2026-10-01T00:00:00.000Z')}
+    DB['batches'][code]['cards']['pA']['updated'] = int(time.time() * 1000) + 86400000   # main card edited later on the other device
+    L2 = second(card('pX', 'Isa N', updated='2026-10-01T00:00:00.000Z'))
+    ok(me_of(L2)['id'] == 'pA' and 'pX' not in DB['batches'][code]['cards'], 'older duplicate card replaced by the newer one and removed from the cloud')
+    L.context.close(); L2.context.close()
 
     # --- throttle: a normal open does not sync again within 5 minutes
     n0 = len(calls); Bp.reload(); Bp.wait_for_timeout(1500)
