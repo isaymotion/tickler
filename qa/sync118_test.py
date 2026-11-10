@@ -28,7 +28,10 @@ def handle(op, payload):
         if not (member(code) or is_admin()): raise Denied()
     try:
         if op == 'getBatch':
-            need_user(); b = DB['batches'].get(a[0]); return {'code': a[0], 'name': b['name']} if b else None
+            need_user(); b = DB['batches'].get(a[0]); return {'code': a[0], 'name': b['name'], 'tmdbKey': b.get('tmdbKey', '')} if b else None
+        if op == 'setBatchInfo':
+            if not is_admin(): raise Denied()
+            B(a[0]).update(a[1]); return True
         if op == 'myBatches':
             if not is_admin(): raise Denied()
             return [{'code': k, 'name': v['name']} for k, v in DB['batches'].items()]
@@ -92,7 +95,7 @@ window.BT_CLOUD = function (cfg) {
   var api = { user: user, ready: function () { return Promise.resolve(user()); },
     signIn: function () { window.__mockSigned = true; sessionStorage.setItem('mockSigned', '1'); return Promise.resolve(user()); },
     signOut: function () { window.__mockSigned = false; sessionStorage.removeItem('mockSigned'); return Promise.resolve(); } };
-  ['getBatch','myBatches','createBatch','status','request','cancelRequest','requests','approve','decline','members','removeMember','leave','putCard','cardsSince','putEvent','eventsSince'].forEach(function (op) { api[op] = function () { return call.apply(null, [op].concat([].slice.call(arguments))); }; });
+  ['getBatch','setBatchInfo','myBatches','createBatch','status','request','cancelRequest','requests','approve','decline','members','removeMember','leave','putCard','cardsSince','putEvent','eventsSince'].forEach(function (op) { api[op] = function () { return call.apply(null, [op].concat([].slice.call(arguments))); }; });
   return api;
 };
 """
@@ -177,6 +180,14 @@ with sync_playwright() as p:
     ok('1 new' in txt(A), 'Sync now result message')
     go(A, '#/batch'); ok('Bea Cruz' in txt(A), 'resident on the admin batch grid')
 
+    # --- TMDB key saved by the admin reaches the resident (1.19.1)
+    go(A, '#/sync'); A.fill('#sy-tmdb [name=key]', 'not a key'); click(A, '#sy-tmdb button[type=submit]')
+    ok('look like a TMDB' in txt(A), 'bad TMDB key refused')
+    A.fill('#sy-tmdb [name=key]', 'abcdefabcdefabcdefabcdefabcdef12'); click(A, '#sy-tmdb button[type=submit]'); A.wait_for_timeout(300)
+    ok(DB['batches'][code].get('tmdbKey') == 'abcdefabcdefabcdefabcdefabcdef12' and st(A).get('tmdbKey'), 'admin saves TMDB key to the batch')
+    go(Bp, '#/sync'); click(Bp, '#sy-now'); Bp.wait_for_timeout(500)
+    ok(st(Bp).get('tmdbKey') == 'abcdefabcdefabcdefabcdefabcdef12', 'resident phone receives the key on Sync now')
+    ok(Bp.locator('#sy-tmdb').count() == 0, 'resident: no key form')
     # --- consent for Emergency & medical
     go(Bp, '#/sync'); Bp.locator('input[name=consent][value=emergency]').check(); Bp.wait_for_timeout(800)
     cB = DB['batches'][code]['cards']['pB']
