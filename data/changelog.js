@@ -4,6 +4,13 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.20.0', date: '2026-11-10', title: 'Sync button in the top bar',
+    items: [
+      { type: 'feature', text: 'A cloud button now sits in the top bar. Its dot shows how Cloud sync is doing: green = synced, pulsing = syncing, amber = waiting for approval, red = something went wrong, dim = not set up yet. Tap it to sync now (or to open Cloud sync if it isn’t set up). Syncing still happens on its own as well.', href: '#/sync' },
+      { type: 'correction', text: 'My card › Whose card is this?: the two choices now show a proper round button with a dot, so you can see which one is picked.', href: '#/me' }
+    ]
+  },
+  {
     version: '1.19.2', date: '2026-11-10', title: 'Your card on all your devices',
     items: [
       { type: 'correction', text: 'Signed in with the same Google account on another device (a laptop or second phone)? Cloud sync now brings your own card into My card there, with your sharing choices. Before, it only brought in your batchmates’ cards. Edit on any device; the newest version wins.', href: '#/me' }

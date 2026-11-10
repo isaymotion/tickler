@@ -2931,10 +2931,11 @@
       if (currentKey() === 'sync') route({ keepScroll: true });
     });
   }
-  function again() { var a = cloudAgain; cloudAgain = ''; if (a) setTimeout(function () { cloudSync(a === 'force' ? { force: true } : { pushOnly: true }); }, 50); }
+  function again() { setTimeout(paintSyncStatus, 0); var a = cloudAgain; cloudAgain = ''; if (a) setTimeout(function () { cloudSync(a === 'force' ? { force: true } : { pushOnly: true }); }, 50); }
   function schedulePush() { clearTimeout(pushTimer); pushTimer = setTimeout(function () { cloudSync({ pushOnly: true }); }, 3000); }
   var syncStarted = false;
   function cloudAfterRoute() {
+    paintSyncBtn();
     var c0 = cst();
     if (c0.state === 'pending' && c0.code && !syncStarted) {   // waiting for approval: look once per app start
       syncStarted = true;
@@ -2949,9 +2950,47 @@
   }
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') cloudSync(); });
   function paintSyncStatus() {
+    paintSyncBtn();
     var el = document.getElementById('sy-last'); if (!el) return;
     el.textContent = syncLastText();
   }
+  /* 1.20.0: cloud button in the top bar — shows the sync state; tap = Sync now (or open Cloud sync when not set up) */
+  function syncBtnState() {
+    var c = cst();
+    if (c.state === 'pending' && c.code) return 'pending';
+    if (c.state === 'removed') return 'off';
+    if (!isSynced()) return 'off';
+    if (cloudBusy) return 'busy';
+    if (c.lastErr) return 'err';
+    return 'ok';
+  }
+  function paintSyncBtn() {
+    var b = document.getElementById('sync-btn'); if (!b) return;
+    var s = syncBtnState(), c = cst();
+    var label = s === 'ok' ? (c.lastSync ? tf('bt.sync.tb.ok', { when: fmtWhen(c.lastSync) }) : t('bt.sync.tb.okNever')) : t('bt.sync.tb.' + s);
+    b.className = 'icon-btn sync-btn is-' + s;
+    b.setAttribute('aria-label', label); b.title = label;
+    b.setAttribute('aria-busy', s === 'busy' ? 'true' : 'false');
+  }
+  (function addSyncBtn() {
+    var anchor = document.getElementById('textSizeBtn'); if (!anchor || document.getElementById('sync-btn')) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.id = 'sync-btn'; b.className = 'icon-btn sync-btn';
+    b.innerHTML = icon('cloud', 'sync-btn__ico') + '<span class="sync-btn__dot" aria-hidden="true"></span>';
+    anchor.parentNode.insertBefore(b, anchor);
+    b.addEventListener('click', function () {
+      var s = syncBtnState();
+      if (s === 'off' || s === 'pending') { location.hash = '#/sync'; return; }
+      if (s === 'busy') return;
+      cloudSync({ force: true }).then(function (r) {
+        var c = cst();
+        if (r) { var ch = r.added || r.updated || r.removed || r.events; toast(ch ? tf('bt.sync.result', { added: r.added, updated: r.updated, removed: r.removed }) : t('bt.sync.upToDate')); }
+        else if (c.lastErr) toast(t('bt.sync.tb.err'));
+        paintSyncBtn();
+      });
+    });
+    paintSyncBtn();
+  })();
   function syncLastText() {
     var c = cst();
     if (cloudBusy) return t('bt.sync.busy');

@@ -781,3 +781,20 @@ a.filter{text-decoration:none;display:inline-flex;align-items:center;min-height:
 .pet__thumb{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:var(--r-md);object-fit:cover;background:var(--tint);color:var(--ink-3)}
 .avatar--xs{width:24px;height:24px;min-width:24px;font-size:.62rem}
 .sync__tmdb{margin-top:18px;border-top:1px solid var(--rule);padding-top:4px}
+
+/* 1.20.0 Sync button in the top bar */
+.sync-btn{position:relative}
+.sync-btn__ico{width:20px;height:20px}
+.sync-btn__dot{position:absolute;right:6px;bottom:7px;width:9px;height:9px;border-radius:50%;box-shadow:0 0 0 2px var(--night);display:none}
+.sync-btn.is-ok .sync-btn__dot{display:block;background:#3ECF8E}
+.sync-btn.is-pending .sync-btn__dot{display:block;background:#F5B942}
+.sync-btn.is-err .sync-btn__dot{display:block;background:#FF6B6B}
+.sync-btn.is-off{opacity:.6}
+.sync-btn.is-busy .sync-btn__ico{animation:bt-sync-pulse .8s ease-in-out infinite alternate}
+@keyframes bt-sync-pulse{from{opacity:1}to{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.sync-btn.is-busy .sync-btn__ico{animation:none;opacity:.5}}
+@media print{.sync-btn{display:none}}
+/* 1.20.0 fix: radios and checkboxes inside a .field kept the text-box look (appearance:none, 44px tall) and showed no tick */
+.field input[type=radio],.field input[type=checkbox]{-webkit-appearance:auto;appearance:auto;width:20px;height:20px;min-height:0;padding:0;margin:0;border:0;border-radius:0;background:none;flex:none;accent-color:var(--accent);cursor:pointer}
+.field input[type=radio]:focus,.field input[type=checkbox]:focus{outline:3px solid var(--focus);outline-offset:2px}
+.pt-role .pt-radio{cursor:pointer}
