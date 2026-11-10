@@ -21,3 +21,6 @@ Prints `PASS`/`FAIL` per flow and an `ERRORS:` list. A clean run has every line 
 `8c` (it asserts the next random clue differs, which can legitimately repeat) and console errors containing
 `ERR_FAILED` (Google Fonts blocked in the sandbox). Screenshots land in `qa/*.png` (gitignored).
 The script serves the app on 127.0.0.1:8765 and blocks every other host.
+
+## tools/map
+Generator for the app's `data/places.js` (offline Philippines outline + place coordinates). See tools/map/README.md.
