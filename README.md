@@ -15,6 +15,11 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **Spotlight of the week** (Home) — one batchmate per week; **Residency day counter** (Home; counts from 1 January 2027 — `residencyStart` in data/hospital.js — and can be changed per phone in About).
 - **Play** — *Guess who*, *Who said it?* (guess whose answer it is), *Batch Bingo* (board built from the cards, saved on the phone), *Icebreakers* (36 questions + questions from the cards), *Batch Wrapped* (swipeable year-in-review slides).
 - **Link lists** — ranked `{title, url}` lists on each card, configured in `LINK_LISTS` (data/fields.js): Top 10 shows (Netflix & streaming; `card.netflix`), Birthday wishlist (Shopee/Lazada), Top films (Letterboxd), YouTube favourites, Podcasts, Books (Goodreads), Favourite food spots and Travel bucket list (Google Maps), Study stash (`card.lists[key]`). Links are host-checked; without one, the title opens a search. Home shows a Show recommendation of the day; **Batch picks** (`#/picks`) aggregates every list; wishlists show on the birthday banner; bucket-list places show on the map. In-app only (not in QR codes or the batch sheet; included in the Full directory print).
+- **Monito-monita** (`#/monito`) — name draw (Sattolo cycle, nobody draws themselves), budget + date (optionally added to events), per-person Send via share sheet with the match's wishlist; stored as `monito`.
+- **Badges** (`#/badges`) — 19 badges earned on the phone (`badges` key), copied to your card (`card.badges`).
+- **Batch events** (`#/events`) — `events` key; built-in first day of residency; countdown, .ics; travel in the whole-batch file (`events` array).
+- **Shoutouts** — `card.shoutouts` on the sender's card, shown on the receiver's card and Home.
+- **Ask me about** (`askMe` field, chips on cards) and **Word of the day** (`teachWords` field, Home).
 - **Hometown map** — offline map of the Philippines (`data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; unrecognised hometowns listed separately.
 - **Batch twins** (Batch stats) — the pairs with the most things in common.
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.

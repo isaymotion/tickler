@@ -4,6 +4,19 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.14.0',
+    date: '2026-11-10',
+    title: 'Monito-monita, badges, events and shoutouts',
+    items: [
+      { type: 'feature', text: 'Monito-monita: draw names for the gift exchange (no one draws themselves), set a budget and date, then send each person their match privately — with their wishlist.', href: '#/monito' },
+      { type: 'feature', text: 'Badges: 19 badges to earn — Collector, Met everyone, Perfect round, Bingo!, Cheerleader and more. Earned badges show on your card.', href: '#/badges' },
+      { type: 'feature', text: 'Batch events: add welcome dinners, outings and exams with a countdown and add-to-calendar. The first day of residency is already there. Events travel with Share the whole batch; Home shows the next one.', href: '#/events' },
+      { type: 'feature', text: 'Shoutouts: send a thank-you to a batchmate from their card. It travels with your card and shows on theirs; shoutouts for you show on Home.' },
+      { type: 'feature', text: 'Ask me about: up to 3 topics on your card (Basics), shown on your card in the batch list.', href: '#/me' },
+      { type: 'feature', text: 'Word of the day on Home, from each batchmate\'s Words to teach the batch (My card › Life › You).', href: '#/' }
+    ]
+  },
+  {
     version: '1.13.0',
     date: '2026-11-10',
     title: 'More lists: wishlists, food spots, films and more',

@@ -428,6 +428,125 @@ window.STRINGS = {
     'bt.l.study.url': 'Link (optional)',
     'bt.l.study.add': 'Add a resource',
     'bt.l.study.hosts': 'https links',
+    'nav.events': 'Batch events',
+    'nav.monito': 'Monito-monita',
+    'nav.badges': 'Badges',
+    'bt.f.askMe': 'Ask me about',
+    'bt.h.askMe': 'Up to 3 topics, separated by commas — e.g. K-dramas, running, cats. They show on your card in the batch list.',
+    'bt.f.teachWords': 'Words to teach the batch',
+    'bt.h.teachWords': 'One per line: word or phrase — meaning (language). e.g. Mayap a abak — good morning (Kapampangan). One shows on Home as the Word of the day.',
+    'bt.ask.k': 'Ask me about',
+    'bt.word.h': 'Word of the day',
+    'bt.word.by': 'Taught by {name}',
+    'bt.badge.earned': 'Badge earned: {name} 🎉',
+    'bt.badge.intro': '{n} of {total} badges earned on this phone.',
+    'bt.badge.on': 'Earned {date}',
+    'bt.badge.note': 'Badges are earned on this phone and show on your card when you share it.',
+    'bt.shout.h': 'Shoutouts',
+    'bt.shout.forYou': 'Shoutouts for you',
+    'bt.shout.none': 'No shoutouts yet. Be the first!',
+    'bt.shout.noneYou': 'None yet. When batchmates send you a shoutout and share their card, it shows here.',
+    'bt.shout.you': 'you',
+    'bt.shout.label': 'A shoutout for {name}',
+    'bt.shout.ph': 'Thanks for covering my rounds! 🙏',
+    'bt.shout.hint': 'Up to 280 characters. It travels with your card — share your card so they see it.',
+    'bt.shout.send': 'Send shoutout',
+    'bt.shout.sent': 'Shoutout added to your card. Share your card so it reaches them.',
+    'bt.shout.needCard': 'Make your card first to send shoutouts',
+    'bt.shout.homeH': 'A shoutout for you',
+    'bt.shout.all': 'See all {n}',
+    'bt.ev.intro': 'Welcome dinners, first days, exams, outings — with a countdown and add-to-calendar.',
+    'bt.ev.firstDay': 'First day of residency',
+    'bt.ev.tomorrow': 'Tomorrow',
+    'bt.ev.yesterday': 'Yesterday',
+    'bt.ev.ago': '{n} days ago',
+    'bt.ev.next': 'Next event',
+    'bt.ev.none': 'No upcoming events yet. Add one below.',
+    'bt.ev.allCal': 'Add all upcoming to calendar',
+    'bt.ev.past': 'Past events',
+    'bt.ev.shareHint': 'Events travel with the batch file: Share cards › Share the whole batch.',
+    'bt.ev.add': 'Add an event',
+    'bt.ev.edit': 'Edit event',
+    'bt.ev.title': 'What',
+    'bt.ev.titlePh': 'Welcome dinner',
+    'bt.ev.date': 'Date',
+    'bt.ev.time': 'Time (optional)',
+    'bt.ev.place': 'Where (optional)',
+    'bt.ev.note': 'Notes (optional)',
+    'bt.ev.save': 'Save event',
+    'bt.ev.cancel': 'Cancel',
+    'bt.ev.editBtn': 'Edit',
+    'bt.ev.need': 'Add a title and a date.',
+    'bt.ev.saved': 'Event saved.',
+    'bt.ev.confirmDel': 'Remove “{title}”?',
+    'bt.ev.imported': '{n} event(s) added or updated.',
+    'bt.mm.intro': 'Draw names for the gift exchange. Each person gets one batchmate to give to — never themselves — and you send each one their match privately.',
+    'bt.mm.notEnough': 'Needs at least 3 cards on this phone.',
+    'bt.mm.who': 'Who’s joining?',
+    'bt.mm.budget': 'Budget (optional)',
+    'bt.mm.date': 'Exchange date (optional)',
+    'bt.mm.addEvent': 'Add the exchange date to Batch events',
+    'bt.mm.warn': 'Joining the exchange yourself? Don’t peek — just tap Send for each person. Or let someone who isn’t joining run the draw.',
+    'bt.mm.draw': 'Draw names',
+    'bt.mm.need3': 'Pick at least 3 people.',
+    'bt.mm.drawn': '{n} people drawn on {date}',
+    'bt.mm.budgetIs': 'Budget: {budget}',
+    'bt.mm.howSend': 'Tap Send to open your share sheet with that person’s match (and their wishlist), then send it to them only.',
+    'bt.mm.hidden': 'match hidden',
+    'bt.mm.sent': 'sent ✓',
+    'bt.mm.send': 'Send',
+    'bt.mm.peek': 'Peek',
+    'bt.mm.hide': 'Hide',
+    'bt.mm.redraw': 'Draw again',
+    'bt.mm.clear': 'Clear the draw',
+    'bt.mm.redrawConfirm': 'Start over with a new draw? The current matches will be lost.',
+    'bt.mm.clearConfirm': 'Clear the draw? The matches will be lost.',
+    'bt.mm.sentTo': 'Sent to {name}.',
+    'bt.mm.copied': 'Copied {name}’s match — paste it in a private chat with them.',
+    'bt.mm.evTitle': 'Monito-monita exchange',
+    'bt.mm.msg': 'Hi {giver}! 🎁 Your monito/monita for {batch} is {receiver}.',
+    'bt.mm.msgBudget': 'Budget: {budget}',
+    'bt.mm.msgDate': 'Exchange: {date}',
+    'bt.mm.msgWish': 'Their wishlist:',
+    'bt.mm.msgSecret': 'Keep it a secret! 🤫',
+    'bt.badge.started': 'Getting started',
+    'bt.badge.started.how': 'Save your own card.',
+    'bt.badge.openbook': 'Open book',
+    'bt.badge.openbook.how': 'Fill in half of your card.',
+    'bt.badge.wholestory': 'Whole story',
+    'bt.badge.wholestory.how': 'Fill in 80% of your card.',
+    'bt.badge.curator': 'Curator',
+    'bt.badge.curator.how': 'Fill in 3 link lists on your card.',
+    'bt.badge.polyglot': 'Polyglot',
+    'bt.badge.polyglot.how': 'Add words to teach the batch.',
+    'bt.badge.collector5': 'Collector',
+    'bt.badge.collector5.how': 'Have 5 batchmates’ cards.',
+    'bt.badge.collector10': 'Big collector',
+    'bt.badge.collector10.how': 'Have 10 batchmates’ cards.',
+    'bt.badge.collector20': 'Whole batch',
+    'bt.badge.collector20.how': 'Have 20 batchmates’ cards.',
+    'bt.badge.meteveryone': 'Met everyone',
+    'bt.badge.meteveryone.how': 'Open every batchmate’s card (at least 5).',
+    'bt.badge.perfectguess': 'Perfect round',
+    'bt.badge.perfectguess.how': 'Get 10 out of 10 in Guess who.',
+    'bt.badge.streak10': 'On a roll',
+    'bt.badge.streak10.how': 'Guess 10 right in a row in Guess who.',
+    'bt.badge.whosaid': 'Mind reader',
+    'bt.badge.whosaid.how': 'Get every answer right in a Who said it? round (4 or more).',
+    'bt.badge.bingo': 'Bingo!',
+    'bt.badge.bingo.how': 'Get a line in Batch Bingo.',
+    'bt.badge.wrapped': 'Wrapped up',
+    'bt.badge.wrapped.how': 'Watch Batch Wrapped to the last slide.',
+    'bt.badge.icebreaker': 'Icebreaker',
+    'bt.badge.icebreaker.how': 'Go through 10 icebreakers.',
+    'bt.badge.greeter': 'Birthday greeter',
+    'bt.badge.greeter.how': 'Greet a batchmate on their birthday.',
+    'bt.badge.shoutout': 'Cheerleader',
+    'bt.badge.shoutout.how': 'Send a shoutout.',
+    'bt.badge.planner': 'Planner',
+    'bt.badge.planner.how': 'Add a batch event.',
+    'bt.badge.monito': 'Santa’s helper',
+    'bt.badge.monito.how': 'Run a monito-monita draw.',
     'bt.pl.hint': 'Up to {n} playlists. Paste the Spotify share link and give it a name.',
     'bt.pl.label': 'Playlist name',
     'bt.pl.url': 'Spotify link',
@@ -1080,6 +1199,125 @@ window.STRINGS = {
     'bt.l.study.url': 'Link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.l.study.add': 'Magdagdag ng resource',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.l.study.hosts': 'mga https link',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.events': 'Mga batch event',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.monito': 'Monito-monita',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.badges': 'Mga badge',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.f.askMe': 'Tanungin mo ako tungkol sa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.h.askMe': 'Hanggang 3 paksa, hiwalay sa kuwit — hal. K-drama, running, pusa. Lalabas ito sa card mo sa batch list.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.f.teachWords': 'Mga salitang ituturo sa batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.h.teachWords': 'Isa bawat linya: salita o parirala — kahulugan (wika). hal. Mayap a abak — good morning (Kapampangan). Isa ang lalabas sa Home bilang Salita ng araw.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ask.k': 'Tanungin mo ako',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.word.h': 'Salita ng araw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.word.by': 'Itinuro ni {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.earned': 'Nakakuha ng badge: {name} 🎉',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.intro': '{n} sa {total} badge ang nakuha sa phone na ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.on': 'Nakuha {date}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.note': 'Nakukuha ang mga badge sa phone na ito at lumalabas sa card mo kapag ibinahagi mo ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.h': 'Mga shoutout',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.forYou': 'Mga shoutout para sa iyo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.none': 'Wala pang shoutout. Ikaw na ang mauna!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.noneYou': 'Wala pa. Kapag nagpadala ng shoutout ang kabatch at ibinahagi ang card nila, lalabas ito rito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.you': 'ikaw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.label': 'Shoutout para kay {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.ph': 'Salamat sa pag-cover ng rounds ko! 🙏',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.hint': 'Hanggang 280 character. Kasama ito ng card mo — i-share ang card mo para makita nila.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.send': 'Ipadala ang shoutout',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.sent': 'Naidagdag ang shoutout sa card mo. I-share ang card mo para makarating sa kanila.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.needCard': 'Gumawa muna ng card para makapag-shoutout',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.homeH': 'Shoutout para sa iyo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.all': 'Tingnan lahat ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.intro': 'Welcome dinner, unang araw, exam, lakad — may countdown at add-to-calendar.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.firstDay': 'Unang araw ng residency',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.tomorrow': 'Bukas',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.yesterday': 'Kahapon',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.ago': '{n} araw na ang nakalipas',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.next': 'Susunod na event',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.none': 'Wala pang paparating na event. Magdagdag sa ibaba.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.allCal': 'Idagdag lahat ng paparating sa calendar',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.past': 'Mga nakaraang event',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.shareHint': 'Kasama ang mga event sa batch file: Share cards › Share the whole batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.add': 'Magdagdag ng event',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.edit': 'I-edit ang event',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.title': 'Ano',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.titlePh': 'Welcome dinner',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.date': 'Petsa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.time': 'Oras (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.place': 'Saan (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.note': 'Tala (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.save': 'I-save ang event',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.cancel': 'Kanselahin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.editBtn': 'I-edit',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.need': 'Maglagay ng pamagat at petsa.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.saved': 'Na-save ang event.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.confirmDel': 'Alisin ang “{title}”?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.imported': '{n} event ang naidagdag o na-update.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.intro': 'Bumunot ng pangalan para sa exchange gift. Bawat isa ay may isang kabatch na reregaluhan — hindi ang sarili — at ipapadala mo nang pribado ang match ng bawat isa.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.notEnough': 'Kailangan ng 3 card man lang sa phone na ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.who': 'Sino ang sasali?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.budget': 'Budget (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.date': 'Petsa ng exchange (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.addEvent': 'Idagdag ang petsa ng exchange sa Batch events',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.warn': 'Kasali ka rin? Huwag sumilip — i-tap lang ang Send para sa bawat isa. O ipaubaya ang draw sa hindi kasali.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.draw': 'Bumunot',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.need3': 'Pumili ng 3 tao man lang.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.drawn': '{n} tao ang nabunot noong {date}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.budgetIs': 'Budget: {budget}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.howSend': 'I-tap ang Send para buksan ang share sheet na may match ng taong iyon (at wishlist), saka ipadala sa kanya lang.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.hidden': 'nakatago ang match',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.sent': 'naipadala ✓',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.send': 'Ipadala',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.peek': 'Silipin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.hide': 'Itago',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.redraw': 'Bumunot ulit',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.clear': 'Burahin ang draw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.redrawConfirm': 'Magsimula ulit sa bagong draw? Mawawala ang kasalukuyang mga match.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.clearConfirm': 'Burahin ang draw? Mawawala ang mga match.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.sentTo': 'Naipadala kay {name}.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.copied': 'Nakopya ang match ni {name} — i-paste sa pribadong chat ninyo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.evTitle': 'Monito-monita exchange',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.msg': 'Hi {giver}! 🎁 Ang monito/monita mo para sa {batch} ay si {receiver}.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.msgBudget': 'Budget: {budget}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.msgDate': 'Exchange: {date}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.msgWish': 'Wishlist niya:',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.msgSecret': 'Sikreto lang! 🤫',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.started': 'Nagsimula na',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.started.how': 'I-save ang sarili mong card.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.openbook': 'Bukas na libro',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.openbook.how': 'Punan ang kalahati ng card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.wholestory': 'Buong kuwento',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.wholestory.how': 'Punan ang 80% ng card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.curator': 'Curator',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.curator.how': 'Punan ang 3 link list sa card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.polyglot': 'Polyglot',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.polyglot.how': 'Magdagdag ng mga salitang ituturo sa batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.collector5': 'Kolektor',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.collector5.how': 'Magkaroon ng 5 card ng kabatch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.collector10': 'Malaking kolektor',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.collector10.how': 'Magkaroon ng 10 card ng kabatch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.collector20': 'Buong batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.collector20.how': 'Magkaroon ng 20 card ng kabatch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.meteveryone': 'Nakilala lahat',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.meteveryone.how': 'Buksan ang card ng bawat kabatch (5 man lang).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.perfectguess': 'Perpektong round',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.perfectguess.how': 'Makakuha ng 10 sa 10 sa Guess who.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.streak10': 'Tuloy-tuloy',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.streak10.how': 'Makahula ng 10 nang sunod-sunod sa Guess who.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.whosaid': 'Mind reader',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.whosaid.how': 'Tamaan lahat sa isang round ng Sino ang nagsabi? (4 pataas).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.bingo': 'Bingo!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.bingo.how': 'Makabuo ng linya sa Batch Bingo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.wrapped': 'Wrapped up',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.wrapped.how': 'Panoorin ang Batch Wrapped hanggang huling slide.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.icebreaker': 'Icebreaker',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.icebreaker.how': 'Dumaan sa 10 icebreaker.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.greeter': 'Tagabati',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.greeter.how': 'Batiin ang kabatch sa kaarawan niya.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.shoutout': 'Cheerleader',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.shoutout.how': 'Magpadala ng shoutout.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.planner': 'Planner',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.planner.how': 'Magdagdag ng batch event.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.monito': 'Katulong ni Santa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.monito.how': 'Magpatakbo ng monito-monita draw.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pl.hint': 'Hanggang {n} playlist. I-paste ang Spotify share link at pangalanan ito.',
     'bt.pl.label': 'Pangalan ng playlist',
     'bt.pl.url': 'Spotify link',
