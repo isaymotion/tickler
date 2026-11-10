@@ -2895,7 +2895,8 @@
       return pushMe(api, c).then(function () {
         if (opts.pushOnly) return (c.evDel || []).length ? syncEvents(api, cst()).then(function () { return null; }) : null;
         var full = cst().lastFull !== dayNum(new Date());
-        return pullCards(api, cst(), full).then(function (r) { return syncEvents(api, cst()).then(function (n) { r.events = n; return r; }); });
+        var info = full || opts.force ? api.getBatch(c.code).then(function (b) { if (b) cset(function (x) { x.name = b.name || x.name; x.tmdbKey = okTmdbKey(b.tmdbKey); }); }).catch(function () {}) : Promise.resolve();
+        return info.then(function () { return pullCards(api, cst(), full); }).then(function (r) { return syncEvents(api, cst()).then(function (n) { r.events = n; return r; }); });
       });
     }).then(function (r) {
       cloudBusy = false; again();
@@ -2986,7 +2987,10 @@
     return '<h3>' + esc(t('bt.sync.requests')) + ' (' + syncAdmin.requests.length + ')</h3>' +
       (syncAdmin.requests.length ? '<ul class="sync__list">' + syncAdmin.requests.map(function (r) { return '<li><span><strong>' + esc(r.name || '—') + '</strong><span class="muted">' + esc(r.email) + '</span></span><span class="form__acts"><button type="button" class="btn btn--solid btn--sm" data-approve="' + esc(r.uid) + '">' + esc(t('bt.sync.approve')) + '</button><button type="button" class="btn btn--sm" data-decline="' + esc(r.uid) + '">' + esc(t('bt.sync.decline')) + '</button></span></li>'; }).join('') + '</ul>' : '<p class="muted">' + esc(t('bt.sync.noRequests')) + '</p>') +
       '<h3>' + esc(t('bt.sync.members')) + ' (' + syncAdmin.members.length + ')</h3><ul class="sync__list">' + syncAdmin.members.map(function (m) { return '<li><span><strong>' + esc(m.name || '—') + '</strong><span class="muted">' + esc(m.email) + '</span></span>' + (m.uid === u.uid ? '<span class="muted">' + esc(t('bt.sync.you')) + '</span>' : '<button type="button" class="btn btn--sm" data-unmember="' + esc(m.uid) + '">' + esc(t('bt.sync.remove')) + '</button>') + '</li>'; }).join('') + '</ul>' +
-      '<p><button type="button" class="link-btn" id="sy-adm-reload">' + esc(t('bt.sync.reload')) + '</button></p>';
+      '<p><button type="button" class="link-btn" id="sy-adm-reload">' + esc(t('bt.sync.reload')) + '</button></p>' +
+      '<form id="sy-tmdb" class="sync__tmdb"><h3>' + esc(t('bt.sync.tmdbH')) + '</h3><p class="field__h">' + esc(t(cst().tmdbKey ? 'bt.sync.tmdbSet' : 'bt.sync.tmdbText')) + '</p>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.sync.tmdbKey')) + '</span><input type="text" name="key" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc(cst().tmdbKey ? '••••••••' + cst().tmdbKey.slice(-4) : '32 letters and numbers') + '"></label>' +
+        '<p class="form__acts"><button type="submit" class="btn btn--sm">' + esc(t('bt.sync.tmdbSave')) + '</button>' + (cst().tmdbKey ? ' <button type="button" class="link-btn" id="sy-tmdb-rm">' + esc(t('bt.sync.tmdbRemove')) + '</button>' : '') + '</p><p class="form__status" id="sy-tmdb-st" role="status"></p></form>';
   }
   function loadAdmin(api, code) {
     return Promise.all([api.requests(code), api.members(code)]).then(function (r) {
@@ -3019,7 +3023,7 @@
           if (s === 'none') return api.request(code, { name: myName() }).then(function () { return 'pending'; });
           return s;
         }).then(function (s) {
-          cset(function (x) { x.code = code; x.name = b.name || ''; x.state = s; x.lastPull = 0; x.lastFull = -1; x.evPull = 0; x.lastSync = ''; x.pushKey = ''; });
+          cset(function (x) { x.code = code; x.name = b.name || ''; x.tmdbKey = okTmdbKey(b.tmdbKey); x.state = s; x.lastPull = 0; x.lastFull = -1; x.evPull = 0; x.lastSync = ''; x.pushKey = ''; });
           if (s === 'member') { if (!batchName() && b.name) store.set('batchName', b.name); cloudSync({ force: true }); }
           route({ keepScroll: true });
         });
@@ -3076,6 +3080,10 @@
     if (u && u.admin && c.state === 'member' && c.code) {
       if (!syncAdmin) { loadAdmin(api, c.code); return; }
       on('sy-adm-reload', function () { syncAdmin = null; route({ keepScroll: true }); });
+      var tf0 = document.getElementById('sy-tmdb'), tst = document.getElementById('sy-tmdb-st');
+      function saveKey(k) { tst.textContent = t('bt.sync.checking'); api.setBatchInfo(c.code, { tmdbKey: k }).then(function () { cset(function (x) { x.tmdbKey = k; }); store.del('tmdb'); toast(t(k ? 'bt.sync.tmdbSaved' : 'bt.sync.tmdbRemoved')); route({ keepScroll: true }); }, function (e) { tst.textContent = errText(e); tst.classList.add('is-error'); }); }
+      if (tf0) tf0.addEventListener('submit', function (e) { e.preventDefault(); var k = okTmdbKey(tf0.key.value); if (!k) { tst.textContent = t('bt.sync.tmdbBad'); tst.classList.add('is-error'); return; } saveKey(k); });
+      on('sy-tmdb-rm', function () { if (window.confirm(t('bt.sync.tmdbConfirmRm'))) saveKey(''); });
       main.querySelectorAll('[data-approve]').forEach(function (b) { b.addEventListener('click', function () { var uid = b.getAttribute('data-approve'), r = syncAdmin.requests.filter(function (x) { return x.uid === uid; })[0]; if (!r) return; b.disabled = true; api.approve(c.code, r).then(function () { toast(tf('bt.sync.approvedX', { name: r.name || r.email })); loadAdmin(api, c.code); }, function (e) { b.disabled = false; say(errText(e), true); }); }); });
       main.querySelectorAll('[data-decline]').forEach(function (b) { b.addEventListener('click', function () { var uid = b.getAttribute('data-decline'), r = syncAdmin.requests.filter(function (x) { return x.uid === uid; })[0]; if (!r || !window.confirm(tf('bt.sync.confirmDecline', { name: r.name || r.email }))) return; b.disabled = true; api.decline(c.code, uid).then(function () { loadAdmin(api, c.code); }, function (e) { b.disabled = false; say(errText(e), true); }); }); });
       main.querySelectorAll('[data-unmember]').forEach(function (b) { b.addEventListener('click', function () { var uid = b.getAttribute('data-unmember'), m = syncAdmin.members.filter(function (x) { return x.uid === uid; })[0]; if (!m || !window.confirm(tf('bt.sync.confirmRemove', { name: m.name || m.email }))) return; b.disabled = true; api.removeMember(c.code, uid).then(function () { loadAdmin(api, c.code); }, function (e) { b.disabled = false; say(errText(e), true); }); }); });
@@ -3218,7 +3226,8 @@
 
   /* ---- Show info from TMDB ---- */
   var TMDB = window.TMDB_CONFIG || {}, TMDB_DAYS = 30, tmdbBusy = {};
-  function tmdbKey() { return String(TMDB.key || '').trim(); }
+  function okTmdbKey(k) { k = String(k || '').trim(); return /^[a-f0-9]{32}$/i.test(k) || /^[\w.-]{60,1200}$/.test(k) ? k : ''; }
+  function tmdbKey() { return okTmdbKey(TMDB.key) || okTmdbKey(cst().tmdbKey); }   // file key (dev/tests) or the batch's key from Cloud sync
   function tmdbAll() { var c = store.get('tmdb', {}); return c && typeof c === 'object' ? c : {}; }
   function tmdbGet(title) { var c = tmdbAll()[String(title).toLowerCase()]; return c && Date.now() - (c.at || 0) < TMDB_DAYS * 864e5 ? c : null; }
   function tmdbPut(title, info) {

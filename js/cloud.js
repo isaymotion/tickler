@@ -43,6 +43,7 @@
       signOut: function () { return F.signOut(auth); },
 
       getBatch: function (code) { return F.getDoc(d('batches', code)).then(function (s) { return s.exists() ? Object.assign({ code: code }, s.data()) : null; }); },
+      setBatchInfo: function (code, info) { return F.setDoc(d('batches', code), info, { merge: true }); },   // admin only (rules)
       myBatches: function () { return F.getDocs(col('batches')).then(function (s) { return rows(s).map(function (x) { return { code: x._id, name: x.name || '' }; }); }); },
       createBatch: function (code, name, who) {
         var u = me(), b = F.writeBatch(db), now = Date.now();

@@ -3,7 +3,7 @@ window.APP_META = {
   name: 'Batch Tickler',
   short: 'Batch',
   tagline: 'Get to know your batch',
-  version: '1.19.0',
+  version: '1.19.1',
   repo: 'tickler',
   attribution: 'App created by Isabella Navarro, MD. Latest version November 2026. isaymotion@gmail.com'
 };

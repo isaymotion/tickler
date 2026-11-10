@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.19.1', date: '2026-11-10', title: 'Show info key in Cloud sync',
+    items: [
+      { type: 'feature', text: 'The admin can now save the TMDB key on Cloud sync. It is kept with the batch in the cloud (not in the app’s public code), and every synced phone then shows a picture and description for the show of the day.' }
+    ]
+  },
+  {
     version: '1.19.0', date: '2026-11-10', title: 'Pets, a Spotify player and show info',
     items: [
       { type: 'feature', text: 'New Pets screen: add your pets one at a time, each with a photo, kind, breed and a few words about them. They show on your card and in a gallery of the whole batch’s pets.', href: '#/pets' },

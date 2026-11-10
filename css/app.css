@@ -780,3 +780,4 @@ a.filter{text-decoration:none;display:inline-flex;align-items:center;min-height:
 .pet-form h3{margin-top:0}
 .pet__thumb{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:var(--r-md);object-fit:cover;background:var(--tint);color:var(--ink-3)}
 .avatar--xs{width:24px;height:24px;min-width:24px;font-size:.62rem}
+.sync__tmdb{margin-top:18px;border-top:1px solid var(--rule);padding-top:4px}
