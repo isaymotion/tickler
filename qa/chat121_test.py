@@ -170,14 +170,24 @@ with sync_playwright() as p:
     go(A, '#/chat', 1200)
     chs = DB['batches'][CODE]['channels']
     names = [c['name'] for k, c in sorted(chs.items(), key=lambda kv: kv[1]['order'])]
-    ok(names == ['general', 'memes', 'kain', 'Mariveles', 'psych', 'nerd', 'daldal', 'boardgames', 'TV', 'anime', 'movie', 'music', 'news', 'duty', 'help'], 'admin phone created the 15 starting channels in order (%d)' % len(names))
+    ok(names == ['general', 'memes', 'kain', 'Mariveles', 'psych', 'nerd', 'daldal', 'boardgames', 'TV', 'anime', 'movie', 'music', 'news', 'duty', 'help', 'lovelife', 'jowasawas'], 'admin phone created the 17 starting channels in order (%d)' % len(names))
     ok('duty-talk' not in chs and all(c['by'] == 'uA' for c in chs.values()), 'no #duty-talk; admin owns the starting channels')
-    ok(A.locator('.ch-row').count() == 15 and A.locator('.ch-row').first.inner_text().startswith('💬') and '#general' in A.locator('.ch-row').first.inner_text(), 'channel list shows 15 rows, #general first')
+    ok(A.locator('.ch-row').count() == 17 and A.locator('.ch-row').first.inner_text().startswith('💬') and '#general' in A.locator('.ch-row').first.inner_text(), 'channel list shows 17 rows, #general first')
     n0 = calls.count('chatCreateChannels'); go(A, '#/', 200); go(A, '#/chat', 900)
     ok(calls.count('chatCreateChannels') == n0, 'starting channels are not created twice')
 
+    # --- 1.21.3: a batch made before #lovelife/#jowasawas gets them once from the admin's phone
+    for k in ('lovelife', 'jowasawas'): del DB['batches'][CODE]['channels'][k]
+    A.evaluate("localStorage.removeItem('bt:v1:chatAddedDone')"); go(A, '#/', 200); A.reload(); A.wait_for_timeout(500); go(A, '#/chat', 1200)
+    chs = DB['batches'][CODE]['channels']
+    ok('lovelife' in chs and 'jowasawas' in chs and chs['lovelife']['emoji'] == '💘' and chs['jowasawas']['order'] == 17, '1.21.3: admin phone adds #lovelife and #jowasawas to an existing batch')
+    del DB['batches'][CODE]['channels']['jowasawas']; A.reload(); A.wait_for_timeout(500); go(A, '#/chat', 1200)
+    ok('jowasawas' not in DB['batches'][CODE]['channels'], '1.21.3: a deleted added channel is not recreated')
+    DB['batches'][CODE]['channels']['jowasawas'] = dict(chs['lovelife'], name='jowasawas', emoji='💑', order=17, messages={})
+    go(A, '#/', 200); A.reload(); A.wait_for_timeout(500)
+
     # --- resident writes in #general
-    go(Bp, '#/chat', 900); ok(Bp.locator('.ch-row').count() == 15, 'resident sees the 15 channels')
+    go(Bp, '#/chat', 900); ok(Bp.locator('.ch-row').count() == 17, 'resident sees the 17 channels')
     go(Bp, '#/chat/general', 900)
     ok(Bp.evaluate("document.body.classList.contains('is-chat-room')") and not Bp.locator('.tabbar').is_visible(), 'inside a channel the tab bar steps aside')
     ok('No messages yet' in txt(Bp), 'empty channel: say hi')
