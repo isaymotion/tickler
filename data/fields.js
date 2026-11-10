@@ -155,3 +155,5 @@ window.COMMON_FIELDS = {
 
 /* Spotify playlists: a list of up to PLAYLIST_MAX {label, url} links on the card (card.playlists). In-app only. */
 window.PLAYLIST_MAX = 10;
+/* Netflix top 10: up to NETFLIX_MAX {title, url} in rank order on the card (card.netflix); url optional. In-app only, not in QR. */
+window.NETFLIX_MAX = 10;

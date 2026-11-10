@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.12.0',
+    date: '2026-11-10',
+    title: 'Top 10 Netflix shows',
+    items: [
+      { type: 'feature', text: 'My card › Top 10 Netflix shows: list up to ten shows in order, each with an optional Netflix link (Share › Copy link). Use Move up to reorder.', href: '#/me' },
+      { type: 'feature', text: 'Each batchmate\'s card shows their numbered top 10 as links — the Netflix link if they added one, otherwise a Netflix search for the title.' },
+      { type: 'feature', text: 'Home: Netflix recommendation of the day — one show from the batch\'s top-10 lists each day, with whose list it is on and a Watch on Netflix button.', href: '#/' },
+      { type: 'update', text: 'Shared Netflix shows now count in Things in common and Batch twins; Batch stats lists the most-listed shows; Batch Wrapped gets a Most-loved Netflix show slide; the Full directory print includes the lists.' }
+    ]
+  },
+  {
     version: '1.11.1',
     date: '2026-11-10',
     title: 'Residency starts 1 January 2027',

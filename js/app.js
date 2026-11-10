@@ -553,7 +553,7 @@
   var GROUPS = window.CARD_GROUPS || ['basics'];
   var SUBS = window.CARD_SUBS || {};
   var COMMON = window.COMMON_FIELDS || { exact: [], items: [] };
-  var MAX_CUSTOM = 12, PLAYLIST_MAX = window.PLAYLIST_MAX || 5;
+  var MAX_CUSTOM = 12, PLAYLIST_MAX = window.PLAYLIST_MAX || 5, NETFLIX_MAX = window.NETFLIX_MAX || 10;
   var GUESS_FIELDS = window.GUESS_FIELDS || [];
   var HOSP = window.HOSPITAL || {};
   var CARD_APP = 'batchtickler', MAX_PHOTO = 320, MAX_TEXT = 600;
@@ -596,6 +596,9 @@
     out.playlists = (Array.isArray(c.playlists) ? c.playlists : []).map(function (x) {
       return x && typeof x === 'object' ? { label: cleanText(x.label, 60), url: spotifyUrl(x.url) } : null;
     }).filter(function (x) { return x && x.url; }).slice(0, PLAYLIST_MAX);
+    out.netflix = (Array.isArray(c.netflix) ? c.netflix : []).map(function (x) {
+      return x && typeof x === 'object' ? { title: cleanText(x.title, 80), url: netflixUrl(x.url) } : null;
+    }).filter(function (x) { return x && x.title; }).slice(0, NETFLIX_MAX);
     out.custom = (Array.isArray(c.custom) ? c.custom : []).map(function (x) {
       return x && typeof x === 'object' ? { label: cleanText(x.label, 60), value: cleanText(x.value, MAX_TEXT) } : null;
     }).filter(function (x) { return x && x.label && x.value; }).slice(0, MAX_CUSTOM);
@@ -614,6 +617,9 @@
   }
   function linkHref(f, v) { return /^https?:\/\//i.test(v) ? v : (f.base || '') + encodeURIComponent(v); }
   function linkText(v) { return /^https?:\/\//i.test(v) ? v.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '') : '@' + v; }
+  /* Netflix top 10 (1.12.0): card.netflix = [{title, url}] in rank order; url optional (https://www.netflix.com/… only); without one, the link opens a Netflix search for the title */
+  function netflixUrl(v) { v = cleanText(v, 300); return /^https:\/\/(www\.)?netflix\.com\/[^\s<>"']+$/i.test(v) ? v : ''; }
+  function netflixHref(x) { return x.url || 'https://www.netflix.com/search?q=' + encodeURIComponent(x.title); }
   function spotifyUrl(v) { v = cleanText(v, 300); return /^https:\/\/(open\.spotify\.com|spotify\.link)\/[^\s<>"']+$/i.test(v) ? v : ''; }
   /* Zodiac from the birthday: Western sign by month/day, Chinese animal by year (year boundary approximated at 1 Jan) */
   var SIGNS = [[1, 20, 'Capricorn'], [2, 19, 'Aquarius'], [3, 21, 'Pisces'], [4, 20, 'Aries'], [5, 21, 'Taurus'], [6, 21, 'Gemini'], [7, 23, 'Cancer'], [8, 23, 'Leo'], [9, 23, 'Virgo'], [10, 23, 'Libra'], [11, 22, 'Scorpio'], [12, 22, 'Sagittarius'], [12, 32, 'Capricorn']];
@@ -647,7 +653,7 @@
   function rebuildIndex() {
     SEARCH_INDEX.length = 0;
     people().forEach(function (c) {
-      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; })).filter(Boolean).join(' · ');
+      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), c.netflix.map(function (x) { return x.title; })).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
     [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro']].forEach(function (s) {
@@ -672,7 +678,7 @@
   function completeness(c) {   // filled / total over the standard fields + photo + birthday
     var fs = FIELDS.filter(function (f) { return f.print; }), n = 0;
     fs.forEach(function (f) { if (c[f.key]) n++; });
-    if (c.photo) n++; if (c.bmonth) n++; if (c.playlists.length) n++;
+    if (c.photo) n++; if (c.bmonth) n++; if (c.playlists.length) n++; if (c.netflix.length) n++;
     return { n: n, total: fs.length + 3 };
   }
   function items(v) {   // "a, b\nc · d" -> ['a','b','c','d'] (original casing), short tokens dropped
@@ -685,6 +691,8 @@
       var ia = items(a[k]), ib = items(b[k]).map(function (x) { return x.toLowerCase(); }), hit = ia.filter(function (x) { return ib.indexOf(x.toLowerCase()) >= 0; });
       if (hit.length) out.push(tf('bt.common.shared', { field: fieldLabel(k).toLowerCase(), value: hit.join(', ') }));
     });
+    var nb = (b.netflix || []).map(function (x) { return x.title.toLowerCase(); }), nhit = (a.netflix || []).filter(function (x) { return nb.indexOf(x.title.toLowerCase()) >= 0; }).map(function (x) { return x.title; });
+    if (nhit.length) out.push(tf('bt.common.shared', { field: t('bt.nf.short'), value: nhit.join(', ') }));
     return out;
   }
   function fmtMonth(v) { var m = /^(\d{4})-(\d{2})$/.exec(String(v)); return m ? monthName(+m[2]) + ' ' + m[1] : String(v); }
@@ -701,22 +709,26 @@
   function crumb(label) { return '<p class="crumb"><a href="#/">' + esc(t('nav.home')) + '</a> / ' + esc(label) + '</p>'; }
 
   /* ---- Today's picks (1.10.0): same pick on every phone with the same batch, changes at local midnight ---- */
-  var pickOff = { pl: 0, fact: 0 };   // "Another" taps; session only, reset on a new day
+  var pickOff = { pl: 0, fact: 0, nf: 0 };   // "Another" taps; session only, reset on a new day
   var pickDay = 0;
   function dayNum(d) { return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
   function dayHash(n, salt) { var h = (n * 2654435761 + salt * 40503) >>> 0; h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13; return h >>> 0; }
   function clip(s, n) { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1).trim() + '…' : s; }
   function todaysPicks(all, today) {
     var dn = dayNum(today);
-    if (dn !== pickDay) { pickDay = dn; pickOff.pl = 0; pickOff.fact = 0; }
+    if (dn !== pickDay) { pickDay = dn; pickOff.pl = 0; pickOff.fact = 0; pickOff.nf = 0; }
     var pls = [];
     all.forEach(function (c) { c.playlists.forEach(function (pl) { pls.push({ c: c, pl: pl }); }); });
     pls.sort(function (a, b) { return byName(a.c, b.c) || (a.pl.url < b.pl.url ? -1 : a.pl.url > b.pl.url ? 1 : 0); });
     var need = all.length > 1 ? 2 : 1;
     var facts = (window.GUESS_FIELDS || []).filter(function (k) { return all.filter(function (c) { return c[k] && String(c[k]).trim(); }).length >= need; });
     var pl = pls.length ? pls[(dayHash(dn, 1) + pickOff.pl) % pls.length] : null;
+    var nfMap = {}, nfs = [];
+    all.forEach(function (c) { c.netflix.forEach(function (x, i) { var k = x.title.toLowerCase(); if (!nfMap[k]) { nfMap[k] = { title: x.title, url: x.url, fans: [] }; nfs.push(nfMap[k]); } if (!nfMap[k].url && x.url) nfMap[k].url = x.url; nfMap[k].fans.push({ c: c, rank: i + 1 }); }); });
+    nfs.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : a.title.toLowerCase() > b.title.toLowerCase() ? 1 : 0; });
+    var nf = nfs.length ? nfs[(dayHash(dn, 5) + (pickOff.nf || 0)) % nfs.length] : null;
     var fk = facts.length ? facts[(dayHash(dn, 2) + pickOff.fact) % facts.length] : null;
-    return { pl: pl, plN: pls.length, fk: fk, factN: facts.length };
+    return { pl: pl, plN: pls.length, fk: fk, factN: facts.length, nf: nf, nfN: nfs.length };
   }
   function todayHTML(all, today) {
     var tp = todaysPicks(all, today), out = '';
@@ -726,6 +738,14 @@
         '<div class="today__pl"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div><h3>' + esc(tp.pl.pl.label || t('bt.f.playlists')) + '</h3><p class="muted">' + esc(tf('bt.today.by', { name: c.preferredName || c.nickname || c.name })) + '</p></div></div>' +
         '<p class="today__acts"><a class="btn btn--solid" href="' + esc(tp.pl.pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a>' +
         (tp.plN > 1 ? '<button type="button" class="btn" data-another="pl">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
+    }
+    if (tp.nf) {
+      var fans = tp.nf.fans.slice().sort(function (a, b) { return a.rank - b.rank; }), top = fans[0];
+      out += '<section class="card today" aria-labelledby="today-nf-h"><p class="today__k">' + icon('tv', 'today__ico') + '<span id="today-nf-h">' + esc(t('bt.today.nf')) + '</span></p>' +
+        '<div class="today__pl"><a href="#/person/' + encodeURIComponent(top.c.id) + '">' + avatar(top.c, 'avatar--sm') + '</a><div><h3>' + esc(tp.nf.title) + '</h3><p class="muted">' + esc(tf('bt.today.nfBy', { name: short(top.c), n: top.rank })) + '</p></div></div>' +
+        (fans.length > 1 ? '<p class="muted today__also">' + esc(tf('bt.today.nfAlso', { names: fans.slice(1).map(function (x) { return short(x.c); }).join(', ') })) + '</p>' : '') +
+        '<p class="today__acts"><a class="btn btn--solid" href="' + esc(netflixHref(tp.nf)) + '" target="_blank" rel="noopener">' + esc(t(tp.nf.url ? 'bt.nf.open' : 'bt.nf.find')) + '</a>' +
+        (tp.nfN > 1 ? '<button type="button" class="btn" data-another="nf">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
     }
     if (tp.fk) {
       var f = FIELDS.filter(function (x) { return x.key === tp.fk; })[0] || { icon: 'star' };
@@ -823,6 +843,11 @@
         return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + val + '</div>' + acts + '</div></div>';
       }).join('') + '</div>';
     }
+    if (c.netflix.length) {
+      contact = '<h2>' + esc(t('bt.f.netflix')) + '</h2><div class="card"><ol class="nf-list">' + c.netflix.map(function (x, i) {
+        return '<li><span class="nf-list__n">' + (i + 1) + '</span><a href="' + esc(netflixHref(x)) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' + (x.url ? '' : ' <span class="muted nf-list__s">' + esc(t('bt.nf.search')) + '</span>') + '</li>';
+      }).join('') + '</ol></div>' + contact;
+    }
     if (c.playlists.length) {
       contact = '<h2>' + esc(t('bt.f.playlists')) + '</h2><div class="card facts">' + c.playlists.map(function (pl) {
         return '<div class="fact">' + icon('music', 'fact__ico') + '<div><div class="fact__v"><strong>' + esc(pl.label || t('bt.f.playlists')) + '</strong></div><p class="contact__acts"><a class="btn" href="' + esc(pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a></p></div></div>';
@@ -861,8 +886,11 @@
   function playlistRow(label, url) {
     return '<div class="custom-row"><label class="field field--sm"><span class="field__l">' + esc(t('bt.pl.label')) + '</span><input type="text" name="plLabel" maxlength="60" value="' + esc(label || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.pl.url')) + '</span><input type="text" name="plUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="https://open.spotify.com/playlist/…" value="' + esc(url || '') + '"></label><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></div>';
   }
+  function netflixRow(title, url) {
+    return '<div class="custom-row nf-row"><span class="nf-row__n" aria-hidden="true"></span><label class="field field--sm"><span class="field__l">' + esc(t('bt.nf.title')) + '</span><input type="text" name="nfTitle" maxlength="80" value="' + esc(title || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.nf.url')) + '</span><input type="text" name="nfUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="https://www.netflix.com/title/…" value="' + esc(url || '') + '"></label><span class="nf-row__acts"><button type="button" class="link-btn nf-up">' + esc(t('bt.nf.up')) + '</button><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></span></div>';
+  }
   VIEWS.me = function () {
-    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [] };
+    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [], netflix: [] };
     var comp = completeness(me);
     pendingPhoto = null;
     var months = MONTHS_EN.map(function (m, i) { return [i + 1, monthName(i + 1)]; });
@@ -897,6 +925,9 @@
         '<details class="fgroup"><summary><span>' + esc(t('bt.f.playlists')) + '</span><span class="muted fgroup__n" data-group="playlists"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.pl.hint', { n: PLAYLIST_MAX })) + '</p><div id="pl-rows">' +
           (me.playlists || []).map(function (x) { return playlistRow(x.label, x.url); }).join('') +
         '</div><p><button type="button" class="btn" id="pl-add">' + esc(t('bt.pl.add')) + '</button></p></div></details>' +
+        '<details class="fgroup"><summary><span>' + esc(t('bt.f.netflix')) + '</span><span class="muted fgroup__n" data-group="netflix"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.nf.hint', { n: NETFLIX_MAX })) + '</p><div id="nf-rows">' +
+          (me.netflix || []).map(function (x) { return netflixRow(x.title, x.url); }).join('') +
+        '</div><p><button type="button" class="btn" id="nf-add">' + esc(t('bt.nf.add')) + '</button></p></div></details>' +
         '<details class="fgroup"><summary><span>' + esc(t('bt.custom.title')) + '</span><span class="muted fgroup__n" data-group="custom"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(t('bt.custom.hint')) + '</p><div id="custom-rows">' +
           (me.custom || []).map(function (x) { return customRow(x.label, x.value); }).join('') +
         '</div><p><button type="button" class="btn" id="custom-add">' + esc(t('bt.custom.add')) + '</button></p></div></details>' +
@@ -939,6 +970,9 @@
       var cel = form.querySelector('.fgroup__n[data-group="custom"]'); if (cel) cel.textContent = String(form.querySelectorAll('#custom-rows .custom-row').length);
       var pel = form.querySelector('.fgroup__n[data-group="playlists"]'); if (pel) pel.textContent = form.querySelectorAll('#pl-rows .custom-row').length + '/' + PLAYLIST_MAX;
       var addBtn = document.getElementById('pl-add'); if (addBtn) addBtn.disabled = form.querySelectorAll('#pl-rows .custom-row').length >= PLAYLIST_MAX;
+      var nfr = form.querySelectorAll('#nf-rows .custom-row'), nel = form.querySelector('.fgroup__n[data-group="netflix"]'); if (nel) nel.textContent = nfr.length + '/' + NETFLIX_MAX;
+      nfr.forEach(function (r, i) { r.querySelector('.nf-row__n').textContent = '#' + (i + 1); r.querySelector('.nf-up').disabled = i === 0; });
+      var nfAdd = document.getElementById('nf-add'); if (nfAdd) nfAdd.disabled = nfr.length >= NETFLIX_MAX;
     }
     paintCounts();
     form.addEventListener('input', function () { clearTimeout(form._ct); form._ct = setTimeout(paintCounts, 200); });
@@ -948,6 +982,13 @@
     var plRows = document.getElementById('pl-rows');
     document.getElementById('pl-add').addEventListener('click', function () { if (plRows.querySelectorAll('.custom-row').length >= PLAYLIST_MAX) return; plRows.insertAdjacentHTML('beforeend', playlistRow('', '')); var last = plRows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
     plRows.addEventListener('click', function (e) { var b = e.target.closest('.custom-rm'); if (b) { b.closest('.custom-row').remove(); paintCounts(); } });
+    var nfRows = document.getElementById('nf-rows');
+    document.getElementById('nf-add').addEventListener('click', function () { if (nfRows.querySelectorAll('.custom-row').length >= NETFLIX_MAX) return; nfRows.insertAdjacentHTML('beforeend', netflixRow('', '')); var last = nfRows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
+    nfRows.addEventListener('click', function (e) {
+      var rm = e.target.closest('.custom-rm'), up = e.target.closest('.nf-up');
+      if (rm) { rm.closest('.custom-row').remove(); paintCounts(); }
+      else if (up) { var row = up.closest('.custom-row'), prev = row.previousElementSibling; if (prev) { nfRows.insertBefore(row, prev); paintCounts(); var b = row.querySelector('.nf-up'); (b.disabled ? row.querySelector('input') : b).focus(); } }
+    });
     var tog = document.getElementById('me-toggle-all');
     tog.addEventListener('click', function () {
       var open = tog.getAttribute('data-open') !== '1';
@@ -958,11 +999,14 @@
       e.preventDefault();
       var old = getMe() || {}, c = { id: old.id || newId(), name: form.name.value };
       FIELDS.forEach(function (f) { c[f.key] = form.elements[f.key].value; });
-      c.custom = []; c.playlists = [];
+      c.custom = []; c.playlists = []; c.netflix = [];
       form.querySelectorAll('#custom-rows .custom-row').forEach(function (r) { c.custom.push({ label: r.querySelector('[name=customLabel]').value, value: r.querySelector('[name=customValue]').value }); });
       var badPl = false;
       form.querySelectorAll('#pl-rows .custom-row').forEach(function (r) { var u = r.querySelector('[name=plUrl]').value.trim(); if (u && !spotifyUrl(u)) badPl = true; if (u) c.playlists.push({ label: r.querySelector('[name=plLabel]').value, url: u }); });
       if (badPl) { say(t('bt.pl.badUrl'), true); return; }
+      var badNf = false;
+      form.querySelectorAll('#nf-rows .custom-row').forEach(function (r) { var ti = r.querySelector('[name=nfTitle]').value.trim(), u = r.querySelector('[name=nfUrl]').value.trim(); if (u && !netflixUrl(u)) badNf = true; if (u && !ti) badNf = 'title'; if (ti) c.netflix.push({ title: ti, url: u }); });
+      if (badNf) { say(t(badNf === 'title' ? 'bt.nf.needTitle' : 'bt.nf.badUrl'), true); var nd = form.querySelector('#nf-rows'); if (nd) nd.closest('details').open = true; return; }
       var m = toInt(form.bmonth.value, 1, 12), d = toInt(form.bday.value, 1, 31), y = toInt(form.byear.value, 1900, 2100);
       if (!cleanText(c.name, 80)) { say(t('bt.me.needName'), true); form.name.focus(); return; }
       if (!(m && d) || !validDay(m, d, y)) { say(t('bt.me.badBirthday'), true); form.bmonth.focus(); return; }
@@ -1128,6 +1172,7 @@
             return rows ? '<section class="full__group"><h4>' + esc(groupLabel(g)) + '</h4>' + rows + '</section>' : '';
           }).join('');
           if (c.playlists.length) groups += '<section class="full__group"><h4>' + esc(t('bt.f.playlists')) + '</h4>' + c.playlists.map(function (pl) { return '<p class="sheet__line"><strong>' + esc(pl.label || '—') + ':</strong> ' + esc(pl.url) + '</p>'; }).join('') + '</section>';
+          if (c.netflix.length) groups += '<section class="full__group"><h4>' + esc(t('bt.f.netflix')) + '</h4>' + c.netflix.map(function (x, i) { return '<p class="sheet__line"><strong>' + (i + 1) + '.</strong> ' + esc(x.title) + (x.url ? ' — ' + esc(x.url) : '') + '</p>'; }).join('') + '</section>';
           if (c.custom.length) groups += '<section class="full__group"><h4>' + esc(t('bt.print.custom')) + '</h4>' + c.custom.map(function (x) { return '<p class="sheet__line"><strong>' + esc(x.label) + ':</strong> ' + esc(x.value).replace(/\n/g, ' · ') + '</p>'; }).join('') + '</section>';
           return '<article class="full__person">' + head + '<div class="full__cols">' + groups + '</div></article>';
         }).join('') + '<p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>';
@@ -1421,6 +1466,7 @@
       '<h2>' + esc(t('bt.stats.hometowns')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.hometown ? [c.hometown] : []; })) + '</div>' +
       '<h2>' + esc(t('bt.stats.schools')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.medSchool ? [c.medSchool] : []; })) + '</div>' +
       '<h2>' + esc(t('bt.stats.languages')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return items(c.languages); })) + '</div>' +
+      (all.some(function (c) { return c.netflix.length; }) ? '<h2>' + esc(t('bt.f.netflix')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.netflix.map(function (x) { return x.title; }); })) + '</div>' : '') +
       (n > 1 ? twinsHTML(all) : '') +
       (aged.length ? '<h2>' + esc(t('bt.stats.ages')) + '</h2><div class="card"><ol class="plain plain--num">' + aged.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a> <span class="muted">· ' + esc(bdayText(c, true)) + '</span></li>'; }).join('') + '</ol></div>' : '') +
       '<h2>' + esc(t('bt.stats.shared')) + '</h2>' + (shared.length ? shared.map(function (x) { return '<div class="card stats__shared"><h3>' + esc(fieldLabel(x.k)) + '</h3>' + countList(x.rows, 6) + '</div>'; }).join('') : '<div class="card"><p class="muted">' + esc(t('bt.stats.sharedNone')) + '</p></div>') +
@@ -1760,6 +1806,8 @@
     if (towns.length && towns[0].n >= 2) S.push({ k: t('bt.wrap.k5'), big: towns[0].label, sub: tf('bt.wrap.s5', { n: towns[0].n }) });
     var tw = twins(all, 1)[0];
     if (tw) S.push({ k: t('bt.twins.h'), big: short(tw.a) + ' & ' + short(tw.b), sub: tf(tw.hits.length === 1 ? 'bt.twins.n1' : 'bt.twins.nN', { n: tw.hits.length }), rows: tw.hits.slice(0, 3), pair: [tw.a, tw.b] });
+    var nfTop = topOf(all, function (c) { return c.netflix.map(function (x) { return x.title; }); });
+    if (nfTop) S.push({ k: t('bt.wrap.k8'), big: nfTop.label, sub: tf('bt.wrap.s8', { n: nfTop.n }) });
     var pls = 0; all.forEach(function (c) { pls += c.playlists.length; });
     if (pls) S.push({ k: t('bt.wrap.k6'), big: String(pls), sub: t(pls === 1 ? 'bt.wrap.s6one' : 'bt.wrap.s6') });
     var r = residencyDay(today);

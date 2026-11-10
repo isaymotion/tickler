@@ -343,6 +343,23 @@ window.STRINGS = {
     'bt.f.bloodType': 'Blood type',
     'bt.f.urlHint': 'Paste the link, or just the username.',
     'bt.f.playlists': 'Spotify playlists',
+    'bt.f.netflix': 'Top 10 Netflix shows',
+    'bt.nf.short': 'Netflix shows',
+    'bt.nf.hint': 'Your top {n}, best first. Type the title; adding the Netflix link (Share › Copy link in the Netflix app) is optional — without it the title opens a Netflix search.',
+    'bt.nf.title': 'Show title',
+    'bt.nf.url': 'Netflix link (optional)',
+    'bt.nf.add': 'Add a show',
+    'bt.nf.up': 'Move up',
+    'bt.nf.badUrl': 'A Netflix link must start with https://www.netflix.com/',
+    'bt.nf.needTitle': 'Add the show title next to each Netflix link.',
+    'bt.nf.open': 'Watch on Netflix',
+    'bt.nf.find': 'Find on Netflix',
+    'bt.nf.search': '(opens a Netflix search)',
+    'bt.today.nf': 'Netflix recommendation of the day',
+    'bt.today.nfBy': '#{n} on {name}’s top 10',
+    'bt.today.nfAlso': 'Also on the top 10 of {names}',
+    'bt.wrap.k8': 'Most-loved Netflix show',
+    'bt.wrap.s8': 'on {n} top-10 lists',
     'bt.pl.hint': 'Up to {n} playlists. Paste the Spotify share link and give it a name.',
     'bt.pl.label': 'Playlist name',
     'bt.pl.url': 'Spotify link',
@@ -910,6 +927,23 @@ window.STRINGS = {
     'bt.f.bloodType': 'Blood type',
     'bt.f.urlHint': 'I-paste ang link, o ang username lang.',
     'bt.f.playlists': 'Mga Spotify playlist',
+    'bt.f.netflix': 'Top 10 Netflix shows',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.short': 'Netflix shows',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.hint': 'Ang top {n} mo, pinakapaborito muna. I-type ang pamagat; opsyonal ang Netflix link (Share › Copy link sa Netflix app) — kung wala, magbubukas ng Netflix search ang pamagat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.title': 'Pamagat ng show',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.url': 'Netflix link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.add': 'Magdagdag ng show',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.up': 'Itaas',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.badUrl': 'Dapat magsimula ang Netflix link sa https://www.netflix.com/',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.needTitle': 'Ilagay ang pamagat ng show sa tabi ng bawat Netflix link.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.open': 'Panoorin sa Netflix',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.find': 'Hanapin sa Netflix',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.search': '(magbubukas ng Netflix search)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.nf': 'Netflix na rekomendasyon ngayong araw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.nfBy': '#{n} sa top 10 ni {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.nfAlso': 'Nasa top 10 din nina {names}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.k8': 'Pinakamamahal na Netflix show',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.wrap.s8': 'nasa {n} top-10 list',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pl.hint': 'Hanggang {n} playlist. I-paste ang Spotify share link at pangalanan ito.',
     'bt.pl.label': 'Pangalan ng playlist',
     'bt.pl.url': 'Spotify link',

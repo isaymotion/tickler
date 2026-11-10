@@ -14,6 +14,7 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **Birthday banner** (Home) — confetti and a *Greet them* button (share sheet / copy) on a batchmate's birthday.
 - **Spotlight of the week** (Home) — one batchmate per week; **Residency day counter** (Home; counts from 1 January 2027 — `residencyStart` in data/hospital.js — and can be changed per phone in About).
 - **Play** — *Guess who*, *Who said it?* (guess whose answer it is), *Batch Bingo* (board built from the cards, saved on the phone), *Icebreakers* (36 questions + questions from the cards), *Batch Wrapped* (swipeable year-in-review slides).
+- **Top 10 Netflix shows** — on each card (`card.netflix` = up to 10 `{title, url}` in rank order; url optional, `https://www.netflix.com/…` only, otherwise the title links to a Netflix search); Home shows a Netflix recommendation of the day; counted in Things in common, Batch stats and Wrapped. In-app only (not in QR codes or the batch sheet; included in the Full directory print).
 - **Hometown map** — offline map of the Philippines (`data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; unrecognised hometowns listed separately.
 - **Batch twins** (Batch stats) — the pairs with the most things in common.
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
