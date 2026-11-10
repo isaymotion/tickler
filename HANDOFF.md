@@ -94,3 +94,7 @@ Home gains "Today in the batch": featured Spotify playlist and featured fact of 
 
 ## 1.11.0 (2026-11-10) — Fun pack
 Block "1.11.0: FUN FEATURES" in js/app.js (before `TITLES.person`): birthday banner + greet (Home), residency day counter (`startDate` key, About setting), weekly spotlight (Home today-grid), `#/whosaid`, `#/bingo` (`bingo` key), twins (Stats), `#/icebreakers` (data/icebreakers.js), `#/map` (data/places.js: Natural Earth outline + 244 places, `locate()` matcher), `#/wrapped`. New NAV group Play. Test: `python3 qa/fun_test.py ./tickler <outdir>` (59 checks).
+
+## 1.11.1 / 1.12.0 (2026-11-10)
+1.11.1: residency counter defaults to `HOSPITAL.residencyStart = '2027-01-01'` (data/hospital.js); About date overrides per phone, clearing returns to the default.
+1.12.0: `card.netflix` = up to `NETFLIX_MAX` (10) `{title, url}` in rank order (url optional, `netflixUrl()` allows https://(www.)netflix.com/ only; `netflixHref()` falls back to a Netflix search). Editor group with Move up; person page numbered list; Home "Netflix recommendation of the day" (salt 5, `pickOff.nf`); in-common, stats, Wrapped slide, Full directory print. Not in QR. Test: `python3 qa/nf_test.py ./tickler <outdir>` (45 checks).
