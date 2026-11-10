@@ -7,7 +7,7 @@ window.STRINGS = {
     'nav.batch': 'The batch',
     'nav.me': 'My card',
     'nav.birthdays': 'Birthdays',
-    'nav.print': 'Print sheet',
+    'nav.print': 'Print & PDF',
     'nav.guess': 'Guess who',
     'bt.hero.cta': 'Fill in my card',
     'bt.hero.ctaDone': 'See the batch',
@@ -674,6 +674,23 @@ window.STRINGS = {
     'bt.print.title': 'Meet the batch',
     'bt.print.subtitle': '{program} · {hospital}',
     'bt.print.empty': 'Nothing to print yet.',
+    'bt.pdf.btn': 'Make PDF',
+    'bt.pdf.intro': 'Make a PDF on this phone, then save it to Files, send it, or print it. Print is there as a backup. Batch sheet: a compact “meet the batch” page. Name tags: eight per page. Full directory: everything except emergency & medical info. Birthday calendar: one page per month.',
+    'bt.pdf.making': 'Making your PDF…',
+    'bt.pdf.done': 'PDF ready.',
+    'bt.pdf.fail': 'Couldn’t make the PDF. Try Print instead.',
+    'bt.pdf.noEm': 'Emergency & medical info is never put in the PDF.',
+    'bt.print.modeCal': 'Birthday calendar',
+    'bt.print.calTitle': 'Birthday calendar',
+    'bt.print.calHint': 'One page per month for the next 12 months, partners included.',
+    'bt.print.facts': 'What’s on each card',
+    'bt.print.factsHint': 'Pick up to 8 facts for the batch sheet. The birthday is always shown.',
+    'bt.print.factsMax': 'You can pick up to 8.',
+    'bt.print.reset': 'Reset to suggested',
+    'bt.print.sort': 'Order',
+    'bt.print.sortName': 'By name',
+    'bt.print.sortBday': 'By birthday',
+    'bt.print.page': 'Page {n} of {total}',
     'bt.guess.intro': 'A quick game: read the clue, pick the batchmate. Needs at least four cards with that detail filled in.',
     'bt.guess.notEnough': 'Not enough cards yet. Once four batchmates have filled in their hometowns, hobbies or favourites, the game opens.',
     'bt.guess.whose': 'Whose {field} is this?',
@@ -1178,7 +1195,7 @@ window.STRINGS = {
     'nav.batch': 'Ang batch',
     'nav.me': 'Card ko',
     'nav.birthdays': 'Mga kaarawan',
-    'nav.print': 'Print sheet',
+    'nav.print': 'Print at PDF',  // Tagalog draft — Dr. Navarro reviews before release
     'nav.guess': 'Hulaan kung sino',
     'bt.hero.cta': 'Punan ang card ko',
     'bt.hero.ctaDone': 'Tingnan ang batch',
@@ -1845,6 +1862,23 @@ window.STRINGS = {
     'bt.print.title': 'Kilalanin ang batch',
     'bt.print.subtitle': '{program} · {hospital}',
     'bt.print.empty': 'Wala pang maipi-print.',
+    'bt.pdf.btn': 'Gumawa ng PDF',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pdf.intro': 'Gumawa ng PDF sa phone na ito, tapos i-save sa Files, ipadala, o i-print. Nandiyan ang Print bilang backup. Batch sheet: compact na “meet the batch” na pahina. Mga name tag: walo bawat pahina. Buong direktoryo: lahat maliban sa emergency at medical info. Kalendaryo ng kaarawan: isang pahina bawat buwan.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pdf.making': 'Ginagawa ang PDF mo…',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pdf.done': 'Handa na ang PDF.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pdf.fail': 'Hindi nagawa ang PDF. Subukan ang Print.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pdf.noEm': 'Hindi kailanman isinasama sa PDF ang emergency at medical info.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.modeCal': 'Kalendaryo ng kaarawan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.calTitle': 'Kalendaryo ng kaarawan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.calHint': 'Isang pahina bawat buwan para sa susunod na 12 buwan, kasama ang mga partner.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.facts': 'Ano ang nasa bawat card',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.factsHint': 'Pumili ng hanggang 8 detalye para sa batch sheet. Laging ipinapakita ang kaarawan.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.factsMax': 'Hanggang 8 lang ang mapipili.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.reset': 'Ibalik sa mungkahi',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.sort': 'Ayos',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.sortName': 'Ayon sa pangalan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.sortBday': 'Ayon sa kaarawan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.print.page': 'Pahina {n} ng {total}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.guess.intro': 'Mabilis na laro: basahin ang clue, piliin ang kabatch. Kailangan ng apat na card man lang na may ganoong detalye.',
     'bt.guess.notEnough': 'Kulang pa ang mga card. Kapag apat na kabatch na ang nagpuno ng bayan, libangan o paborito nila, bubukas ang laro.',
     'bt.guess.whose': 'Kanino ang {field} na ito?',

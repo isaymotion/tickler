@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.22.0', date: '2026-11-11', title: 'Make PDF + a tidier print sheet',
+    items: [
+      { type: 'feature', text: 'Print screen: new Make PDF button. It makes the PDF on your phone so you can save it to Files, send it in Messenger, or print it. Print is still there as a backup.', href: '#/print' },
+      { type: 'feature', text: 'New Birthday calendar layout: one page per month for the next 12 months, partners included.', href: '#/print' },
+      { type: 'update', text: 'Batch sheet: choose up to 8 facts for each card (hometown, school, hobbies and so on) and sort by name or birthday. Proper A4 margins, page numbers, and no more pop-ups on the printout. The full directory no longer uses a whole page for short cards.', href: '#/print' },
+      { type: 'update', text: 'Emergency & medical info is never put in the PDF.' }
+    ]
+  },
+  {
     version: '1.21.4', date: '2026-11-11', title: 'New #books channel',
     items: [
       { type: 'feature', text: 'New chat channel: #books 📚 for what you\'re reading, swaps and recommendations.', href: '#/chat' }

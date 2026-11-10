@@ -944,3 +944,30 @@ body.is-chat-room .site-foot{padding-bottom:env(safe-area-inset-bottom,0px)}
 .me-draft{margin-bottom:16px;border-left:4px solid var(--accent, #1D4EAF)}
 .me-draft-note{font-size:.85rem}
 .me-draft-note[hidden]{display:none}
+
+/* 1.22.0 PDF + better print */
+.pr-hint{margin:8px 0 0}
+.pr-opts{margin:14px 0 0;padding:12px 16px} .pr-opts summary{cursor:pointer;font-weight:700}
+.pr-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 14px;margin:8px 0}
+.pr-fact{display:flex;gap:8px;align-items:center;font-size:.92rem;min-height:32px}
+.pr-fact input{width:20px;height:20px;accent-color:var(--accent)} .pr-fact input:disabled+*{opacity:.5}
+.pr-sort{margin-top:12px;align-items:center}
+.pr-acts{margin:16px 0 0;display:flex;gap:10px;flex-wrap:wrap}
+.pr-status{min-height:1.2em;margin:6px 0 0}
+.cal__month{margin:0 0 28px} .cal__month h2{margin:0;font:800 1.5rem/1.2 var(--sans)} .cal__sub{margin:2px 0 10px;color:var(--ink-2);font-size:.85rem}
+.cal__grid{width:100%;border-collapse:collapse;table-layout:fixed}
+.cal__grid th{font:700 .72rem/1.3 var(--sans);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:4px 0}
+.cal__grid td{border:1px solid var(--rule);vertical-align:top;height:72px;padding:4px 5px;font-size:.8rem}
+.cal__grid td.is-off{background:var(--paper)} .cal__grid td.has-bd{background:var(--tint)}
+.cal__d{display:block;font-weight:700;color:var(--ink-3)} .has-bd .cal__d{color:var(--accent)}
+.cal__n{display:block;font-weight:600;line-height:1.25;overflow-wrap:anywhere} .cal__n em{font-weight:400;color:var(--ink-2)}
+@page{size:A4;margin:12mm}
+@media print{
+  .toast,.pr-opts,.pr-sort,.pr-acts,.pr-status,.pr-hint{display:none !important}
+  .sheet__head h2,.cal__month h2{font-family:var(--sans),Helvetica,Arial,sans-serif;color:#000}
+  .full__person + .full__person{page-break-before:auto;break-before:auto}
+  .full__person{break-inside:auto} .full__head{break-after:avoid}
+  .cal__month{page-break-after:always;break-after:page;margin:0}
+  .cal__grid td{height:36mm;border-color:#999;color:#000} .cal__grid td.has-bd{background:#eef2f9;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cal__d,.cal__n,.cal__n em,.cal__sub,.cal__grid th{color:#000}
+}

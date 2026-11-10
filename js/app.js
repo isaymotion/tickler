@@ -131,7 +131,7 @@
     { label: 'Kris Kringle', tkey: 'nav.monito', href: '#/monito', icon: 'gift', group: 'Play' },
     { label: 'Badges', tkey: 'nav.badges', href: '#/badges', icon: 'spark', group: 'Play' },
     { label: 'Batch stats', tkey: 'nav.stats', href: '#/stats', icon: 'chart', group: 'Screens' },
-    { label: 'Print sheet', tkey: 'nav.print', href: '#/print', icon: 'print', group: 'Screens' },
+    { label: 'Print & PDF', tkey: 'nav.print', href: '#/print', icon: 'print', group: 'Screens' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
     { label: 'About', tkey: 'nav.about', href: '#/about', icon: 'info', group: 'App', tile: false }
   ];
@@ -3918,6 +3918,310 @@
       });
       var dis = document.getElementById('me-draft-discard');
       if (dis) dis.addEventListener('click', function () { if (!window.confirm(t('bt.me.draftConfirm'))) return; clearTimeout(meDraftT); meDirty = false; store.del('meDraft'); pendingPhoto = null; route({ keepScroll: false }); });
+    };
+  })();
+
+
+  /* ===================== 1.22.0: PDF + BETTER PRINT =====================
+     #/print gets a Make PDF main button (jsPDF 2.5.2 vendored in js/vendor/jspdf.umd.min.js, loaded on first tap,
+     precached by sw) and keeps Print as a backup. Four layouts, the same in PDF and print: batch sheet (up to 8 chosen
+     facts per card, store `printFacts`; order store `printSort` name|bday), name tags (8 per A4), full directory
+     (everything EXCEPT the Emergency & medical group in the PDF), birthday calendar (12 months from this month,
+     partners included). PDF text uses the built-in Helvetica, so characters outside Windows-1252 (emoji etc.) are
+     dropped by pdfT(). Footer on every PDF page: batch name · title, page n of N, attribution. */
+  var PRINT_FACTS_DEF = ['hometown', 'medSchool', 'askMe', 'hobbies', 'food', 'shows', 'music', 'funFact'], PRINT_FACTS_MAX = 8;
+  var pdfBusy = false;
+  function printFactKeys() {
+    var ok = FIELDS.filter(function (f) { return f.print && f.key !== 'nickname'; }).map(function (f) { return f.key; });
+    var v = store.get('printFacts', null);
+    var keys = (Array.isArray(v) ? v : PRINT_FACTS_DEF).filter(function (k) { return ok.indexOf(k) >= 0; });
+    return keys.slice(0, PRINT_FACTS_MAX);
+  }
+  function printSortKey() { return store.get('printSort', 'name') === 'bday' ? 'bday' : 'name'; }
+  function printPeople() {
+    var all = people().slice();
+    if (printSortKey() === 'bday') all.sort(function (a, b) { return ((a.bmonth || 13) * 40 + (a.bday || 0)) - ((b.bmonth || 13) * 40 + (b.bday || 0)) || a.name.localeCompare(b.name, undefined, { numeric: true }); });
+    else all.sort(function (a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true }); });
+    return all;
+  }
+  function printFactVal(c, k) { var v = String(c[k] || '').replace(/\s*\n\s*/g, ' · ').trim(); return v.length > 160 ? v.slice(0, 157).replace(/\s+\S*$/, '') + '…' : v; }
+  function calMonths() { var d = new Date(), out = []; for (var i = 0; i < 12; i++) { var x = new Date(d.getFullYear(), d.getMonth() + i, 1); out.push({ y: x.getFullYear(), m: x.getMonth() + 1 }); } return out; }
+  function calWho(m) {
+    return allCards().filter(function (c) { return c.bmonth === m && c.bday; }).map(function (c) { return { c: c, day: c.bday, label: c.preferredName || c.nickname || c.name.split(/\s+/)[0], partner: isPartner(c) }; })
+      .sort(function (a, b) { return a.day - b.day || a.label.localeCompare(b.label); });
+  }
+  function weekdayNames() { var out = []; for (var i = 0; i < 7; i++) { var d = new Date(2023, 0, 1 + i); try { out.push(d.toLocaleDateString(locale(), { weekday: 'short' })); } catch (e) { out.push(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]); } } return out; }
+  function monthTitle(y, m) { return monthName(m) + ' ' + y; }
+  function calCells(y, m) { var first = new Date(y, m - 1, 1).getDay(), n = new Date(y, m, 0).getDate(), cells = []; for (var i = 0; i < first; i++) cells.push(0); for (var d = 1; d <= n; d++) cells.push(d); while (cells.length % 7) cells.push(0); return cells; }
+
+  /* ---- HTML (print backup) ---- */
+  function printSheetHTML(all) {
+    var keys = printFactKeys(), bn = batchName(), today = new Date();
+    return '<div class="sheet"><header class="sheet__head"><h2>' + esc(bn ? bn + ' · ' + t('bt.print.title') : t('bt.print.title')) + '</h2><p>' + esc(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' })) + ' · ' + esc(today.toLocaleDateString(locale(), { year: 'numeric', month: 'long', day: 'numeric' })) + '</p></header>' +
+      '<div class="sheet__grid">' + all.map(function (c) {
+        return '<article class="sheet__card">' + avatar(c, 'avatar--print') + '<div class="sheet__body"><h3>' + esc(c.name) + (c.nickname ? ' <small>“' + esc(c.nickname) + '”</small>' : '') + '</h3>' +
+          (c.bmonth ? '<p class="sheet__line"><strong>' + esc(t('bt.person.birthday')) + ':</strong> ' + esc(bdayText(c)) + '</p>' : '') +
+          keys.filter(function (k) { return c[k]; }).map(function (k) { return '<p class="sheet__line"><strong>' + esc(fieldLabel(k)) + ':</strong> ' + esc(printFactVal(c, k)) + '</p>'; }).join('') +
+          '</div></article>';
+      }).join('') + '</div><p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>';
+  }
+  function printCalHTML() {
+    var wd = weekdayNames(), bn = batchName();
+    return '<div class="sheet cal">' + calMonths().map(function (mm) {
+      var who = calWho(mm.m);
+      return '<section class="cal__month"><h2>' + esc(monthTitle(mm.y, mm.m)) + '</h2><p class="cal__sub">' + esc((bn ? bn + ' · ' : '') + t('bt.print.calTitle')) + '</p><table class="cal__grid"><thead><tr>' + wd.map(function (w) { return '<th>' + esc(w) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        (function () { var cells = calCells(mm.y, mm.m), h = ''; for (var i = 0; i < cells.length; i += 7) { h += '<tr>' + cells.slice(i, i + 7).map(function (d) { if (!d) return '<td class="is-off"></td>'; var ws = who.filter(function (x) { return x.day === d; }); return '<td' + (ws.length ? ' class="has-bd"' : '') + '><span class="cal__d">' + d + '</span>' + ws.map(function (x) { return '<span class="cal__n">' + esc(x.label) + (x.partner ? ' <em>(' + esc(t('bt.pt.tag')) + ')</em>' : '') + '</span>'; }).join('') + '</td>'; }).join('') + '</tr>'; } return h; })() +
+        '</tbody></table></section>';
+    }).join('') + '<p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>';
+  }
+
+  /* ---- PDF ---- */
+  var CP1252 = '€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ';
+  function pdfT(s) {
+    s = String(s == null ? '' : s).normalize('NFC');
+    var out = '';
+    for (var i = 0; i < s.length; i++) { var ch = s.charAt(i), c = s.charCodeAt(i); if (c === 10 || (c >= 32 && c < 127) || (c >= 160 && c < 256) || CP1252.indexOf(ch) >= 0) out += ch; else if (c === 8203 || c === 65039) { } else if (c >= 0xD800 && c <= 0xDBFF) i++; }
+    return out.replace(/[ \t]{2,}/g, ' ').replace(/\s+([,.;:!?])/g, '$1').trim();
+  }
+  function loadJsPDF() {
+    if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = 'js/vendor/jspdf.umd.min.js';
+      s.onload = function () { window.jspdf && window.jspdf.jsPDF ? res(window.jspdf.jsPDF) : rej(new Error('jsPDF missing')); };
+      s.onerror = function () { rej(new Error('jsPDF failed to load')); };
+      document.head.appendChild(s);
+    });
+  }
+  function pdfPhoto(c, px) {   // round photo (or initials) on white, as JPEG for addImage
+    return new Promise(function (res) {
+      var cv = document.createElement('canvas'); cv.width = cv.height = px; var x = cv.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, px, px);
+      function ring() { x.beginPath(); x.arc(px / 2, px / 2, px / 2 - px * 0.02, 0, Math.PI * 2); x.lineWidth = px * 0.03; x.strokeStyle = '#c9cfd8'; x.stroke(); res(cv.toDataURL('image/jpeg', 0.88)); }
+      function letters() { x.beginPath(); x.arc(px / 2, px / 2, px / 2, 0, Math.PI * 2); x.fillStyle = '#e8edf6'; x.fill(); x.fillStyle = '#1D4EAF'; x.font = '700 ' + Math.round(px * 0.36) + 'px Helvetica, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(initials(c.name || '?'), px / 2, px / 2 + px * 0.02); ring(); }
+      if (!c.photo) return letters();
+      var im = new Image();
+      im.onload = function () { x.save(); x.beginPath(); x.arc(px / 2, px / 2, px / 2, 0, Math.PI * 2); x.clip(); var s = Math.min(im.width, im.height); x.drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, 0, 0, px, px); x.restore(); ring(); };
+      im.onerror = letters; im.src = c.photo;
+    });
+  }
+  function pdfMake(mode) {
+    var all = printPeople(), bn = pdfT(batchName()), today = new Date();
+    var titles = { sheet: t('bt.print.title'), tags: t('bt.print.modeTags'), full: t('bt.print.fullTitle'), cal: t('bt.print.calTitle') };
+    var title = pdfT(titles[mode] || titles.sheet);
+    var need = mode === 'cal' ? [] : all;
+    return loadJsPDF().then(function (JsPDF) {
+      return Promise.all(need.map(function (c) { return pdfPhoto(c, mode === 'tags' ? 300 : 200); })).then(function (photos) {
+        var doc = new JsPDF({ unit: 'mm', format: 'a4', compress: true }), W = 210, H = 297, M = 12, CW = W - 2 * M, BOT = H - M - 8;
+        var INK = [26, 28, 32], MUTED = [92, 99, 110], ACC = [29, 78, 175], RULE = [201, 207, 216];
+        var LH = function (pt) { return pt * 0.3528 * 1.28; };
+        doc.setProperties({ title: (bn ? bn + ' · ' : '') + title, author: 'Batch Tickler', creator: 'Batch Tickler' });
+        function font(st, pt, col) { doc.setFont('helvetica', st); doc.setFontSize(pt); doc.setTextColor.apply(doc, col || INK); }
+        function txt(s, x, y, o) { doc.text(s, x, y, Object.assign({ baseline: 'top' }, o || {})); }
+        function wrap(s, w) { return doc.splitTextToSize(s, w); }
+        function kv(label, value, x, y, w, pt, draw) {   // bold "Label:" then wrapped value; returns height
+          label = pdfT(label) + ': '; value = pdfT(value);
+          font('bold', pt); var lw = doc.getTextWidth(label) + 0.6, lh = LH(pt);
+          font('normal', pt);
+          var words = value.split(/\s+/).filter(Boolean), lines = [], cur = '', first = true;
+          words.forEach(function (wd) {
+            var lim = first ? w - lw : w, tryS = cur ? cur + ' ' + wd : wd;
+            if (doc.getTextWidth(tryS) <= lim || !cur) { cur = tryS; while (doc.getTextWidth(cur) > lim && cur.length > 1) { var cut = Math.max(1, Math.floor(cur.length * lim / doc.getTextWidth(cur)) - 1); lines.push(cur.slice(0, cut)); cur = cur.slice(cut); first = false; lim = w; } }
+            else { lines.push(cur); cur = wd; first = false; }
+          });
+          if (cur) lines.push(cur);
+          if (!lines.length) lines.push('');
+          if (draw) { font('bold', pt); txt(label, x, y); font('normal', pt, MUTED); lines.forEach(function (ln, i) { txt(ln, i ? x : x + lw, y + i * lh); }); }
+          return lines.length * lh;
+        }
+        function head(y) {
+          font('bold', 18); txt((bn ? bn + ' · ' : '') + title, M, y);
+          font('normal', 9, MUTED); var sub = wrap(pdfT(tf('bt.print.subtitle', { program: HOSP.program || '', hospital: HOSP.name || '' }) + ' · ' + today.toLocaleDateString(locale(), { year: 'numeric', month: 'long', day: 'numeric' })), CW);
+          sub.forEach(function (ln, i) { txt(ln, M, y + 8.5 + i * LH(9)); });
+          var ly = y + 10 + sub.length * LH(9);
+          doc.setDrawColor.apply(doc, ACC); doc.setLineWidth(0.6); doc.line(M, ly, W - M, ly);
+          return ly + 5;
+        }
+        var y;
+        if (mode === 'tags') {
+          var tw = CW / 2, th = (H - 2 * M) / 4;
+          all.forEach(function (c, i) {
+            if (i && i % 8 === 0) doc.addPage();
+            var col = i % 2, row = Math.floor((i % 8) / 2), x = M + col * tw, ty = M + row * th, cx = x + tw / 2;
+            doc.setLineDashPattern([1.5, 1.2], 0); doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.25); doc.rect(x, ty, tw, th, 'S'); doc.setLineDashPattern([], 0);
+            var yy = ty + 5;
+            if (bn) { font('bold', 7, MUTED); txt(bn.toUpperCase(), cx, yy, { align: 'center', charSpace: 0.3 }); }
+            yy += 5; doc.addImage(photos[i], 'JPEG', cx - 12, yy, 24, 24); yy += 27;
+            var big = pdfT(c.preferredName || c.nickname || c.name.split(/\s+/)[0]), pt = 24; font('bold', pt); while (doc.getTextWidth(big) > tw - 10 && pt > 12) { pt -= 1; font('bold', pt); }
+            txt(big, cx, yy, { align: 'center' }); yy += LH(pt);
+            font('normal', 10.5); txt(wrap(pdfT(c.name), tw - 10)[0], cx, yy, { align: 'center' }); yy += LH(10.5);
+            if (c.hometown) { font('normal', 9, MUTED); txt(wrap(pdfT(c.hometown), tw - 10)[0], cx, yy, { align: 'center' }); }
+            font('normal', 6.5, MUTED); txt(pdfT(HOSP.shortName || HOSP.name || ''), cx, ty + th - 6, { align: 'center' });
+          });
+        } else if (mode === 'sheet') {
+          var keys = printFactKeys(), gap = 5, cw = (CW - gap) / 2, ph = 17, pad = 3.5, tx = pad + ph + 3.5, tw2 = cw - tx - pad;
+          y = head(M);
+          function cardH(c) { var h = LH(11) + 1; if (c.bmonth) h += kv(t('bt.person.birthday'), bdayText(c), 0, 0, tw2, 8.5, false); keys.forEach(function (k) { if (c[k]) h += kv(fieldLabel(k), printFactVal(c, k), 0, 0, tw2, 8.5, false); }); return Math.max(ph, h) + 2 * pad; }
+          function drawCard(c, i, x, yy, hh) {
+            doc.setDrawColor.apply(doc, RULE); doc.setLineWidth(0.3); doc.roundedRect(x, yy, cw, hh, 2.5, 2.5, 'S');
+            doc.addImage(photos[i], 'JPEG', x + pad, yy + pad, ph, ph);
+            var ty2 = yy + pad; font('bold', 11); var nm = pdfT(c.name); txt(nm, x + tx, ty2);
+            if (c.nickname) { var nw = doc.getTextWidth(nm + ' '); font('italic', 9, MUTED); if (nw + doc.getTextWidth('“' + pdfT(c.nickname) + '”') < tw2) txt('“' + pdfT(c.nickname) + '”', x + tx + nw, ty2 + 0.6); }
+            ty2 += LH(11) + 1;
+            if (c.bmonth) ty2 += kv(t('bt.person.birthday'), bdayText(c), x + tx, ty2, tw2, 8.5, true);
+            keys.forEach(function (k) { if (c[k]) ty2 += kv(fieldLabel(k), printFactVal(c, k), x + tx, ty2, tw2, 8.5, true); });
+          }
+          for (var i = 0; i < all.length; i += 2) {
+            var hA = cardH(all[i]), hB = all[i + 1] ? cardH(all[i + 1]) : 0, rh = Math.max(hA, hB);
+            if (y + rh > BOT) { doc.addPage(); y = M; }
+            drawCard(all[i], i, M, y, rh); if (all[i + 1]) drawCard(all[i + 1], i + 1, M + cw + gap, y, rh);
+            y += rh + gap;
+          }
+        } else if (mode === 'full') {
+          var colW = (CW - 8) / 2, top = M;
+          y = head(M);
+          all.forEach(function (c, i) {
+            if (i && y > BOT - 55) { doc.addPage(); y = M; }
+            if (i) { doc.setDrawColor.apply(doc, INK); doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 4; }
+            doc.addImage(photos[i], 'JPEG', M, y, 18, 18);
+            font('bold', 15); var nm = pdfT(c.name); txt(nm, M + 22, y + 1);
+            if (c.nickname) { var nw = doc.getTextWidth(nm + ' '); font('italic', 10, MUTED); txt('“' + pdfT(c.nickname) + '”', M + 22 + nw, y + 2.2); }
+            if (c.bmonth) { font('normal', 9, MUTED); txt(pdfT(t('bt.person.birthday') + ': ' + bdayText(c, true) + (c.byear ? ' · ' + tf('bt.person.turns', { n: ageOn(c, today.getFullYear()) }) : '') + ' · ' + zodiac(c) + (chineseZodiac(c) ? ' / ' + chineseZodiac(c) : '')), M + 22, y + 9); }
+            if (isPartner(c)) { font('normal', 9, MUTED); txt(pdfT(t('bt.pt.tag')), M + 22, y + 13.5); }
+            y += 22;
+            var blocks = [];
+            GROUPS.forEach(function (g) {
+              if (g === 'emergency') return;
+              var items = [];
+              subChunks(g).forEach(function (ch) {
+                var r = ch.fields.filter(function (f) { return c[f.key] && f.key !== 'nickname'; });
+                if (!r.length) return;
+                if (ch.sub) items.push({ sub: subLabel(ch.sub) });
+                r.forEach(function (f) { var v = f.type === 'month' ? fmtMonth(c[f.key]) : f.type === 'url' ? linkHref(f, c[f.key]) : String(c[f.key]).replace(/\s*\n\s*/g, ' · '); items.push({ k: fieldLabel(f.key), v: v }); });
+              });
+              if (items.length) blocks.push({ h: groupLabel(g), items: items });
+            });
+            if (c.playlists && c.playlists.length) blocks.push({ h: t('bt.f.playlists'), items: c.playlists.map(function (p) { return { k: p.label || '—', v: p.url }; }) });
+            LISTS.forEach(function (L) { var xs = listOf(c, L.key); if (xs.length) blocks.push({ h: listLabel(L.key), items: xs.map(function (x, n) { return { k: String(n + 1), v: x.title + (x.url ? ' — ' + x.url : '') }; }) }); });
+            if (c.custom && c.custom.length) blocks.push({ h: t('bt.print.custom'), items: c.custom.map(function (x) { return { k: x.label, v: x.value }; }) });
+            var hs = blocks.map(function (b) { var h = LH(8) + 0.8 + 2.5; b.items.forEach(function (it) { h += it.sub ? LH(7) + 1 : kv(it.k, it.v, 0, 0, colW, 8.5, false) + 0.4; }); return h; });
+            var tot = hs.reduce(function (a, b) { return a + b; }, 0), acc = 0, split = blocks.length;
+            for (var bi = 0; bi < blocks.length; bi++) { if (acc + hs[bi] / 2 > tot / 2 && bi > 0) { split = bi; break; } acc += hs[bi]; }
+            if (y + Math.max(acc, tot - acc) <= BOT && blocks.length > 1) blocks.forEach(function (b, bi) { b.col = bi >= split ? 1 : 0; });
+            var col = 0, colTop = y, leftEnd = y;
+            function room(h) { if (y + h <= BOT) return; if (col === 0) { leftEnd = y; col = 1; y = colTop; if (y + h <= BOT) return; } doc.addPage(); col = 0; y = top; colTop = top; leftEnd = top; }
+            function cx() { return M + col * (colW + 8); }
+            blocks.forEach(function (b) {
+              if (b.col === 1 && col === 0) { leftEnd = y; col = 1; y = colTop; }
+              room(LH(8) + 6); font('bold', 8, ACC); txt(pdfT(b.h).toUpperCase(), cx(), y, { charSpace: 0.25 }); y += LH(8) + 0.8;
+              b.items.forEach(function (it) {
+                if (it.sub) { room(LH(7) + 5); font('bold', 7, MUTED); txt(pdfT(it.sub).toUpperCase(), cx(), y + 0.6, { charSpace: 0.2 }); y += LH(7) + 1; return; }
+                var hh = kv(it.k, it.v, 0, 0, colW, 8.5, false); room(hh); kv(it.k, it.v, cx(), y, colW, 8.5, true); y += hh + 0.4;
+              });
+              y += 2.5;
+            });
+            if (col === 1) y = Math.max(leftEnd, y);
+            y += 4;
+          });
+        } else if (mode === 'cal') {
+          var wd = weekdayNames(), cellW = CW / 7;
+          calMonths().forEach(function (mm, mi) {
+            if (mi) doc.addPage();
+            font('bold', 24); txt(pdfT(monthTitle(mm.y, mm.m)), M, M);
+            font('normal', 9, MUTED); txt(pdfT((bn ? bn + ' · ' : '') + t('bt.print.calTitle')), M, M + 10.5);
+            var gy = M + 18, cells = calCells(mm.y, mm.m), rows = cells.length / 7, cellH = (BOT - gy - 7) / rows, who = calWho(mm.m);
+            font('bold', 8, MUTED); wd.forEach(function (w, i) { txt(pdfT(w).toUpperCase(), M + i * cellW + cellW / 2, gy, { align: 'center' }); });
+            gy += 6;
+            cells.forEach(function (d, i) {
+              var x = M + (i % 7) * cellW, yy = gy + Math.floor(i / 7) * cellH, ws = who.filter(function (w) { return w.day === d; });
+              if (ws.length) { doc.setFillColor(232, 237, 246); doc.rect(x, yy, cellW, cellH, 'F'); }
+              doc.setDrawColor.apply(doc, RULE); doc.setLineWidth(0.25); doc.rect(x, yy, cellW, cellH, 'S');
+              if (!d) return;
+              font('bold', 10, ws.length ? ACC : MUTED); txt(String(d), x + 1.8, yy + 1.6);
+              var ny = yy + 7;
+              ws.forEach(function (w) {
+                font('bold', 7.5); var ls = wrap(pdfT(w.label), cellW - 3);
+                ls.slice(0, 2).forEach(function (ln) { if (ny + LH(7.5) < yy + cellH) { txt(ln, x + 1.5, ny); ny += LH(7.5); } });
+                if (w.partner && ny + LH(6.5) < yy + cellH) { font('italic', 6.5, MUTED); txt(pdfT('(' + t('bt.pt.tag') + ')'), x + 1.5, ny); ny += LH(6.5); }
+                ny += 0.6;
+              });
+            });
+          });
+        }
+        var n = doc.getNumberOfPages();
+        for (var p = 1; p <= n; p++) {
+          doc.setPage(p); font('normal', 7, MUTED);
+          if (mode !== 'tags') { txt(pdfT((bn ? bn + ' · ' : '') + title), M, H - M - 3); txt(pdfT(tf('bt.print.page', { n: p, total: n })), W - M, H - M - 3, { align: 'right' }); }
+          font('normal', 6.5, MUTED); txt(pdfT(ATTRIBUTION), W / 2, H - (mode === 'tags' ? 6 : M), { align: 'center' });
+        }
+        return doc.output('blob');
+      });
+    });
+  }
+  function pdfName(mode) { var d = new Date(), z = function (n) { return (n < 10 ? '0' : '') + n; }; return 'Batch-Tickler-' + ({ sheet: 'batch-sheet', tags: 'name-tags', full: 'directory', cal: 'birthday-calendar' }[mode] || 'print') + '-' + d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + '.pdf'; }
+  function pdfDeliver(blob, name) {
+    var file = null; try { file = new File([blob], name, { type: 'application/pdf' }); } catch (e) {}
+    var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    if (touch && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      return navigator.share({ files: [file], title: name }).then(function () { return 'shared'; }, function (e) { if (e && e.name === 'AbortError') return 'cancel'; return pdfDownload(blob, name); });
+    }
+    return Promise.resolve(pdfDownload(blob, name));
+  }
+  function pdfDownload(blob, name) {
+    var url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+    window.__btLastPdf = { name: name, size: blob.size };
+    return 'downloaded';
+  }
+
+  /* ---- the screen ---- */
+  (function () {
+    var view0 = VIEWS.print;
+    VIEWS.print = function () {
+      var all = printPeople(), modes = [['sheet', 'bt.print.modeSheet'], ['tags', 'bt.print.modeTags'], ['full', 'bt.print.modeFull'], ['cal', 'bt.print.modeCal']];
+      var hint = printMode === 'tags' ? t('bt.print.tagsHint') : printMode === 'full' ? t('bt.print.fullHint') + ' ' + t('bt.pdf.noEm') : printMode === 'cal' ? t('bt.print.calHint') : '';
+      var head = '<header class="page__head no-print"><h1>' + esc(t('nav.print')) + '</h1><p>' + esc(t('bt.pdf.intro')) + '</p>' +
+        (all.length || allCards().length ? '<div class="filters" role="group">' + modes.map(function (m) { return '<button type="button" class="filter" data-pmode="' + m[0] + '" aria-pressed="' + (printMode === m[0]) + '">' + esc(t(m[1])) + '</button>'; }).join('') + '</div>' : '') +
+        (hint ? '<p class="muted pr-hint">' + esc(hint) + '</p>' : '');
+      if (printMode === 'sheet' && all.length) {
+        var keys = printFactKeys(), sk = printSortKey();
+        head += '<details class="card pr-opts"' + (store.get('printOptsOpen', false) ? ' open' : '') + '><summary>' + esc(t('bt.print.facts')) + ' <span class="muted">(' + keys.length + '/' + PRINT_FACTS_MAX + ')</span></summary>' +
+          '<p class="muted">' + esc(t('bt.print.factsHint')) + '</p><div class="pr-facts">' +
+          FIELDS.filter(function (f) { return f.print && f.key !== 'nickname'; }).map(function (f) { var on = keys.indexOf(f.key) >= 0; return '<label class="pr-fact"><input type="checkbox" data-pfact="' + f.key + '"' + (on ? ' checked' : '') + (!on && keys.length >= PRINT_FACTS_MAX ? ' disabled' : '') + '> ' + esc(fieldLabel(f.key)) + '</label>'; }).join('') +
+          '</div><p><button type="button" class="link-btn" id="pr-reset">' + esc(t('bt.print.reset')) + '</button></p></details>' +
+          '<div class="filters pr-sort" role="group" aria-label="' + esc(t('bt.print.sort')) + '"><span class="muted">' + esc(t('bt.print.sort')) + ':</span> <button type="button" class="filter" data-psort="name" aria-pressed="' + (sk === 'name') + '">' + esc(t('bt.print.sortName')) + '</button><button type="button" class="filter" data-psort="bday" aria-pressed="' + (sk === 'bday') + '">' + esc(t('bt.print.sortBday')) + '</button></div>';
+      }
+      var can = printMode === 'cal' ? allCards().length : all.length;
+      if (can) head += '<p class="pr-acts"><button type="button" class="btn btn--solid" id="do-pdf">' + icon('print', 'btn__ico') + esc(t('bt.pdf.btn')) + '</button> <button type="button" class="btn" id="do-print">' + esc(t('bt.print.btn')) + '</button></p><p class="muted pr-status" id="pdf-status" role="status" aria-live="polite"></p>';
+      head += '</header>';
+      if (!can) return '<div class="wrap page print">' + crumb(t('nav.print')) + head + '<div class="empty"><p>' + esc(t('bt.print.empty')) + '</p></div></div>';
+      var body;
+      if (printMode === 'sheet') body = printSheetHTML(all);
+      else if (printMode === 'cal') body = printCalHTML();
+      else { var old = view0(), i = old.indexOf('<div class="sheet'); body = i >= 0 ? old.slice(i, old.lastIndexOf('</div>')) : ''; }
+      return '<div class="wrap page print pr-' + printMode + '">' + crumb(t('nav.print')) + head + body + '</div>';
+    };
+    var after0 = AFTER.print;
+    AFTER.print = function () {
+      after0.apply(null, arguments);
+      document.querySelectorAll('[data-pfact]').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+          var keys = printFactKeys(), k = cb.getAttribute('data-pfact'), i = keys.indexOf(k);
+          if (cb.checked && i < 0) { if (keys.length >= PRINT_FACTS_MAX) { cb.checked = false; toast(t('bt.print.factsMax')); return; } keys.push(k); }
+          if (!cb.checked && i >= 0) keys.splice(i, 1);
+          store.set('printFacts', keys); store.set('printOptsOpen', true); route({ keepScroll: true });
+        });
+      });
+      var rs = document.getElementById('pr-reset'); if (rs) rs.addEventListener('click', function () { store.del('printFacts'); route({ keepScroll: true }); });
+      var op = document.querySelector('.pr-opts'); if (op) op.addEventListener('toggle', function () { store.set('printOptsOpen', op.open); });
+      document.querySelectorAll('[data-psort]').forEach(function (b) { b.addEventListener('click', function () { store.set('printSort', b.getAttribute('data-psort')); route({ keepScroll: true }); }); });
+      var pb = document.getElementById('do-pdf');
+      if (pb) pb.addEventListener('click', function () {
+        if (pdfBusy) return; pdfBusy = true;
+        var st = document.getElementById('pdf-status'), mode = printMode; pb.disabled = true; if (st) st.textContent = t('bt.pdf.making');
+        pdfMake(mode).then(function (blob) { return pdfDeliver(blob, pdfName(mode)); }).then(function (r) {
+          pdfBusy = false; pb.disabled = false; if (st) st.textContent = r === 'cancel' ? '' : t('bt.pdf.done');
+        }).catch(function (e) { pdfBusy = false; pb.disabled = false; if (st) st.textContent = t('bt.pdf.fail'); window.__btPdfErr = String(e && e.message || e); });
+      });
     };
   })();
 
