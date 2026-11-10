@@ -3339,8 +3339,8 @@
   ICONS.clip = '<path d="M20 11.5l-7.8 7.8a4.6 4.6 0 0 1-6.5-6.5l8.2-8.2a3 3 0 0 1 4.3 4.3l-8.2 8.2a1.5 1.5 0 0 1-2.1-2.1l7.5-7.5"/>';
   ICONS.x = '<path d="M6 6l12 12M18 6L6 18"/>';
   var CHAT_PAGE = 30, CHAT_TEXT = 2000, CHAT_IMG = 900000, CHAT_STALE = 60 * 1000;
-  var CHAT_DEFAULTS = [['general', 'general', '💬'], ['memes', 'memes', '😂'], ['kain', 'kain', '🍜'], ['mariveles', 'Mariveles', '🌊'], ['psych', 'psych', '🧠'], ['nerd', 'nerd', '🤓'], ['daldal', 'daldal', '🗣️'], ['boardgames', 'boardgames', '🎲'], ['tv', 'TV', '📺'], ['anime', 'anime', '🍥'], ['movie', 'movie', '🎬'], ['music', 'music', '🎵'], ['news', 'news', '📰'], ['duty', 'duty', '🏥'], ['help', 'help', '🆘'], ['lovelife', 'lovelife', '💘'], ['jowasawas', 'jowasawas', '💑']];
-  var CHAT_ADDED = ['lovelife', 'jowasawas'];   // 1.21.3: starting channels added after a batch already has its list; the admin's phone opens each once (store chatAddedDone), so a deleted one is not recreated by that phone
+  var CHAT_DEFAULTS = [['general', 'general', '💬'], ['memes', 'memes', '😂'], ['kain', 'kain', '🍜'], ['mariveles', 'Mariveles', '🌊'], ['psych', 'psych', '🧠'], ['nerd', 'nerd', '🤓'], ['daldal', 'daldal', '🗣️'], ['boardgames', 'boardgames', '🎲'], ['tv', 'TV', '📺'], ['anime', 'anime', '🍥'], ['movie', 'movie', '🎬'], ['music', 'music', '🎵'], ['news', 'news', '📰'], ['duty', 'duty', '🏥'], ['help', 'help', '🆘'], ['lovelife', 'lovelife', '💘'], ['jowasawas', 'jowasawas', '💑'], ['books', 'books', '📚']];
+  var CHAT_ADDED = ['lovelife', 'jowasawas', 'books'];   // 1.21.3: starting channels added after a batch already has its list; the admin's phone opens each once (store chatAddedDone), so a deleted one is not recreated by that phone
   var REACTS = [['like', '👍'], ['love', '❤️'], ['haha', '😂'], ['wow', '😮'], ['sad', '😢'], ['pray', '🙏']];
   var STICKER_SETS = Array.isArray(window.STICKERS) ? window.STICKERS : [];
   var chatList = null, chatListAt = 0, chatListErr = '', chatListBusy = false, chatReports = null;

@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.21.4', date: '2026-11-11', title: 'New #books channel',
+    items: [
+      { type: 'feature', text: 'New chat channel: #books 📚 for what you\'re reading, swaps and recommendations.', href: '#/chat' }
+    ]
+  },
+  {
     version: '1.21.3', date: '2026-11-10', title: 'Two new chat channels',
     items: [
       { type: 'feature', text: 'New chat channels: #lovelife 💘 and #jowasawas 💑. They appear in Chat for everyone in the batch.', href: '#/chat' }
