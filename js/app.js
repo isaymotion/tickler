@@ -3388,7 +3388,7 @@
   var cloudSync0 = cloudSync;   // unread dots refresh with every full sync (no extra listeners)
   cloudSync = function (opts) {
     return cloudSync0(opts).then(function (r) {
-      if (r && !(opts && opts.pushOnly)) loadChannels(true).then(function () { if (currentKey() === 'chat' && !parts()[1]) route({ keepScroll: true }); });
+      if (r && !(opts && opts.pushOnly)) loadChannels(true).then(function () { if ((currentKey() === 'chat' && !parts()[1]) || currentKey() === 'home') route({ keepScroll: true }); });
       return r;
     });
   };
@@ -3795,6 +3795,29 @@
     }); });
   }
   TITLES.chat = function () { var id = parts()[1], ch = id && chById(id); return ch ? chName(ch) : t('nav.chat'); };
+  /* 1.21.1: Batch chat card at the top of Home (members only; not-yet-members keep the Cloud sync strip) */
+  function homeChatHTML() {
+    if (!isSynced()) return '';
+    var list = cachedChannels(), un = list.filter(isUnread), latest = list.filter(function (c) { return c.last; }).sort(function (a, b) { return b.last - a.last; })[0];
+    var sub = !list.length ? t('bt.chat.homeLoading')
+      : un.length ? tf(un.length === 1 ? 'bt.chat.homeNew1' : 'bt.chat.homeNewN', { n: un.length, ch: chName(un.sort(function (a, b) { return b.last - a.last; })[0]), name: un[0].lastName || '—' })
+      : latest ? tf('bt.chat.homeLatest', { ch: chName(latest), name: latest.lastName || '—', when: whenShort(latest.last) }) : t('bt.chat.homeQuiet');
+    var picks = list.slice().sort(function (a, b) { return (isUnread(b) - isUnread(a)) || (b.last || 0) - (a.last || 0) || chSort(a, b); }).slice(0, 4);
+    return '<section class="card home-chat' + (un.length ? ' has-unread' : '') + '"><a class="home-chat__main" href="#/chat">' +
+      '<span class="home-chat__ico">' + icon('chat', 'home-chat__svg') + (un.length ? '<span class="badge home-chat__n">' + (un.length > 9 ? '9+' : un.length) + '</span>' : '') + '</span>' +
+      '<span class="home-chat__t"><strong>' + esc(t('bt.chat.homeH')) + '</strong><span>' + esc(sub) + '</span></span><span class="home-chat__go" aria-hidden="true">›</span></a>' +
+      (picks.length ? '<div class="home-chat__chips">' + picks.map(function (c) { return '<a class="home-chat__chip' + (isUnread(c) ? ' is-unread' : '') + '" href="#/chat/' + encodeURIComponent(c.id) + '"><span aria-hidden="true">' + esc(c.emoji || '#') + '</span> ' + esc(chName(c)) + (isUnread(c) ? '<span class="ch-dot"><span class="sr-only">' + esc(t('bt.chat.unread')) + '</span></span>' : '') + '</a>'; }).join('') + '</div>' : '') +
+      '</section>';
+  }
+  (function () {
+    var homeV = VIEWS.home;
+    VIEWS.home = function () { var html = homeV.apply(null, arguments), card = homeChatHTML(); return card ? html.replace('<div class="wrap home">', '<div class="wrap home">' + card) : html; };
+    var homeA = AFTER.home;
+    AFTER.home = function () {
+      homeA.apply(null, arguments);
+      if (isSynced() && (!cachedChannels().length || Date.now() - chatListAt > 5 * 60 * 1000)) loadChannels(true).then(function (l) { if (l && currentKey() === 'home') route({ keepScroll: true }); });
+    };
+  })();
   if (BADGE_IDS.indexOf('chatter') < 0) { BADGES.push(['chatter', 'chat']); BADGE_IDS.push('chatter'); }
 
   TITLES.person = function () { return t('nav.batch'); };

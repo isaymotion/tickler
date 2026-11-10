@@ -1159,6 +1159,12 @@ window.STRINGS = {
     'bt.chat.set.cat': "Cat",
     'bt.badge.chatter': "Chatterbox",
     'bt.badge.chatter.how': "Send your first chat message",
+    'bt.chat.homeH': "Batch chat",
+    'bt.chat.homeLoading': "Opening your channels…",
+    'bt.chat.homeNew1': "New messages in {ch} from {name}",
+    'bt.chat.homeNewN': "New messages in {n} channels · latest in {ch}",
+    'bt.chat.homeLatest': "Latest: {name} in {ch} · {when}",
+    'bt.chat.homeQuiet': "No messages yet. Say hi in #general!",
   },
 
   // Tagalog draft — Dr. Navarro reviews before release
@@ -2319,5 +2325,11 @@ window.STRINGS = {
     'bt.chat.set.cat': "Pusa",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.chatter': "Chatterbox",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.chatter.how': "Magpadala ng una mong chat message",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.homeH': "Batch chat",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.homeLoading': "Binubuksan ang mga channel mo…",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.homeNew1': "May bagong mensahe sa {ch} mula kay {name}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.homeNewN': "May bagong mensahe sa {n} channel · pinakabago sa {ch}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.homeLatest': "Pinakabago: si {name} sa {ch} · {when}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.homeQuiet': "Wala pang mensahe. Mag-hi sa #general!",  // Tagalog draft — Dr. Navarro reviews before release
   }
 };

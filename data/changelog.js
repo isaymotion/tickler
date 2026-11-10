@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.21.1', date: '2026-11-10', title: 'Chat on the Home screen',
+    items: [
+      { type: 'update', text: 'A Batch chat card now sits at the top of Home: it shows how many channels have new messages and who wrote last, with quick buttons for the busiest channels.', href: '#/chat' }
+    ]
+  },
+  {
     version: '1.21.0', date: '2026-11-10', title: 'Batch chat',
     items: [
       { type: 'feature', text: 'Chat with your batch in channels: #general, #memes, #kain, #Mariveles, #psych, #nerd, #daldal, #boardgames, #TV, #anime, #movie, #music, #news, #duty and #help. Anyone in the batch can start a new channel, and rename or delete the ones they started.', href: '#/chat' },
