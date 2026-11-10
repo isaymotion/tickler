@@ -1087,7 +1087,78 @@ window.STRINGS = {
     'bt.pl.embedTitle': 'Spotify player: {name}',
     'bt.tmdb.alt': 'Still from {title}',
     'bt.tmdb.credit': 'Info and image from',
-    'bt.tmdb.notice': 'Show descriptions and images come from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.'
+    'bt.tmdb.notice': 'Show descriptions and images come from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.',
+    'nav.chat': "Chat",
+    'nav.chatShort': "Chat",
+    'bt.chat.intro': "Batch chat channels. Tap a channel to read and write; anyone in the batch can start a new one.",
+    'bt.chat.joinH': "Join your batch to chat",
+    'bt.chat.joinText': "Chat runs through Cloud sync. Sign in and join your batch with its code, then come back here.",
+    'bt.chat.joinBtn': "Open Cloud sync",
+    'bt.chat.loading': "Loading…",
+    'bt.chat.channels': "Channels",
+    'bt.chat.lastBy': "{name} · {when}",
+    'bt.chat.empty': "No messages yet",
+    'bt.chat.unread': "New messages",
+    'bt.chat.newH': "Start a new channel",
+    'bt.chat.newText': "Pick a short name. You can rename or delete channels you start.",
+    'bt.chat.emoji': "Emoji",
+    'bt.chat.chName': "Channel name",
+    'bt.chat.create': "Create channel",
+    'bt.chat.creating': "Creating…",
+    'bt.chat.created': "{ch} is ready",
+    'bt.chat.needName': "Type a channel name (letters or numbers).",
+    'bt.chat.exists': "A channel with that name already exists.",
+    'bt.chat.reportsH': "Reported messages",
+    'bt.chat.noReports': "Nothing reported.",
+    'bt.chat.reportedBy': "reported by {name}",
+    'bt.chat.open': "Open",
+    'bt.chat.dismiss': "Dismiss",
+    'bt.chat.note': "Messages are seen only by members of your batch. New messages show up while a channel is open; the dots on the channel list refresh when you open the app or sync. There are no phone notifications yet.",
+    'bt.chat.rename': "Rename",
+    'bt.chat.renamePrompt': "New name for this channel:",
+    'bt.chat.deleteCh': "Delete channel",
+    'bt.chat.confirmDeleteCh': "Delete {ch} and every message in it, for everyone? This can't be undone.",
+    'bt.chat.chDeleted': "{ch} deleted",
+    'bt.chat.older': "Load older messages",
+    'bt.chat.first': "No messages yet. Say hi!",
+    'bt.chat.newMsgs': "New messages",
+    'bt.chat.addPhoto': "Add a photo",
+    'bt.chat.stickers': "Stickers",
+    'bt.chat.message': "Message",
+    'bt.chat.placeholder': "Message {ch}",
+    'bt.chat.send': "Send",
+    'bt.chat.sending': "Sending…",
+    'bt.chat.shrinking': "Getting the photo ready…",
+    'bt.chat.photoBad': "That photo couldn't be used. Try another one (JPEG, PNG, WebP or a small GIF).",
+    'bt.chat.photoReady': "Photo ready ({kb} KB)",
+    'bt.chat.removePhoto': "Remove photo",
+    'bt.chat.photo': "Photo",
+    'bt.chat.sticker': "Sticker",
+    'bt.chat.someone': "Batchmate",
+    'bt.chat.actions': "Message options",
+    'bt.chat.msgActions': "Options for the message from {name}",
+    'bt.chat.reactN': "{emoji} {n}",
+    'bt.chat.reply': "Reply",
+    'bt.chat.replyingTo': "Replying to {name}",
+    'bt.chat.cancelReply': "Cancel reply",
+    'bt.chat.copy': "Copy text",
+    'bt.chat.copied': "Copied",
+    'bt.chat.deleteMsg': "Delete message",
+    'bt.chat.confirmDelete': "Delete this message for everyone?",
+    'bt.chat.deleted': "Message deleted",
+    'bt.chat.report': "Report to admin",
+    'bt.chat.confirmReport': "Report this message to the batch admin?",
+    'bt.chat.reported': "Reported. Thank you.",
+    'bt.chat.close': "Close",
+    'bt.chat.playHere': "Play here",
+    'bt.chat.player': "Player",
+    'bt.chat.today': "Today",
+    'bt.chat.yesterday': "Yesterday",
+    'bt.chat.set.goose': "Goose",
+    'bt.chat.set.capybara': "Capybara",
+    'bt.chat.set.cat': "Cat",
+    'bt.badge.chatter': "Chatterbox",
+    'bt.badge.chatter.how': "Send your first chat message",
   },
 
   // Tagalog draft — Dr. Navarro reviews before release
@@ -2176,6 +2247,77 @@ window.STRINGS = {
     'bt.pl.embedTitle': 'Spotify player: {name}',
     'bt.tmdb.alt': 'Eksena mula sa {title}',
     'bt.tmdb.credit': 'Impormasyon at larawan mula sa',
-    'bt.tmdb.notice': 'Ang mga paglalarawan at larawan ng palabas ay galing sa TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.'
+    'bt.tmdb.notice': 'Ang mga paglalarawan at larawan ng palabas ay galing sa TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.',
+    'nav.chat': "Chat",  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.chatShort': "Chat",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.intro': "Mga chat channel ng batch. I-tap ang channel para magbasa at magsulat; kahit sino sa batch puwedeng gumawa ng bago.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.joinH': "Sumali sa batch para makapag-chat",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.joinText': "Gumagana ang chat sa pamamagitan ng Cloud sync. Mag-sign in at sumali sa batch mo gamit ang code nito, tapos bumalik ka dito.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.joinBtn': "Buksan ang Cloud sync",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.loading': "Nilo-load…",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.channels': "Mga Channel",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.lastBy': "{name} · {when}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.empty': "Wala pang mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.unread': "May bagong mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.newH': "Gumawa ng bagong channel",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.newText': "Pumili ng maikling pangalan. Puwede mong palitan ang pangalan o i-delete ang mga channel na ginawa mo.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.emoji': "Emoji",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.chName': "Pangalan ng channel",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.create': "Gumawa ng channel",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.creating': "Ginagawa…",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.created': "Ready na ang {ch}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.needName': "Mag-type ng pangalan ng channel (letra o numero).",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.exists': "May channel nang may ganyang pangalan.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.reportsH': "Mga na-report na mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.noReports': "Walang na-report.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.reportedBy': "ni-report ni {name}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.open': "Buksan",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.dismiss': "I-dismiss",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.note': "Ang mga miyembro lang ng batch mo ang nakakakita ng mga mensahe. Lumalabas ang mga bagong mensahe habang bukas ang channel; nare-refresh ang mga tuldok sa listahan ng channel kapag binuksan mo ang app o nag-sync ka. Wala pang phone notification.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.rename': "Palitan ang pangalan",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.renamePrompt': "Bagong pangalan ng channel na ito:",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.deleteCh': "I-delete ang channel",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.confirmDeleteCh': "I-delete ang {ch} at lahat ng mensahe dito, para sa lahat? Hindi na ito mababawi.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.chDeleted': "Na-delete na ang {ch}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.older': "I-load ang mas lumang mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.first': "Wala pang mensahe. Mag-hi ka na!",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.newMsgs': "Mga bagong mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.addPhoto': "Mag-add ng photo",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.stickers': "Mga Sticker",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.message': "Mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.placeholder': "Mag-message sa {ch}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.send': "Ipadala",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.sending': "Ipinapadala…",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.shrinking': "Inihahanda ang photo…",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.photoBad': "Hindi magamit ang photo na iyon. Subukan ang iba (JPEG, PNG, WebP o maliit na GIF).",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.photoReady': "Ready na ang photo ({kb} KB)",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.removePhoto': "Alisin ang photo",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.photo': "Photo",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.sticker': "Sticker",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.someone': "Batchmate",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.actions': "Mga option sa mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.msgActions': "Mga option para sa mensahe ni {name}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.reactN': "{emoji} {n}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.reply': "Mag-reply",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.replyingTo': "Nagre-reply kay {name}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.cancelReply': "Kanselahin ang reply",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.copy': "I-copy ang text",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.copied': "Na-copy",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.deleteMsg': "I-delete ang mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.confirmDelete': "I-delete ang mensaheng ito para sa lahat?",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.deleted': "Na-delete ang mensahe",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.report': "I-report sa admin",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.confirmReport': "I-report ang mensaheng ito sa admin ng batch?",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.reported': "Na-report na. Salamat!",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.close': "Isara",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.playHere': "I-play dito",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.player': "Player",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.today': "Ngayon",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.yesterday': "Kahapon",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.set.goose': "Goose",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.set.capybara': "Capybara",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.chat.set.cat': "Pusa",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.chatter': "Chatterbox",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.chatter.how': "Magpadala ng una mong chat message",  // Tagalog draft — Dr. Navarro reviews before release
   }
 };

@@ -97,7 +97,50 @@
       },
       eventsSince: function (code, since) {
         return F.getDocs(F.query(col('batches', code, 'events'), F.where('updated', '>', since))).then(function (s) { return rows(s).map(function (x) { x.id = x._id; delete x._id; return x; }); });
-      }
+      },
+
+      /* ---- 1.21.0 chat: batches/{code}/channels/{id} + …/messages/{mid}; reports in batches/{code}/reports ---- */
+      chatChannels: function (code) { return F.getDocs(col('batches', code, 'channels')).then(function (s) { return rows(s).map(function (x) { x.id = x._id; delete x._id; return x; }); }); },
+      chatCreateChannels: function (code, list) {   // [{id, name, emoji, order}] — fails if one already exists (rules allow create only)
+        var u = me(), b = F.writeBatch(db), now = Date.now();
+        list.forEach(function (c) { b.set(d('batches', code, 'channels', c.id), { name: c.name, emoji: c.emoji || '', order: c.order || 0, by: u.uid, created: now, last: 0, lastName: '' }); });
+        return b.commit();
+      },
+      chatChannelExists: function (code, id) { return F.getDoc(d('batches', code, 'channels', id)).then(function (s) { return s.exists(); }); },
+      chatRenameChannel: function (code, id, name, emoji) { return F.updateDoc(d('batches', code, 'channels', id), { name: name, emoji: emoji || '' }); },
+      chatDeleteChannel: function (code, id) {   // messages first (in pages), then the channel
+        function page() {
+          return F.getDocs(F.query(col('batches', code, 'channels', id, 'messages'), F.limit(200))).then(function (s) {
+            if (s.empty) return;
+            var b = F.writeBatch(db); s.forEach(function (x) { b.delete(x.ref); });
+            return b.commit().then(page);
+          });
+        }
+        return page().then(function () { return F.deleteDoc(d('batches', code, 'channels', id)); });
+      },
+      chatListen: function (code, ch, n, onList, onErr) {   // realtime: the newest n messages of the open channel only
+        var q = F.query(col('batches', code, 'channels', ch, 'messages'), F.orderBy('created', 'desc'), F.limit(n));
+        return F.onSnapshot(q, function (s) { onList(rows(s).map(function (x) { x.id = x._id; delete x._id; return x; })); }, function (e) { if (onErr) onErr(e); });
+      },
+      chatOlder: function (code, ch, before, n) {
+        return F.getDocs(F.query(col('batches', code, 'channels', ch, 'messages'), F.orderBy('created', 'desc'), F.where('created', '<', before), F.limit(n)))
+          .then(function (s) { return rows(s).map(function (x) { x.id = x._id; delete x._id; return x; }); });
+      },
+      chatSend: function (code, ch, msg) {   // the message and the channel's "last" in one write
+        var u = me(), ref = F.doc(F.collection(db, 'batches', code, 'channels', ch, 'messages')), b = F.writeBatch(db);
+        var m = Object.assign({}, msg, { uid: u.uid });
+        b.set(ref, m);
+        b.update(d('batches', code, 'channels', ch), { last: m.created, lastName: m.name });
+        return b.commit().then(function () { return ref.id; });
+      },
+      chatReact: function (code, ch, mid, key, on) {
+        var x = {}; x['react.' + key] = on ? F.arrayUnion(me().uid) : F.arrayRemove(me().uid);
+        return F.updateDoc(d('batches', code, 'channels', ch, 'messages', mid), x);
+      },
+      chatDelete: function (code, ch, mid) { return F.deleteDoc(d('batches', code, 'channels', ch, 'messages', mid)); },
+      chatReport: function (code, r) { return F.addDoc(col('batches', code, 'reports'), Object.assign({}, r, { by: me().uid, created: Date.now() })); },
+      chatReports: function (code) { return F.getDocs(col('batches', code, 'reports')).then(function (s) { return rows(s).map(function (x) { x.id = x._id; delete x._id; return x; }); }); },
+      chatDismiss: function (code, id) { return F.deleteDoc(d('batches', code, 'reports', id)); }
     };
   };
 })();

@@ -1,5 +1,5 @@
 rules_version = '2';
-// Batch Tickler — Firestore security rules (1.18.0).
+// Batch Tickler — Firestore security rules (1.21.0: + chat channels, messages and reports).
 // Paste this whole file into Firebase console › Databases & Storage › Firestore › Rules, then Publish.
 // Only signed-in batch members can read cards; each person can only write their own card;
 // only the admin(s) below can create batches, approve join requests and remove members.
@@ -60,6 +60,58 @@ service cloud.firestore {
           && request.resource.data.updated is number
           && shortText(request.resource.data.title, 80);
         allow delete: if isAdmin();
+      }
+
+      // 1.21.0 chat. Any member may open a channel; its creator (or the admin) renames or deletes it.
+      // Everyone may update a channel's "last" (written together with each new message).
+      match /channels/{ch} {
+        allow read: if isMember(b) || isAdmin();
+        allow create: if (isMember(b) || isAdmin())
+          && request.resource.data.by == request.auth.uid
+          && request.resource.data.keys().hasOnly(['name', 'emoji', 'order', 'by', 'created', 'last', 'lastName'])
+          && shortText(request.resource.data.name, 30)
+          && shortText(request.resource.data.emoji, 16);
+        allow update: if (isMember(b) || isAdmin()) && (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last', 'lastName'])
+          || ((resource.data.by == request.auth.uid || isAdmin())
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'emoji', 'last', 'lastName'])
+              && shortText(request.resource.data.name, 30)
+              && shortText(request.resource.data.emoji, 16)));
+        allow delete: if isAdmin() || (signedIn() && resource.data.by == request.auth.uid);
+
+        match /messages/{mid} {
+          allow read: if isMember(b) || isAdmin();
+          // own messages only, sensible sizes; photos are data URLs inside the message (Firestore 1 MiB per doc)
+          allow create: if (isMember(b) || isAdmin())
+            && request.resource.data.uid == request.auth.uid
+            && request.resource.data.keys().hasOnly(['uid', 'cardId', 'name', 'text', 'links', 'img', 'sticker', 'replyTo', 'created'])
+            && shortText(request.resource.data.name, 80)
+            && request.resource.data.created is number
+            && request.resource.data.created > request.time.toMillis() - 600000
+            && request.resource.data.created < request.time.toMillis() + 600000
+            && (!('text' in request.resource.data) || shortText(request.resource.data.text, 2000))
+            && (!('sticker' in request.resource.data) || shortText(request.resource.data.sticker, 60))
+            && (!('links' in request.resource.data) || (request.resource.data.links is list && request.resource.data.links.size() <= 5))
+            && (!('replyTo' in request.resource.data) || request.resource.data.replyTo is map)
+            && (!('img' in request.resource.data) || (request.resource.data.img is map
+                && request.resource.data.img.data is string && request.resource.data.img.data.size() < 960000));
+          // reactions: any member, nothing else may change
+          allow update: if (isMember(b) || isAdmin())
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['react'])
+            && request.resource.data.react is map && request.resource.data.react.size() <= 8;
+          // the author, the channel's creator or the admin
+          allow delete: if isAdmin() || (signedIn() && (resource.data.uid == request.auth.uid
+            || get(/databases/$(database)/documents/batches/$(b)/channels/$(ch)).data.by == request.auth.uid));
+        }
+      }
+
+      // a member flags a message; only the admin sees and clears the list
+      match /reports/{id} {
+        allow create: if isMember(b)
+          && request.resource.data.by == request.auth.uid
+          && request.resource.data.keys().hasOnly(['ch', 'mid', 'author', 'text', 'reporter', 'by', 'created'])
+          && shortText(request.resource.data.text, 300);
+        allow read, delete: if isAdmin();
       }
     }
   }

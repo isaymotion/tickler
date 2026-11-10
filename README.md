@@ -26,6 +26,7 @@ data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; un
 - **Batch twins** (Batch stats) — the pairs with the most things in common.
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
 - **Cloud sync** (1.18.0, `#/sync`) — cards travel through Firebase (Firestore, free Spark plan) instead of files and QR codes (both removed in 1.18.0). Sign in with Google, enter the batch's join code, wait for the admin to approve; then your card is sent whenever you save it and new cards arrive each time the app opens (at most every 5 minutes, or Sync now). Emergency & medical and Contact details leave the phone only if their owner ticks consent. Batch events sync too. The admin (`CLOUD_CONFIG.admins` in data/cloud.js, mirrored in `firestore.rules`) creates the batch and join code, approves or declines requests and removes members. Leaving deletes your card from the cloud. Security rules: `firestore.rules` (paste into Firebase console › Firestore › Rules › Publish).
+- **Chat** (1.21.0, `#/chat`, tab bar) — batch channels in Firestore (`batches/{code}/channels/{id}/messages`), members only. 15 starting channels made by the admin's phone the first time; any member can add one (creator or admin renames/deletes). Text with preview cards for YouTube/Spotify/TikTok/Drive/Netflix/Maps (no server, no scraping), photos shrunk in the browser to ≤1280 px and <900 KB and stored in the message, 48 built-in stickers (`data/stickers.js`, `img/stickers/`), emoji reactions, reply, delete, report to admin. Only the open channel has a realtime listener (newest 30, Load older pages 30); unread badges come from each channel's `last` at sync time. Needs the updated `firestore.rules`.
 - **Birthday calendar** — add one birthday or the whole batch to the phone calendar (.ics, yearly).
 - **Batch stats** — hometowns, med schools, languages, birthdays by month, oldest to youngest, most shared favourites.
 - **Print sheet** — three modes: a compact "meet the batch" page without contact details; Name tags (8 per A4 page); and a Full directory with every field including contact details, one person per page. Print or save as PDF from the browser.
@@ -44,7 +45,7 @@ index.html              App shell (top bar, sidebar menu, footer, bottom tabs)
 css/app.css             Styles (light and dark themes)
 js/app.js               Router, menu, views (VIEWS), navigation (NAV), search, theme, backup
 js/cloud.js             Cloud adapter (Firebase calls), loaded only for Cloud sync
-js/vendor/firebase.js   Firebase JS SDK 13.2 (app, auth, firestore/lite), bundled with esbuild, Apache-2.0
+js/vendor/firebase.js   Firebase JS SDK 13.2 (app, auth, firestore — full, for the chat listener since 1.21.0), bundled with esbuild, Apache-2.0
 data/app-meta.js        App name, version, attribution (window.APP_META), menu links (window.APP_LINKS)
                         and the commented MIGRATE_KEYS example
 data/changelog.js       What's new entries (window.APP_CHANGELOG)
@@ -52,8 +53,10 @@ data/hospital.js        Hospital, program, posts and year levels (window.HOSPITA
 data/strings.js         UI strings in English and Tagalog (window.STRINGS)
 data/fields.js          Resident-card field list (window.CARD_FIELDS) and the Guess-who fields
 data/icebreakers.js     Icebreaker questions (English + Tagalog drafts)
+data/stickers.js        Chat sticker packs (window.STICKERS): Goose, Capybara, Cat × 16
 data/places.js          Offline hometown map: Philippines outline + place coordinates (Natural Earth, public domain)
 img/banner.jpg          Home banner (plus banner-small.jpg for phones)
+img/stickers/           Chat stickers, img/stickers/<set>/<set>-NN-<slug>.webp (512×512)
 icons/                  icon-192.png, icon-512.png, icon-maskable-512.png, favicon-32.png, favicon-64.png,
                         favicon.ico, apple-touch-icon.png, icon-source.png (the original artwork)
 manifest.webmanifest    Install metadata

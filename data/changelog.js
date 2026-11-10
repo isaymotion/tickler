@@ -4,6 +4,17 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.21.0', date: '2026-11-10', title: 'Batch chat',
+    items: [
+      { type: 'feature', text: 'Chat with your batch in channels: #general, #memes, #kain, #Mariveles, #psych, #nerd, #daldal, #boardgames, #TV, #anime, #movie, #music, #news, #duty and #help. Anyone in the batch can start a new channel, and rename or delete the ones they started.', href: '#/chat' },
+      { type: 'feature', text: 'Send text, photos and memes (shrunk on your phone first), and 48 stickers in three packs: Goose, Capybara and Cat. Links to YouTube, Spotify, TikTok, Google Drive, Netflix and Google Maps show a preview card; YouTube and Spotify can play right in the chat.' },
+      { type: 'feature', text: 'Tap a message (or its ⋯ button) to react with an emoji, reply, copy, delete your own message, or report it to the batch admin.' },
+      { type: 'update', text: 'Chat takes the What’s new spot in the bottom tab bar, with a red badge for channels that have new messages. What’s new is still in the ☰ menu.' },
+      { type: 'update', text: 'Chat needs Cloud sync: only approved members of your batch can read or write. New messages appear while a channel is open; the badge refreshes when you open the app or sync. No phone notifications yet.' },
+      { type: 'feature', text: 'New badge: Chatterbox, for your first chat message.', href: '#/badges' }
+    ]
+  },
+  {
     version: '1.20.0', date: '2026-11-10', title: 'Sync button in the top bar',
     items: [
       { type: 'feature', text: 'A cloud button now sits in the top bar. Its dot shows how Cloud sync is doing: green = synced, pulsing = syncing, amber = waiting for approval, red = something went wrong, dim = not set up yet. Tap it to sync now (or to open Cloud sync if it isn’t set up). Syncing still happens on its own as well.', href: '#/sync' },

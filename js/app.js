@@ -3326,6 +3326,477 @@
     return '<div class="today__media" data-tmdb="' + esc(title) + '"' + (info ? ' data-filled="1"' : '') + '>' + showInfoHTML(info) + '</div>';
   }
 
+  /* ===================== 1.21.0: CHAT (stage 1) =====================
+     Batch chat channels in Firestore (Spark plan): batches/{code}/channels/{id} {name, emoji, order, by, created, last, lastName}
+     and …/channels/{id}/messages/{mid} {uid, cardId, name, text, links[], img{data,w,h}, sticker, replyTo{id,name,text}, created, react{key:[uid]}}.
+     Only the OPEN channel has a realtime listener (newest CHAT_PAGE, "Load older" pages more); the channel list and the
+     unread dots are a one-shot read on #/chat and after each cloud sync. Photos are shrunk in the browser and stored in the
+     message (no Cloud Storage). Stickers ship with the app (data/stickers.js). Phone-only store keys: `chatSeen` {ch: ms},
+     `chatCh` (last channel list, for the unread badge). Any member may open a channel; its creator or the admin renames or
+     deletes it; authors, the channel's creator and the admin delete messages; Report flags a message to the admin. */
+  ICONS.send = '<path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/>';
+  ICONS.smile = '<circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5c.9 1.3 2.1 2 3.5 2s2.6-.7 3.5-2"/><path d="M9 9.8v.2M15 9.8v.2"/>';
+  ICONS.clip = '<path d="M20 11.5l-7.8 7.8a4.6 4.6 0 0 1-6.5-6.5l8.2-8.2a3 3 0 0 1 4.3 4.3l-8.2 8.2a1.5 1.5 0 0 1-2.1-2.1l7.5-7.5"/>';
+  ICONS.x = '<path d="M6 6l12 12M18 6L6 18"/>';
+  var CHAT_PAGE = 30, CHAT_TEXT = 2000, CHAT_IMG = 900000, CHAT_STALE = 60 * 1000;
+  var CHAT_DEFAULTS = [['general', 'general', '💬'], ['memes', 'memes', '😂'], ['kain', 'kain', '🍜'], ['mariveles', 'Mariveles', '🌊'], ['psych', 'psych', '🧠'], ['nerd', 'nerd', '🤓'], ['daldal', 'daldal', '🗣️'], ['boardgames', 'boardgames', '🎲'], ['tv', 'TV', '📺'], ['anime', 'anime', '🍥'], ['movie', 'movie', '🎬'], ['music', 'music', '🎵'], ['news', 'news', '📰'], ['duty', 'duty', '🏥'], ['help', 'help', '🆘']];
+  var REACTS = [['like', '👍'], ['love', '❤️'], ['haha', '😂'], ['wow', '😮'], ['sad', '😢'], ['pray', '🙏']];
+  var STICKER_SETS = Array.isArray(window.STICKERS) ? window.STICKERS : [];
+  var chatList = null, chatListAt = 0, chatListErr = '', chatListBusy = false, chatReports = null;
+  var chatOpen = null, chatReply = null, chatImg = null, chatStkSet = '', chatMakingDefaults = false;
+  (function () { for (var i = 0; i < NAV.length; i++) if (NAV[i].href === '#/emergency') { NAV.splice(i + 1, 0, { label: 'Chat', tkey: 'nav.chat', href: '#/chat', icon: 'chat', group: 'Screens', badge: 'chat' }); return; } })();
+
+  function chatSeen() { var s = store.get('chatSeen', null); return s && typeof s === 'object' ? s : {}; }
+  function chatMarkSeen(ch, ms) { if (!ch || !ms) return; var s = chatSeen(); if ((s[ch] || 0) < ms) { s[ch] = ms; store.set('chatSeen', s); } }
+  function cachedChannels() { var l = chatList || store.get('chatCh', null); return Array.isArray(l) ? l : []; }
+  function isUnread(c) { return (c.last || 0) > (chatSeen()[c.id] || 0); }
+  function unreadCount() { return isSynced() ? cachedChannels().filter(isUnread).length : 0; }
+  var updateNavBadges0 = updateNavBadges;
+  updateNavBadges = function () {
+    updateNavBadges0();
+    var n = unreadCount(), els = document.querySelectorAll('[data-badge="chat"]');
+    for (var i = 0; i < els.length; i++) { els[i].textContent = n > 9 ? '9+' : n; els[i].hidden = !n; }
+  };
+  function chName(c) { return '#' + (c ? c.name : ''); }
+  function chById(id) { var l = cachedChannels(); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function chSort(a, b) { return (a.order || 0) - (b.order || 0) || (a.created || 0) - (b.created || 0) || String(a.name).localeCompare(String(b.name)); }
+  function slugCh(name) { return String(name || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24); }
+  function cleanChName(v) { return String(v || '').replace(/^#+/, '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 30); }
+
+  function loadChannels(force) {   // one read of the channel list; the admin's phone opens the starting channels the first time
+    var c = cst();
+    if (!isSynced() || chatListBusy) return Promise.resolve(null);
+    if (!force && chatList && Date.now() - chatListAt < CHAT_STALE) return Promise.resolve(chatList);
+    chatListBusy = true;
+    return cloud().then(function (api) {
+      return api.chatChannels(c.code).then(function (list) {
+        var u = api.user();
+        if (!list.length && u && u.admin && !chatMakingDefaults) {
+          chatMakingDefaults = true;
+          return api.chatCreateChannels(c.code, CHAT_DEFAULTS.map(function (d, i) { return { id: d[0], name: d[1], emoji: d[2], order: i + 1 }; }))
+            .then(function () { return api.chatChannels(c.code); });
+        }
+        return list;
+      });
+    }).then(function (list) {
+      chatListBusy = false; chatListErr = '';
+      chatList = list.map(function (x) { return { id: x.id, name: cleanChName(x.name) || x.id, emoji: String(x.emoji || '').slice(0, 16), order: x.order || 0, by: x.by || '', created: x.created || 0, last: x.last || 0, lastName: String(x.lastName || '').slice(0, 80) }; }).sort(chSort);
+      chatListAt = Date.now(); store.set('chatCh', chatList); updateNavBadges();
+      return chatList;
+    }).catch(function (e) { chatListBusy = false; chatListErr = errText(e); return null; });
+  }
+  var cloudSync0 = cloudSync;   // unread dots refresh with every full sync (no extra listeners)
+  cloudSync = function (opts) {
+    return cloudSync0(opts).then(function (r) {
+      if (r && !(opts && opts.pushOnly)) loadChannels(true).then(function () { if (currentKey() === 'chat' && !parts()[1]) route({ keepScroll: true }); });
+      return r;
+    });
+  };
+
+  /* ---- message pieces ---- */
+  var URL_RE = /https?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]]/gi;
+  function findLinks(text) { var m = String(text || '').match(URL_RE) || []; return m.filter(function (u, i) { return m.indexOf(u) === i && u.length <= 600; }).slice(0, 5); }
+  function linkify(text) {
+    var s = String(text || ''), out = '', last = 0, m; URL_RE.lastIndex = 0;
+    while ((m = URL_RE.exec(s))) { out += esc(s.slice(last, m.index)) + '<a href="' + esc(m[0]) + '" target="_blank" rel="noopener noreferrer">' + esc(m[0].length > 60 ? m[0].slice(0, 57) + '…' : m[0]) + '</a>'; last = m.index + m[0].length; }
+    return out + esc(s.slice(last));
+  }
+  function ytId(u) {
+    var h = u.hostname.replace(/^(www|m|music)\./, '');
+    if (h === 'youtu.be') return u.pathname.slice(1, 12);
+    if (h !== 'youtube.com') return '';
+    if (u.pathname === '/watch') return (u.searchParams.get('v') || '').slice(0, 11);
+    var m = /^\/(shorts|embed|live)\/([\w-]{11})/.exec(u.pathname); return m ? m[2] : '';
+  }
+  function linkInfo(url) {   // our own preview card per service: no server, no page scraping
+    var u; try { u = new URL(url); } catch (e) { return null; }
+    if (!/^https?:$/.test(u.protocol)) return null;
+    var h = u.hostname.replace(/^www\./, ''), p = u.pathname, short = (h + (p.length > 1 ? p : '')).slice(0, 48);
+    var yt = ytId(u);
+    if (/^[\w-]{11}$/.test(yt)) return { kind: 'youtube', ico: '▶️', name: 'YouTube', sub: short, thumb: 'https://i.ytimg.com/vi/' + yt + '/hqdefault.jpg', embed: 'https://www.youtube-nocookie.com/embed/' + yt };
+    if (h === 'open.spotify.com') return { kind: 'spotify', ico: '🎧', name: 'Spotify', sub: short, embed: spotifyEmbed(url) };
+    if (h === 'spotify.link') return { kind: 'spotify', ico: '🎧', name: 'Spotify', sub: short };
+    if (/(^|\.)tiktok\.com$/.test(h)) return { kind: 'tiktok', ico: '🎵', name: 'TikTok', sub: short };
+    if (h === 'drive.google.com') return { kind: 'drive', ico: '📁', name: 'Google Drive', sub: short };
+    if (h === 'docs.google.com') { var k = (/^\/(document|spreadsheets|presentation|forms)\//.exec(p) || [])[1]; return { kind: 'drive', ico: '📄', name: { document: 'Google Docs', spreadsheets: 'Google Sheets', presentation: 'Google Slides', forms: 'Google Forms' }[k] || 'Google Docs', sub: short }; }
+    if (/(^|\.)netflix\.com$/.test(h)) return { kind: 'netflix', ico: '🍿', name: 'Netflix', sub: short };
+    if (h === 'maps.app.goo.gl' || (h === 'goo.gl' && /^\/maps/.test(p)) || (/^(maps\.)?google\.[a-z.]+$/.test(h) && (/^\/maps/.test(p) || /^maps\./.test(h)))) return { kind: 'maps', ico: '📍', name: 'Google Maps', sub: short };
+    if (/(^|\.)(facebook\.com|fb\.watch)$/.test(h)) return { kind: 'fb', ico: '👥', name: 'Facebook', sub: short };
+    if (/(^|\.)instagram\.com$/.test(h)) return { kind: 'ig', ico: '📷', name: 'Instagram', sub: short };
+    if (/(^|\.)(x\.com|twitter\.com)$/.test(h)) return { kind: 'x', ico: '💬', name: 'X', sub: short };
+    if (/(^|\.)shopee\.ph$|(^|\.)lazada\.com\.ph$/.test(h)) return { kind: 'shop', ico: '🛍️', name: /shopee/.test(h) ? 'Shopee' : 'Lazada', sub: short };
+    return { kind: 'web', ico: '🔗', name: h, sub: (p.length > 1 ? p : '').slice(0, 48) || h };
+  }
+  function linkCard(url, mid, i) {
+    var L = linkInfo(url); if (!L) return '';
+    var play = L.embed && navigator.onLine !== false ? '<button type="button" class="btn btn--sm lcard__play" data-play="' + esc(mid + ':' + i) + '">' + esc(t('bt.chat.playHere')) + '</button>' : '';
+    return '<div class="lcard lcard--' + L.kind + '" data-embed="' + esc(L.embed || '') + '">' +
+      (L.thumb ? '<a class="lcard__thumb" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer"><img src="' + esc(L.thumb) + '" alt="" loading="lazy"></a>' : '') +
+      '<a class="lcard__a" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer"><span class="lcard__ico" aria-hidden="true">' + L.ico + '</span><span class="lcard__t"><strong>' + esc(L.name) + '</strong><span>' + esc(L.sub) + '</span></span></a>' + play + '</div>';
+  }
+  function okChatImg(im) { return im && typeof im.data === 'string' && /^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(im.data) && im.data.length < 960000; }
+  function stickerOf(id) {
+    var m = /^([a-z]+)\/(\d\d-[a-z-]+)$/.exec(String(id || '')); if (!m) return null;
+    for (var i = 0; i < STICKER_SETS.length; i++) if (STICKER_SETS[i].set === m[1]) for (var j = 0; j < STICKER_SETS[i].items.length; j++) if (STICKER_SETS[i].items[j].id === m[2]) return STICKER_SETS[i].items[j];
+    return null;
+  }
+  function chatTime(ms) { return new Date(ms).toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' }); }
+  function chatDay(ms) {
+    var d = new Date(ms), now = new Date(), y = new Date(); y.setDate(now.getDate() - 1);
+    if (d.toDateString() === now.toDateString()) return t('bt.chat.today');
+    if (d.toDateString() === y.toDateString()) return t('bt.chat.yesterday');
+    return d.toLocaleDateString(locale(), { weekday: 'short', month: 'short', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+  }
+  function whenShort(ms) { if (!ms) return ''; var d = new Date(ms); return d.toDateString() === new Date().toDateString() ? chatTime(ms) : d.toLocaleDateString(locale(), { month: 'short', day: 'numeric' }); }
+  function chatMsgs() {
+    if (!chatOpen) return [];
+    var seen = {}, all = chatOpen.live.concat(chatOpen.older).filter(function (m) { if (!m || !m.id || seen[m.id]) return false; seen[m.id] = 1; return true; });
+    return all.sort(function (a, b) { return (a.created || 0) - (b.created || 0) || String(a.id).localeCompare(String(b.id)); });
+  }
+  function canDelete(m, u, ch) { return !!u && (m.uid === u.uid || u.admin || (ch && ch.by === u.uid)); }
+  function msgHTML(m, prev, u) {
+    var mine = u && m.uid === u.uid, who = m.cardId ? findPerson(m.cardId) : null, name = String(m.name || '—').slice(0, 80);
+    var head = !prev || prev.uid !== m.uid || (m.created - prev.created) > 5 * 60 * 1000 || new Date(prev.created).toDateString() !== new Date(m.created).toDateString();
+    var day = !prev || new Date(prev.created).toDateString() !== new Date(m.created).toDateString() ? '<li class="chat-day"><span>' + esc(chatDay(m.created)) + '</span></li>' : '';
+    var body = '';
+    if (m.replyTo && typeof m.replyTo === 'object') body += '<span class="chat-quote"><strong>' + esc(String(m.replyTo.name || '').slice(0, 80)) + '</strong> ' + esc(String(m.replyTo.text || '').slice(0, 140)) + '</span>';
+    var stk = stickerOf(m.sticker);
+    if (stk) body += '<img class="chat-stk" src="' + esc(stk.src) + '" alt="' + esc(stk.label) + '" width="160" height="160" loading="lazy">';
+    if (okChatImg(m.img)) body += '<button type="button" class="chat-imgbtn" data-zoom="' + esc(m.id) + '"><img class="chat-img" src="' + esc(m.img.data) + '" alt="' + esc(t('bt.chat.photo')) + '"' + (m.img.w && m.img.h ? ' width="' + (+m.img.w) + '" height="' + (+m.img.h) + '"' : '') + ' loading="lazy"></button>';
+    if (m.text) body += '<span class="chat-text">' + linkify(String(m.text).slice(0, CHAT_TEXT)) + '</span>';
+    var links = (Array.isArray(m.links) ? m.links : []).filter(function (l) { return typeof l === 'string'; }).slice(0, 5);
+    if (links.length) body += '<span class="chat-links">' + links.map(function (l, i) { return linkCard(l, m.id, i); }).join('') + '</span>';
+    var react = m.react && typeof m.react === 'object' ? m.react : {};
+    var chips = REACTS.filter(function (r) { return Array.isArray(react[r[0]]) && react[r[0]].length; }).map(function (r) {
+      var on = u && react[r[0]].indexOf(u.uid) >= 0;
+      return '<button type="button" class="chat-react' + (on ? ' is-on' : '') + '" data-react="' + esc(m.id + ':' + r[0]) + '" aria-pressed="' + !!on + '" aria-label="' + esc(tf('bt.chat.reactN', { emoji: r[1], n: react[r[0]].length })) + '">' + r[1] + ' ' + react[r[0]].length + '</button>';
+    }).join('');
+    var onlyStk = stk && !m.text && !okChatImg(m.img) && !m.replyTo;
+    return day + '<li class="chat-msg' + (mine ? ' is-me' : '') + (head ? ' has-head' : '') + '" id="m-' + esc(m.id) + '">' +
+      (head && !mine ? '<span class="chat-msg__av">' + (who ? '<a href="#/person/' + encodeURIComponent(who.id) + '">' + avatar(who, 'avatar--xs') + '</a>' : '<span class="avatar avatar--txt avatar--xs" aria-hidden="true">' + esc(initials(name)) + '</span>') + '</span>' : '') +
+      '<div class="chat-msg__col">' +
+        (head ? '<p class="chat-msg__h">' + (mine ? '' : '<strong>' + (who ? '<a href="#/person/' + encodeURIComponent(who.id) + '">' + esc(name) + '</a>' : esc(name)) + '</strong> ') + '<time>' + esc(chatTime(m.created)) + '</time></p>' : '') +
+        '<div class="chat-bubble' + (onlyStk ? ' is-stk' : '') + '" data-msg="' + esc(m.id) + '">' + body + '</div>' +
+        '<button type="button" class="chat-more" data-msg="' + esc(m.id) + '" aria-label="' + esc(tf('bt.chat.msgActions', { name: name })) + '">⋯</button>' +
+        (chips ? '<div class="chat-reacts">' + chips + '</div>' : '') +
+      '</div></li>';
+  }
+
+  /* ---- photos: shrink to ≤1280 px, WebP when the browser can make it, else JPEG; small GIFs stay as they are ---- */
+  function chatPhoto(file, cb) {
+    if (!file || !/^image\//.test(file.type || 'image/')) { cb(null); return; }
+    if (file.type === 'image/gif' && file.size < 650000) { var fr = new FileReader(); fr.onload = function () { var img0 = new Image(); img0.onload = function () { cb({ data: fr.result, w: img0.width, h: img0.height }); }; img0.onerror = function () { cb(null); }; img0.src = fr.result; }; fr.onerror = function () { cb(null); }; fr.readAsDataURL(file); return; }
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      try {
+        var scale = Math.min(1, 1280 / Math.max(img.width, img.height)), q = 0.82, out = '', w = 0, h = 0;
+        for (var tries = 0; tries < 8; tries++) {
+          w = Math.max(1, Math.round(img.width * scale)); h = Math.max(1, Math.round(img.height * scale));
+          var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+          var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+          out = cv.toDataURL('image/webp', q); if (out.indexOf('data:image/webp') !== 0) out = cv.toDataURL('image/jpeg', q);
+          if (out.length <= CHAT_IMG) break;
+          if (q > 0.55) q -= 0.12; else scale *= 0.8;
+        }
+        URL.revokeObjectURL(url);
+        cb(out.length <= CHAT_IMG ? { data: out, w: w, h: h } : null);
+      } catch (e) { URL.revokeObjectURL(url); cb(null); }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+    img.src = url;
+  }
+
+  /* ---- #/chat (channel list) and #/chat/<id> (one channel) ---- */
+  function notMember() {
+    return '<div class="card chat-join">' + icon('chat', 'chat-join__ico') + '<h2>' + esc(t('bt.chat.joinH')) + '</h2><p>' + esc(t('bt.chat.joinText')) + '</p><p><a class="btn btn--solid" href="#/sync">' + esc(t('bt.chat.joinBtn')) + '</a></p></div>';
+  }
+  VIEWS.chat = function (id) {
+    if (id) return chatRoomView(id);
+    var html = pageHead('chat', 'nav.chat', 'bt.chat.intro');
+    if (!isSynced()) return html + notMember() + '</div>';
+    var list = cachedChannels(), u = cUser();
+    if (!list.length) html += '<p class="muted" id="chat-loading">' + esc(chatListErr || t('bt.chat.loading')) + '</p>';
+    else html += '<ul class="ch-list">' + list.map(function (c) {
+      var un = isUnread(c);
+      return '<li><a class="ch-row' + (un ? ' is-unread' : '') + '" href="#/chat/' + encodeURIComponent(c.id) + '"><span class="ch-row__e" aria-hidden="true">' + esc(c.emoji || '#') + '</span>' +
+        '<span class="ch-row__t"><strong>' + esc(chName(c)) + '</strong><span>' + esc(c.last ? tf('bt.chat.lastBy', { name: c.lastName || '—', when: whenShort(c.last) }) : t('bt.chat.empty')) + '</span></span>' +
+        (un ? '<span class="ch-dot"><span class="sr-only">' + esc(t('bt.chat.unread')) + '</span></span>' : '') + '</a></li>';
+    }).join('') + '</ul>';
+    if (chatListErr && list.length) html += '<p class="is-error">' + esc(chatListErr) + '</p>';
+    html += '<details class="card ch-new"><summary>' + esc(t('bt.chat.newH')) + '</summary><form id="ch-new" novalidate><p class="field__h">' + esc(t('bt.chat.newText')) + '</p>' +
+      '<div class="ch-new__row"><label class="field field--sm ch-new__emoji"><span class="field__l">' + esc(t('bt.chat.emoji')) + '</span><input type="text" name="emoji" maxlength="8" placeholder="🎉" autocomplete="off"></label>' +
+      '<label class="field"><span class="field__l">' + esc(t('bt.chat.chName')) + '</span><input type="text" name="name" maxlength="30" placeholder="ootd" autocomplete="off" autocapitalize="off"></label></div>' +
+      '<p class="form__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.chat.create')) + '</button></p><p class="form__status" id="ch-new-st" role="status"></p></form></details>';
+    if (u && u.admin) html += '<section class="card ch-reports"><h2>' + esc(t('bt.chat.reportsH')) + '</h2><div id="ch-reports">' + reportsHTML() + '</div></section>';
+    html += '<p class="muted chat-note">' + esc(t('bt.chat.note')) + '</p>';
+    return html + '</div>';
+  };
+  function reportsHTML() {
+    if (!chatReports) return '<p class="muted">' + esc(t('bt.chat.loading')) + '</p>';
+    if (chatReports.err) return '<p class="is-error">' + esc(chatReports.err) + '</p>';
+    if (!chatReports.list.length) return '<p class="muted">' + esc(t('bt.chat.noReports')) + '</p>';
+    return '<ul class="sync__list">' + chatReports.list.map(function (r) {
+      var ch = chById(r.ch);
+      return '<li><span><strong>' + esc(String(r.author || '—')) + '</strong> <span class="muted">' + esc(chName(ch || { name: r.ch })) + ' · ' + esc(tf('bt.chat.reportedBy', { name: r.reporter || '—' })) + '</span><span>' + esc(String(r.text || '')) + '</span></span>' +
+        '<span class="form__acts"><a class="btn btn--sm" href="#/chat/' + encodeURIComponent(r.ch) + '">' + esc(t('bt.chat.open')) + '</a><button type="button" class="btn btn--sm" data-rdel="' + esc(r.id) + '">' + esc(t('bt.chat.deleteMsg')) + '</button><button type="button" class="link-btn" data-rok="' + esc(r.id) + '">' + esc(t('bt.chat.dismiss')) + '</button></span></li>';
+    }).join('') + '</ul>';
+  }
+  function chatRoomView(id) {
+    var ch = chById(id), u = cUser();
+    var html = '<div class="wrap page chat-room"><p class="crumb"><a href="#/chat">' + esc(t('bt.chat.channels')) + '</a></p>';
+    if (!isSynced()) return html + notMember() + '</div>';
+    var mayEdit = ch && u && (u.admin || ch.by === u.uid);
+    html += '<header class="chat-room__head"><h1><span aria-hidden="true">' + esc(ch ? ch.emoji || '#' : '#') + '</span> ' + esc(ch ? chName(ch) : '#' + id) + '</h1>' +
+      (mayEdit ? '<span class="form__acts"><button type="button" class="btn btn--sm" id="ch-rename">' + esc(t('bt.chat.rename')) + '</button><button type="button" class="link-btn" id="ch-del">' + esc(t('bt.chat.deleteCh')) + '</button></span>' : '') + '</header>' +
+      '<div class="chat-log"><p class="chat-older"><button type="button" class="btn btn--sm" id="chat-older" hidden>' + esc(t('bt.chat.older')) + '</button></p>' +
+      '<ul class="chat-list" id="chat-list" aria-live="polite" aria-relevant="additions"><li class="muted chat-wait">' + esc(t('bt.chat.loading')) + '</li></ul></div>' +
+      '<button type="button" class="btn btn--sm chat-newpill" id="chat-newpill" hidden>' + esc(t('bt.chat.newMsgs')) + ' ↓</button>' +
+      '<form class="chat-compose" id="chat-form" autocomplete="off">' +
+        '<div class="chat-compose__extra" id="chat-extra" hidden></div>' +
+        '<div class="chat-stickers" id="chat-stk" hidden></div>' +
+        '<div class="chat-compose__row">' +
+          '<input type="file" id="chat-file" class="sr-only" accept="image/*"><label class="icon-btn chat-ibtn" for="chat-file" title="' + esc(t('bt.chat.addPhoto')) + '">' + icon('clip', 'chat-ibtn__ico') + '<span class="sr-only">' + esc(t('bt.chat.addPhoto')) + '</span></label>' +
+          '<button type="button" class="icon-btn chat-ibtn" id="chat-stkbtn" aria-expanded="false" aria-controls="chat-stk" title="' + esc(t('bt.chat.stickers')) + '">' + icon('smile', 'chat-ibtn__ico') + '<span class="sr-only">' + esc(t('bt.chat.stickers')) + '</span></button>' +
+          '<label class="sr-only" for="chat-text">' + esc(t('bt.chat.message')) + '</label><textarea id="chat-text" name="text" rows="1" maxlength="' + CHAT_TEXT + '" placeholder="' + esc(tf('bt.chat.placeholder', { ch: ch ? chName(ch) : '#' + id })) + '" enterkeyhint="send"></textarea>' +
+          '<button type="submit" class="icon-btn chat-send" id="chat-send" title="' + esc(t('bt.chat.send')) + '">' + icon('send', 'chat-ibtn__ico') + '<span class="sr-only">' + esc(t('bt.chat.send')) + '</span></button>' +
+        '</div><p class="form__status" id="chat-st" role="status"></p></form>' +
+      '<div class="chat-sheet" id="chat-sheet" hidden role="dialog" aria-modal="true" aria-label="' + esc(t('bt.chat.actions')) + '"></div>' +
+      '<div class="chat-zoom" id="chat-zoom" hidden role="dialog" aria-modal="true" aria-label="' + esc(t('bt.chat.photo')) + '"></div>';
+    return html + '</div>';
+  }
+  function closeRoom() {
+    if (chatOpen && chatOpen.unsub) { try { chatOpen.unsub(); } catch (e) {} }
+    chatOpen = null; chatReply = null; chatImg = null;
+    document.body.classList.remove('is-chat-room');
+  }
+  window.addEventListener('hashchange', function () {   // leaving the open channel stops its listener (runs before the router's handler)
+    if (chatOpen && location.hash !== '#/chat/' + encodeURIComponent(chatOpen.ch) && location.hash !== '#/chat/' + chatOpen.ch) closeRoom();
+  });
+  function roomEnd() {   // page y where the composer's bottom edge sits (the footer comes after it)
+    var f = document.getElementById('chat-form'), log = document.querySelector('.chat-log');
+    if (!f || !log) return document.documentElement.scrollHeight;
+    return log.getBoundingClientRect().bottom + window.scrollY + f.offsetHeight;
+  }
+  function nearBottom() { return window.innerHeight + window.scrollY >= roomEnd() - 160; }
+  function toBottom() { window.scrollTo(0, Math.max(0, roomEnd() - window.innerHeight)); }
+  function paintRoom(opts) {
+    opts = opts || {};
+    var ul = document.getElementById('chat-list'); if (!ul || !chatOpen) return;
+    var u = cUser(), ch = chById(chatOpen.ch), list = chatMsgs(), wasBottom = nearBottom(), h0 = document.documentElement.scrollHeight, y0 = window.scrollY;
+    ul.innerHTML = list.length ? list.map(function (m, i) { return msgHTML(m, list[i - 1], u); }).join('') : '<li class="muted chat-wait">' + esc(chatOpen.err || (chatOpen.loaded ? t('bt.chat.first') : t('bt.chat.loading'))) + '</li>';
+    var ob = document.getElementById('chat-older'); if (ob) ob.hidden = !(chatOpen.more && list.length >= CHAT_PAGE);
+    var newest = list.length ? list[list.length - 1] : null;
+    if (newest) chatMarkSeen(chatOpen.ch, newest.created);
+    if (opts.keep) { window.scrollTo(0, y0 + (document.documentElement.scrollHeight - h0)); return; }
+    var mineNew = newest && u && newest.uid === u.uid && newest.id !== chatOpen.lastId;
+    var isNew = newest && chatOpen.lastId && newest.id !== chatOpen.lastId;
+    chatOpen.lastId = newest ? newest.id : '';
+    var pill = document.getElementById('chat-newpill');
+    if (opts.first || wasBottom || mineNew) { toBottom(); if (pill) pill.hidden = true; }
+    else if (isNew && pill) pill.hidden = false;
+    updateNavBadges();
+  }
+  function openRoom(id) {
+    var c = cst();
+    if (chatOpen && chatOpen.ch === id && chatOpen.unsub) { paintRoom({ first: true }); return; }
+    closeRoom();
+    var room = chatOpen = { ch: id, live: [], older: [], more: true, loaded: false, lastId: '', err: '', unsub: null };
+    document.body.classList.add('is-chat-room');
+    cloud().then(function (api) {
+      if (chatOpen !== room) return;
+      var first = true;
+      room.unsub = api.chatListen(c.code, id, CHAT_PAGE, function (list) {
+        if (chatOpen !== room) return;
+        room.live = list; room.loaded = true; room.err = '';
+        if (list.length < CHAT_PAGE && !room.older.length) room.more = false;
+        paintRoom({ first: first }); first = false;
+      }, function (e) { if (chatOpen !== room) return; room.err = errText(e); room.loaded = true; paintRoom(); });
+      if (chatOpen !== room && room.unsub) room.unsub();
+    }).catch(function (e) { if (chatOpen !== room) return; room.err = errText(e); room.loaded = true; paintRoom(); });
+  }
+  function msgById(mid) { var l = chatMsgs(); for (var i = 0; i < l.length; i++) if (l[i].id === mid) return l[i]; return null; }
+  function chatSnippet(m) { var s = m.text ? String(m.text) : m.sticker ? '[' + ((stickerOf(m.sticker) || {}).label || t('bt.chat.sticker')) + ']' : m.img ? '[' + t('bt.chat.photo') + ']' : ''; return s.replace(/\s+/g, ' ').slice(0, 140); }
+  function paintExtra() {
+    var ex = document.getElementById('chat-extra'); if (!ex) return;
+    var bits = '';
+    if (chatReply) bits += '<div class="chat-extra__row"><span class="chat-quote"><strong>' + esc(tf('bt.chat.replyingTo', { name: chatReply.name })) + '</strong> ' + esc(chatReply.text) + '</span><button type="button" class="icon-btn" data-xrm="reply" aria-label="' + esc(t('bt.chat.cancelReply')) + '">' + icon('x') + '</button></div>';
+    if (chatImg) bits += '<div class="chat-extra__row"><img class="chat-extra__img" src="' + esc(chatImg.data) + '" alt=""><span class="muted">' + esc(tf('bt.chat.photoReady', { kb: Math.round(chatImg.data.length * 0.75 / 1024) })) + '</span><button type="button" class="icon-btn" data-xrm="img" aria-label="' + esc(t('bt.chat.removePhoto')) + '">' + icon('x') + '</button></div>';
+    ex.innerHTML = bits; ex.hidden = !bits;
+  }
+  function stickerSheet() {
+    var cur = chatStkSet || (STICKER_SETS[0] && STICKER_SETS[0].set), s = STICKER_SETS.filter(function (x) { return x.set === cur; })[0];
+    if (!s) return '';
+    return '<div class="filters chat-stk__tabs" role="group">' + STICKER_SETS.map(function (x) { return '<button type="button" class="filter" data-stkset="' + esc(x.set) + '" aria-pressed="' + (x.set === cur) + '">' + esc(t('bt.chat.set.' + x.set)) + '</button>'; }).join('') + '</div>' +
+      '<div class="chat-stk__grid">' + s.items.map(function (it) { return '<button type="button" class="chat-stk__b" data-stk="' + esc(s.set + '/' + it.id) + '" title="' + esc(it.label) + '"><img src="' + esc(it.src) + '" alt="' + esc(it.label) + '" loading="lazy" width="96" height="96"></button>'; }).join('') + '</div>';
+  }
+  function sendMsg(extra) {
+    var c = cst(), form = document.getElementById('chat-form'), ta = document.getElementById('chat-text'), st = document.getElementById('chat-st');
+    if (!chatOpen || !form) return;
+    var text = extra && extra.sticker ? '' : cleanText(ta.value, CHAT_TEXT), room = chatOpen, me = getMe(), u = cUser();
+    if (!text && !(extra && extra.sticker) && !chatImg) return;
+    var msg = { cardId: me ? me.id : '', name: (me && me.name) || (u && u.name) || t('bt.chat.someone'), created: Date.now() };
+    if (text) { msg.text = text; var ls = findLinks(text); if (ls.length) msg.links = ls; }
+    if (extra && extra.sticker) msg.sticker = extra.sticker;
+    else if (chatImg) msg.img = { data: chatImg.data, w: chatImg.w, h: chatImg.h };
+    if (chatReply) msg.replyTo = { id: chatReply.id, name: chatReply.name, text: chatReply.text };
+    var btn = document.getElementById('chat-send'); if (btn) btn.disabled = true;
+    st.textContent = msg.img ? t('bt.chat.sending') : ''; st.classList.remove('is-error');
+    cloud().then(function (api) { return api.chatSend(c.code, room.ch, msg); }).then(function () {
+      chatMarkSeen(room.ch, msg.created);
+      var l = chatList || []; l.forEach(function (x) { if (x.id === room.ch) { x.last = msg.created; x.lastName = msg.name; } }); if (chatList) store.set('chatCh', chatList);
+      if (chatOpen !== room) return;
+      if (!(extra && extra.sticker)) { ta.value = ''; chatImg = null; autoGrow(ta); }
+      chatReply = null; paintExtra(); st.textContent = '';
+      award('chatter');
+    }).catch(function (e) { st.textContent = errText(e); st.classList.add('is-error'); }).then(function () { var b = document.getElementById('chat-send'); if (b) b.disabled = false; });
+  }
+  function autoGrow(ta) { if (!ta) return; ta.style.height = 'auto'; ta.style.height = Math.min(160, ta.scrollHeight + 2) + 'px'; }
+  function openSheet(m) {
+    var sh = document.getElementById('chat-sheet'), u = cUser(), ch = chById(chatOpen.ch); if (!sh || !m) return;
+    var react = m.react || {};
+    sh.innerHTML = '<div class="chat-sheet__in"><p class="chat-sheet__q">' + esc(chatSnippet(m) || '—') + '</p><div class="chat-sheet__reacts">' + REACTS.map(function (r) { var on = u && Array.isArray(react[r[0]]) && react[r[0]].indexOf(u.uid) >= 0; return '<button type="button" class="chat-sheet__r' + (on ? ' is-on' : '') + '" data-sreact="' + esc(r[0]) + '" aria-pressed="' + !!on + '">' + r[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="chat-sheet__acts"><button type="button" class="btn" data-sact="reply">' + esc(t('bt.chat.reply')) + '</button>' +
+      (m.text ? '<button type="button" class="btn" data-sact="copy">' + esc(t('bt.chat.copy')) + '</button>' : '') +
+      (canDelete(m, u, ch) ? '<button type="button" class="btn btn--danger" data-sact="delete">' + esc(t('bt.chat.deleteMsg')) + '</button>' : '') +
+      (u && m.uid !== u.uid ? '<button type="button" class="btn" data-sact="report">' + esc(t('bt.chat.report')) + '</button>' : '') +
+      '<button type="button" class="btn btn--solid" data-sact="close">' + esc(t('bt.chat.close')) + '</button></div></div>';
+    sh.hidden = false; sh.setAttribute('data-mid', m.id);
+    var first = sh.querySelector('button'); if (first) first.focus();
+  }
+  function closeSheet() { var sh = document.getElementById('chat-sheet'); if (sh) { sh.hidden = true; sh.innerHTML = ''; } }
+  function react(mid, key) {
+    var m = msgById(mid), u = cUser(), c = cst(); if (!m || !u || !chatOpen) return;
+    var r = m.react = m.react && typeof m.react === 'object' ? m.react : {}, l = r[key] = Array.isArray(r[key]) ? r[key] : [], on = l.indexOf(u.uid) < 0;
+    if (on) l.push(u.uid); else l.splice(l.indexOf(u.uid), 1);   // show it at once; the listener confirms
+    paintRoom({ keep: true });
+    cloud().then(function (api) { return api.chatReact(c.code, chatOpen.ch, mid, key, on); }).catch(function (e) { toast(errText(e)); });
+  }
+  AFTER.chat = function (id) {
+    var c = cst();
+    if (!isSynced()) return;
+    if (!id) {
+      closeRoom();
+      if (!chatList || Date.now() - chatListAt > CHAT_STALE) loadChannels(true).then(function (l) { if (currentKey() === 'chat' && !parts()[1] && (l || chatListErr)) route({ keepScroll: true }); });
+      var f = document.getElementById('ch-new'), st = document.getElementById('ch-new-st');
+      if (f) f.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = cleanChName(f.name.value), emoji = String(f.emoji.value || '').trim().slice(0, 8), sid = slugCh(name), btn = f.querySelector('button[type=submit]');
+        if (!name || !sid) { st.textContent = t('bt.chat.needName'); st.classList.add('is-error'); return; }
+        btn.disabled = true; st.textContent = t('bt.chat.creating'); st.classList.remove('is-error');
+        cloud().then(function (api) {
+          return api.chatChannelExists(c.code, sid).then(function (ex) {
+            if (ex) throw { code: 'exists' };
+            return api.chatCreateChannels(c.code, [{ id: sid, name: name, emoji: emoji, order: 100 }]);
+          });
+        }).then(function () { toast(tf('bt.chat.created', { ch: '#' + name })); return loadChannels(true); }).then(function () { location.hash = '#/chat/' + encodeURIComponent(sid); })
+          .catch(function (e2) { btn.disabled = false; st.textContent = e2 && e2.code === 'exists' ? t('bt.chat.exists') : errText(e2); st.classList.add('is-error'); });
+      });
+      var u = cUser();
+      if (u && u.admin) {
+        wireReports();   // what we had, then a fresh look (one read per report)
+        cloud().then(function (api) { return api.chatReports(c.code); }).then(function (l) { chatReports = { list: l.sort(function (a, b) { return (b.created || 0) - (a.created || 0); }) }; }, function (e) { chatReports = { err: errText(e), list: [] }; })
+          .then(function () { var box = document.getElementById('ch-reports'); if (box) { box.innerHTML = reportsHTML(); wireReports(); } });
+      }
+      return;
+    }
+    if (!chById(id) && !chatListBusy) loadChannels(true).then(function () { if (currentKey() === 'chat' && parts()[1] === id && chById(id)) route({ keepScroll: true }); });   // a channel this phone hadn't seen yet: redraw with its name and buttons
+    openRoom(id);
+    setTimeout(toBottom, 30);
+    var form = document.getElementById('chat-form'), ta = document.getElementById('chat-text'), fi = document.getElementById('chat-file'), st = document.getElementById('chat-st');
+    paintExtra();
+    ta.addEventListener('input', function () { autoGrow(ta); });
+    ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia('(hover: hover)').matches) { e.preventDefault(); sendMsg(); } });
+    form.addEventListener('submit', function (e) { e.preventDefault(); sendMsg(); });
+    fi.addEventListener('change', function () {
+      var file = fi.files && fi.files[0]; fi.value = ''; if (!file) return;
+      st.textContent = t('bt.chat.shrinking'); st.classList.remove('is-error');
+      chatPhoto(file, function (im) {
+        if (!im) { st.textContent = t('bt.chat.photoBad'); st.classList.add('is-error'); return; }
+        chatImg = im; st.textContent = ''; paintExtra();
+      });
+    });
+    var sb = document.getElementById('chat-stkbtn'), sk = document.getElementById('chat-stk');
+    sb.addEventListener('click', function () { var open = sk.hidden; sk.hidden = !open; sb.setAttribute('aria-expanded', String(open)); if (open) { sk.innerHTML = stickerSheet(); toBottom(); } });
+    sk.addEventListener('click', function (e) {
+      var tb = e.target.closest('[data-stkset]'); if (tb) { chatStkSet = tb.getAttribute('data-stkset'); sk.innerHTML = stickerSheet(); return; }
+      var b = e.target.closest('[data-stk]'); if (!b) return;
+      sk.hidden = true; sb.setAttribute('aria-expanded', 'false'); sendMsg({ sticker: b.getAttribute('data-stk') });
+    });
+    document.getElementById('chat-extra').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-xrm]'); if (!b) return;
+      if (b.getAttribute('data-xrm') === 'reply') chatReply = null; else chatImg = null;
+      paintExtra();
+    });
+    document.getElementById('chat-older').addEventListener('click', function () {
+      var b = this, list = chatMsgs(), room = chatOpen; if (!list.length || !room) return;
+      b.disabled = true;
+      cloud().then(function (api) { return api.chatOlder(c.code, room.ch, list[0].created, CHAT_PAGE); }).then(function (older) {
+        if (chatOpen !== room) return;
+        room.older = room.older.concat(older); if (older.length < CHAT_PAGE) room.more = false;
+        paintRoom({ keep: true });
+      }).catch(function (e) { toast(errText(e)); }).then(function () { b.disabled = false; });
+    });
+    document.getElementById('chat-newpill').addEventListener('click', function () { this.hidden = true; toBottom(); });
+    window.addEventListener('scroll', function onS() { if (!document.getElementById('chat-newpill')) { window.removeEventListener('scroll', onS); return; } if (nearBottom()) document.getElementById('chat-newpill').hidden = true; }, { passive: true });
+    var ul = document.getElementById('chat-list');
+    ul.addEventListener('click', function (e) {
+      var r = e.target.closest('[data-react]'); if (r) { var p = r.getAttribute('data-react').split(':'); react(p[0], p[1]); return; }
+      var pl = e.target.closest('[data-play]');
+      if (pl) { var card = pl.closest('.lcard'), src = card && card.getAttribute('data-embed'); if (src) { var fr = document.createElement('iframe'); fr.className = 'lcard__embed' + (/spotify/.test(src) ? ' is-spotify' : ''); fr.src = src; fr.title = t('bt.chat.player'); fr.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'); fr.setAttribute('allowfullscreen', ''); pl.replaceWith(fr); } return; }
+      var z = e.target.closest('[data-zoom]');
+      if (z) { var m0 = msgById(z.getAttribute('data-zoom')), zb = document.getElementById('chat-zoom'); if (m0 && okChatImg(m0.img)) { zb.innerHTML = '<button type="button" class="icon-btn chat-zoom__x" aria-label="' + esc(t('bt.chat.close')) + '">' + icon('x') + '</button><img src="' + esc(m0.img.data) + '" alt="' + esc(t('bt.chat.photo')) + '">'; zb.hidden = false; zb.querySelector('button').focus(); } return; }
+      if (e.target.closest('a')) return;
+      var b = e.target.closest('[data-msg]'); if (b) openSheet(msgById(b.getAttribute('data-msg')));
+    });
+    document.getElementById('chat-zoom').addEventListener('click', function () { this.hidden = true; this.innerHTML = ''; });
+    var sh = document.getElementById('chat-sheet');
+    sh.addEventListener('click', function (e) {
+      if (e.target === sh) { closeSheet(); return; }
+      var mid = sh.getAttribute('data-mid'), m = msgById(mid), u = cUser();
+      var rb = e.target.closest('[data-sreact]'); if (rb) { closeSheet(); react(mid, rb.getAttribute('data-sreact')); return; }
+      var a = e.target.closest('[data-sact]'); if (!a || !m) return;
+      var act = a.getAttribute('data-sact'); closeSheet();
+      if (act === 'reply') { chatReply = { id: m.id, name: String(m.name || '').slice(0, 80), text: chatSnippet(m) }; paintExtra(); ta.focus(); }
+      else if (act === 'copy') { if (navigator.clipboard) navigator.clipboard.writeText(m.text || '').then(function () { toast(t('bt.chat.copied')); }, function () {}); }
+      else if (act === 'delete') {
+        if (!window.confirm(t('bt.chat.confirmDelete'))) return;
+        var room = chatOpen;
+        cloud().then(function (api) { return api.chatDelete(c.code, room.ch, mid); }).then(function () { if (chatOpen === room) { room.older = room.older.filter(function (x) { return x.id !== mid; }); room.live = room.live.filter(function (x) { return x.id !== mid; }); paintRoom({ keep: true }); } toast(t('bt.chat.deleted')); }, function (e2) { toast(errText(e2)); });
+      } else if (act === 'report') {
+        if (!window.confirm(t('bt.chat.confirmReport'))) return;
+        cloud().then(function (api) { return api.chatReport(c.code, { ch: chatOpen.ch, mid: mid, author: String(m.name || '').slice(0, 80), text: chatSnippet(m).slice(0, 300), reporter: myName().slice(0, 80) }); })
+          .then(function () { toast(t('bt.chat.reported')); }, function (e2) { toast(errText(e2)); });
+      }
+    });
+    document.addEventListener('keydown', function onK(e) {
+      if (!document.getElementById('chat-sheet')) { document.removeEventListener('keydown', onK); return; }
+      if (e.key === 'Escape') { closeSheet(); var zb = document.getElementById('chat-zoom'); if (zb) { zb.hidden = true; zb.innerHTML = ''; } }
+    });
+    var rn = document.getElementById('ch-rename'), dl = document.getElementById('ch-del');
+    if (rn) rn.addEventListener('click', function () {
+      var ch = chById(id); if (!ch) return;
+      var name = cleanChName(window.prompt(t('bt.chat.renamePrompt'), ch.name)); if (!name || name === ch.name) return;
+      cloud().then(function (api) { return api.chatRenameChannel(c.code, id, name, ch.emoji); }).then(function () { return loadChannels(true); }).then(function () { route({ keepScroll: true }); }, function (e) { toast(errText(e)); });
+    });
+    if (dl) dl.addEventListener('click', function () {
+      var ch = chById(id); if (!ch || !window.confirm(tf('bt.chat.confirmDeleteCh', { ch: chName(ch) }))) return;
+      dl.disabled = true;
+      cloud().then(function (api) { return api.chatDeleteChannel(c.code, id); }).then(function () { closeRoom(); return loadChannels(true); }).then(function () { toast(tf('bt.chat.chDeleted', { ch: chName(ch) })); location.hash = '#/chat'; }, function (e) { dl.disabled = false; toast(errText(e)); });
+    });
+  };
+  function wireReports() {
+    var c = cst(), box = document.getElementById('ch-reports'); if (!box) return;
+    box.querySelectorAll('[data-rok]').forEach(function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-rok'); b.disabled = true; cloud().then(function (api) { return api.chatDismiss(c.code, id); }).then(function () { chatReports.list = chatReports.list.filter(function (r) { return r.id !== id; }); box.innerHTML = reportsHTML(); wireReports(); }, function (e) { b.disabled = false; toast(errText(e)); }); }); });
+    box.querySelectorAll('[data-rdel]').forEach(function (b) { b.addEventListener('click', function () {
+      var id = b.getAttribute('data-rdel'), r = chatReports.list.filter(function (x) { return x.id === id; })[0]; if (!r || !window.confirm(t('bt.chat.confirmDelete'))) return;
+      b.disabled = true;
+      cloud().then(function (api) { return api.chatDelete(c.code, r.ch, r.mid).then(function () { return api.chatDismiss(c.code, id); }); })
+        .then(function () { chatReports.list = chatReports.list.filter(function (x) { return x.id !== id; }); box.innerHTML = reportsHTML(); wireReports(); toast(t('bt.chat.deleted')); }, function (e) { b.disabled = false; toast(errText(e)); });
+    }); });
+  }
+  TITLES.chat = function () { var id = parts()[1], ch = id && chById(id); return ch ? chName(ch) : t('nav.chat'); };
+  if (BADGE_IDS.indexOf('chatter') < 0) { BADGES.push(['chatter', 'chat']); BADGE_IDS.push('chatter'); }
+
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();
 
