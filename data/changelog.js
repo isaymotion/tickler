@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.19.0', date: '2026-11-10', title: 'Pets, a Spotify player and show info',
+    items: [
+      { type: 'feature', text: 'New Pets screen: add your pets one at a time, each with a photo, kind, breed and a few words about them. They show on your card and in a gallery of the whole batch’s pets.', href: '#/pets' },
+      { type: 'feature', text: 'The featured Spotify playlist on Home now plays right inside the app (needs internet; full songs if you are signed in to Spotify, otherwise previews).' },
+      { type: 'feature', text: 'The show of the day can now show a short description and a picture of the show, from TMDB.' }
+    ]
+  },
+  {
     version: '1.18.0', date: '2026-11-10', title: 'Cloud sync',
     items: [
       { type: 'feature', text: 'New Cloud sync screen. Sign in with Google, type the batch’s join code and wait for the admin to approve you. After that, everyone’s cards arrive on your phone on their own, and yours reaches them whenever you save it.', href: '#/sync' },

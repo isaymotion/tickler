@@ -75,7 +75,7 @@ window.CARD_FIELDS = [
   { key: 'rotation',        group: 'favourites',  type: 'text',     sub: 'medschool',  print: true,  icon: 'school' },
   { key: 'hobbies',         group: 'life',        type: 'textarea', sub: 'everyday',   print: true,  icon: 'heart' },
   { key: 'studyStyle',      group: 'life',        type: 'text',     sub: 'everyday',   print: true,  icon: 'book' },
-  { key: 'pets',            group: 'life',        type: 'text',     sub: 'everyday',   print: true,  icon: 'heart' },
+  { key: 'pets',            group: 'life',        type: 'text',     sub: 'everyday',   print: true,  icon: 'heart', hint: true },
   { key: 'destress',        group: 'life',        type: 'text',     sub: 'everyday',   print: true,  icon: 'heart' },
   { key: 'morningEssential',group: 'life',        type: 'text',     sub: 'everyday',   print: true,  icon: 'food' },
   { key: 'weekend',          group: 'life',        type: 'textarea',  sub: 'everyday',   print: true,  icon: 'spark' },

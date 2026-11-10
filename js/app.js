@@ -788,13 +788,14 @@
     if (tp.pl) {
       var c = tp.pl.c;
       out += '<section class="card today" aria-labelledby="today-pl-h"><p class="today__k">' + icon('music', 'today__ico') + '<span id="today-pl-h">' + esc(t('bt.today.pl')) + '</span></p>' +
-        '<div class="today__pl"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div><h3>' + esc(tp.pl.pl.label || t('bt.f.playlists')) + '</h3><p class="muted">' + esc(tf('bt.today.by', { name: c.preferredName || c.nickname || c.name })) + '</p></div></div>' +
-        '<p class="today__acts"><a class="btn btn--solid" href="' + esc(tp.pl.pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a>' +
+        '<div class="today__pl"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div><h3>' + esc(tp.pl.pl.label || t('bt.f.playlists')) + '</h3><p class="muted">' + esc(tf('bt.today.by', { name: c.preferredName || c.nickname || c.name })) + '</p></div></div>' + spotifyPlayer(tp.pl.pl.url, tp.pl.pl.label || t('bt.f.playlists')) +
+        '<p class="today__acts"><a class="btn' + (spotifyEmbed(tp.pl.pl.url) ? '' : ' btn--solid') + '" href="' + esc(tp.pl.pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a>' +
         (tp.plN > 1 ? '<button type="button" class="btn" data-another="pl">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
     }
     if (tp.nf) {
       var fans = tp.nf.fans.slice().sort(function (a, b) { return a.rank - b.rank; }), top = fans[0];
       out += '<section class="card today" aria-labelledby="today-nf-h"><p class="today__k">' + icon('tv', 'today__ico') + '<span id="today-nf-h">' + esc(t('bt.today.nf')) + '</span></p>' +
+        showInfoBox(tp.nf.title) +
         '<div class="today__pl"><a href="#/person/' + encodeURIComponent(top.c.id) + '">' + avatar(top.c, 'avatar--sm') + '</a><div><h3>' + esc(tp.nf.title) + '</h3><p class="muted">' + esc(tf('bt.today.nfBy', { name: short(top.c), n: top.rank })) + '</p></div></div>' +
         (fans.length > 1 ? '<p class="muted today__also">' + esc(tf('bt.today.nfAlso', { names: fans.slice(1).map(function (x) { return short(x.c); }).join(', ') })) + '</p>' : '') +
         '<p class="today__acts"><a class="btn btn--solid" href="' + esc(netflixHref(tp.nf)) + '" target="_blank" rel="noopener">' + esc(tp.nf.url ? tf('bt.nf.watchOn', { s: serviceName(tp.nf.url) }) : t('bt.nf.find')) + '</a>' +
@@ -2611,7 +2612,7 @@
 
   /* ---- hooks into existing screens ---- */
   function funLinksHTML() {
-    var L = [['#/truths', 'nav.truths', 'quiz'], ['#/baby', 'nav.baby', 'heart'], ['#/thisorthat', 'nav.tot', 'chart'], ['#/superlatives', 'nav.sup', 'star'], ['#/qotw', 'nav.qotw', 'chat'], ['#/anthem', 'nav.anthem', 'music'], ['#/capsule', 'nav.capsule', 'mail'], ['#/tcard', 'bt.tc.title', 'card']];
+    var L = [['#/truths', 'nav.truths', 'quiz'], ['#/baby', 'nav.baby', 'heart'], ['#/thisorthat', 'nav.tot', 'chart'], ['#/superlatives', 'nav.sup', 'star'], ['#/qotw', 'nav.qotw', 'chat'], ['#/anthem', 'nav.anthem', 'music'], ['#/capsule', 'nav.capsule', 'mail'], ['#/pets', 'bt.pets.mine', 'paw'], ['#/tcard', 'bt.tc.title', 'card']];
     return '<h2>' + esc(t('bt.fun.more')) + '</h2><p class="muted">' + esc(t('bt.fun.moreHint')) + '</p><div class="cards fun-links">' + L.map(function (x) { return '<a class="card tile" href="' + x[0] + '">' + icon(x[2], 'tile__ico') + '<h3>' + esc(t(x[1])) + '</h3></a>'; }).join('') + '</div>';
   }
   function personActs(c) {
@@ -3090,6 +3091,178 @@
       return html.indexOf('<div class="home__stats">') >= 0 ? html.replace('<div class="home__stats">', strip + '<div class="home__stats">') : html.replace(/(<\/header>)/, '$1' + strip);
     };
   })();
+
+  /* ===================== 1.19.0: SPOTIFY PLAYER, SHOW INFO (TMDB), PETS =====================
+     Spotify: open.spotify.com links play in an embedded Spotify player on the Home playlist card (online only;
+     spotify.link short links can't be embedded and keep the Open button). Show of the day: blurb + still from TMDB
+     (data/tmdb.js key; cached per title for 30 days under store key `tmdb`, filled in after the Home renders).
+     Pets: card key `petList` [{id,name,kind,breed,note,photo}] ≤ PET_MAX, edited one pet at a time on #/pets. */
+  ICONS.paw = '<circle cx="6.5" cy="10" r="1.7"/><circle cx="10" cy="6" r="1.7"/><circle cx="14.5" cy="6" r="1.7"/><circle cx="18" cy="10" r="1.7"/><path d="M8 17.6c0-2.7 1.9-5.1 4.2-5.1s4.2 2.4 4.2 5.1c0 1.7-1.4 2.4-2.6 2.1-1.1-.3-2.1-.3-3.2 0-1.2.3-2.6-.4-2.6-2.1z"/>';
+  var PET_KINDS = ['dog', 'cat', 'bird', 'fish', 'rabbit', 'hamster', 'turtle', 'other'], PET_MAX = 8;
+  (function () { for (var i = 0; i < NAV.length; i++) if (NAV[i].href === '#/picks') { NAV.splice(i + 1, 0, { label: 'Pets', tkey: 'nav.pets', href: '#/pets', icon: 'paw', group: 'Screens' }); return; } })();
+  function cleanPets(arr) {
+    var seen = {};
+    return (Array.isArray(arr) ? arr : []).map(function (p, i) {
+      if (!p || typeof p !== 'object') return null;
+      var id = cleanText(p.id, 40).replace(/[^\w-]/g, '') || 'pet' + i; if (seen[id]) id += '-' + i; seen[id] = 1;
+      var x = { id: id, name: cleanText(p.name, 40), kind: PET_KINDS.indexOf(p.kind) >= 0 ? p.kind : 'other', breed: cleanText(p.breed, 60), note: cleanText(p.note, 200) };
+      if (okPhoto(p.photo)) x.photo = p.photo;
+      return x.name ? x : null;
+    }).filter(Boolean).slice(0, PET_MAX);
+  }
+  var sanitizeFun0 = sanitizeFun;
+  sanitizeFun = function (c, out) { sanitizeFun0(c, out); var pl = cleanPets(c.petList); if (pl.length) out.petList = pl; };
+  FUN_KEYS.push('petList');
+  function petsOf(c) { return (c && c.petList) || []; }
+  function petCard(p, owner, ctl) {
+    return '<article class="card pet">' + (p.photo ? '<img class="pet__img" src="' + esc(p.photo) + '" alt="' + esc(p.name) + '">' : '<span class="pet__img pet__img--none">' + icon('paw', 'pet__ico') + '</span>') +
+      '<div class="pet__body"><h3>' + esc(p.name) + '</h3><p class="pet__kind">' + esc([t('bt.pets.k.' + p.kind), p.breed].filter(Boolean).join(' · ')) + '</p>' +
+      (p.note ? '<p class="pet__note">' + esc(p.note) + '</p>' : '') +
+      (owner ? '<p class="pet__owner"><a href="#/person/' + encodeURIComponent(owner.id) + '">' + avatar(owner, 'avatar--xs') + esc(tf('bt.pets.of', { name: short(owner) })) + '</a></p>' : '') +
+      (ctl ? '<p class="pet__acts"><button type="button" class="btn btn--sm" data-petedit="' + esc(p.id) + '">' + esc(t('bt.pets.editBtn')) + '</button>' + (ctl.i > 0 ? '<button type="button" class="btn btn--sm" data-petup="' + ctl.i + '">' + esc(t('bt.pets.up')) + '</button>' : '') + '<button type="button" class="link-btn" data-petrm="' + esc(p.id) + '">' + esc(t('bt.pets.remove')) + '</button></p>' : '') +
+      '</div></article>';
+  }
+  var petEdit = '', petPhoto = null, petDraft = {};
+  function petReset() { petEdit = ''; petPhoto = null; petDraft = {}; }
+  VIEWS.pets = function () {
+    var me = getMe(), html = pageHead('pets', 'nav.pets', 'bt.pets.intro');
+    if (me) {
+      var list = petsOf(me), ed = petEdit ? list.filter(function (p) { return p.id === petEdit; })[0] : null;
+      if (petEdit && !ed) petReset();
+      var d = petDraft, ph = petPhoto !== null ? petPhoto : (ed && ed.photo) || '';
+      html += '<h2>' + esc(t('bt.pets.mine')) + '</h2>' +
+        (list.length ? '<div class="pet-grid">' + list.map(function (p, i) { return petCard(p, null, { i: i }); }).join('') + '</div>' : '<p class="muted">' + esc(t('bt.pets.noneMine')) + '</p>');
+      if (list.length >= PET_MAX && !ed) html += '<p class="muted">' + esc(tf('bt.pets.max', { n: PET_MAX })) + '</p>';
+      else html += '<form class="card pet-form" id="pet-form" novalidate><h3>' + esc(t(ed ? 'bt.pets.edit' : list.length ? 'bt.pets.addAnother' : 'bt.pets.add')) + '</h3>' +
+        '<div class="form__photo"><div>' + (ph ? '<img class="pet__thumb" src="' + esc(ph) + '" alt="">' : '<span class="pet__thumb pet__img--none">' + icon('paw', 'pet__ico') + '</span>') + '</div><div>' +
+          '<input type="file" id="pet-photo" class="sr-only" accept="image/*"><label class="btn" for="pet-photo">' + icon('camera', 'btn__ico') + esc(t(ph ? 'bt.pets.photoChange' : 'bt.pets.photo')) + '</label> ' +
+          (ph ? '<button type="button" class="link-btn" id="pet-photo-rm">' + esc(t('bt.me.removePhoto')) + '</button>' : '') + '</div></div>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.pets.name')) + ' *</span><input type="text" name="name" maxlength="40" required value="' + esc(d.name != null ? d.name : ed ? ed.name : '') + '"></label>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.pets.kind')) + '</span><select name="kind">' + PET_KINDS.map(function (k) { var cur = d.kind || (ed ? ed.kind : 'dog'); return '<option value="' + k + '"' + (cur === k ? ' selected' : '') + '>' + esc(t('bt.pets.k.' + k)) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.pets.breed')) + '</span><input type="text" name="breed" maxlength="60" placeholder="' + esc(t('bt.pets.breedPh')) + '" value="' + esc(d.breed != null ? d.breed : ed ? ed.breed : '') + '"></label>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.pets.note')) + '</span><textarea name="note" maxlength="200" rows="2" placeholder="' + esc(t('bt.pets.notePh')) + '">' + esc(d.note != null ? d.note : ed ? ed.note : '') + '</textarea></label>' +
+        '<p class="form__acts"><button type="submit" class="btn btn--solid">' + esc(t(ed ? 'bt.pets.saveEdit' : 'bt.pets.save')) + '</button>' + (ed || d.name || ph ? ' <button type="button" class="btn" id="pet-cancel">' + esc(t('bt.pets.cancel')) + '</button>' : '') + '</p>' +
+        '<p class="form__status" id="pet-status" role="status" aria-live="polite"></p></form>';
+    } else html += needCard();
+    var owners = allCards().filter(function (c) { return !isMe(c) && petsOf(c).length; }), n = owners.reduce(function (s, c) { return s + petsOf(c).length; }, 0);
+    html += '<h2>' + esc(t('bt.pets.batchH')) + '</h2>' + (n ? '<p class="muted">' + esc(tf(n === 1 ? 'bt.pets.count1' : 'bt.pets.countN', { n: n })) + '</p><div class="pet-grid">' + owners.map(function (c) { return petsOf(c).map(function (p) { return petCard(p, c); }).join(''); }).join('') + '</div>' : '<p class="muted">' + esc(t('bt.pets.none')) + '</p>');
+    return html + '</div>';
+  };
+  AFTER.pets = function () {
+    var f = document.getElementById('pet-form');
+    if (f) {
+      var st = document.getElementById('pet-status');
+      var keep = function () { petDraft = { name: f.name.value, kind: f.kind.value, breed: f.breed.value, note: f.note.value }; };
+      f.addEventListener('input', keep); f.addEventListener('change', keep);
+      var fi = document.getElementById('pet-photo');
+      fi.addEventListener('change', function () {
+        var file = fi.files && fi.files[0]; fi.value = ''; if (!file) return;
+        keep(); st.textContent = t('bt.pets.photoBusy');
+        shrinkPhoto(file, function (data) { if (!data) { st.textContent = t('bt.me.photoTooBig'); return; } petPhoto = data; route({ keepScroll: true }); });
+      });
+      var rmp = document.getElementById('pet-photo-rm'); if (rmp) rmp.addEventListener('click', function () { keep(); petPhoto = ''; route({ keepScroll: true }); });
+      var cn = document.getElementById('pet-cancel'); if (cn) cn.addEventListener('click', function () { petReset(); route({ keepScroll: true }); });
+      f.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = cleanText(f.name.value, 40);
+        if (!name) { st.textContent = t('bt.pets.needName'); st.classList.add('is-error'); f.name.focus(); return; }
+        var list = petsOf(getMe()), ed = petEdit ? list.filter(function (p) { return p.id === petEdit; })[0] : null;
+        var ph = petPhoto !== null ? petPhoto : (ed && ed.photo) || '';
+        var pet = { id: ed ? ed.id : newId(), name: name, kind: f.kind.value, breed: cleanText(f.breed.value, 60), note: cleanText(f.note.value, 200) };
+        if (ph) pet.photo = ph;
+        saveMe(function (me) { var l = (me.petList || []).slice(); if (ed) l = l.map(function (p) { return p.id === ed.id ? pet : p; }); else l.push(pet); me.petList = l; });
+        petReset(); route({ keepScroll: true }); toast(tf('bt.pets.saved', { name: name }));
+      });
+    }
+    main.querySelectorAll('[data-petedit]').forEach(function (b) { b.addEventListener('click', function () {
+      var p = petsOf(getMe()).filter(function (x) { return x.id === b.getAttribute('data-petedit'); })[0]; if (!p) return;
+      petEdit = p.id; petPhoto = null; petDraft = {}; route({ keepScroll: true });
+      var nf = document.getElementById('pet-form'); if (nf) { nf.scrollIntoView({ block: 'start', behavior: 'smooth' }); nf.name.focus({ preventScroll: true }); }
+    }); });
+    main.querySelectorAll('[data-petup]').forEach(function (b) { b.addEventListener('click', function () { var i = +b.getAttribute('data-petup'); saveMe(function (me) { var l = (me.petList || []).slice(); if (i > 0 && i < l.length) { var x = l[i]; l[i] = l[i - 1]; l[i - 1] = x; } me.petList = l; }); route({ keepScroll: true }); }); });
+    main.querySelectorAll('[data-petrm]').forEach(function (b) { b.addEventListener('click', function () {
+      var id = b.getAttribute('data-petrm'), p = petsOf(getMe()).filter(function (x) { return x.id === id; })[0]; if (!p || !window.confirm(tf('bt.pets.confirmRemove', { name: p.name }))) return;
+      saveMe(function (me) { me.petList = (me.petList || []).filter(function (x) { return x.id !== id; }); }); if (petEdit === id) petReset(); route({ keepScroll: true });
+    }); });
+  };
+  TITLES.pets = function () { return t('nav.pets'); };
+  (function () {
+    var person0 = VIEWS.person;
+    VIEWS.person = function (id) {
+      var html = person0.apply(null, arguments), c = findPerson(String(id || ''));
+      if (!c || !petsOf(c).length) return html;
+      var sec = '<h2>' + esc(t('bt.pets.personH')) + '</h2><div class="pet-grid">' + petsOf(c).map(function (p) { return petCard(p); }).join('') + '</div>' + (isMe(c) ? '<p><a class="btn" href="#/pets">' + icon('paw', 'btn__ico') + esc(t('bt.pets.manage')) + '</a></p>' : '');
+      var em = html.indexOf('<h2>' + esc(groupLabel('emergency')) + '</h2>'), i = em >= 0 ? em : html.lastIndexOf('<p class="person__foot');
+      return i < 0 ? html + sec : html.slice(0, i) + sec + html.slice(i);
+    };
+    var rb0 = rebuildIndex;
+    rebuildIndex = function () {
+      rb0();
+      allCards().forEach(function (c) { petsOf(c).forEach(function (p) { SEARCH_INDEX.push({ title: p.name, text: [t('bt.pets.k.' + p.kind), p.breed, p.note, tf('bt.pets.of', { name: c.name })].filter(Boolean).join(' · '), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.pets') }); }); });
+    };
+    var about0 = VIEWS.about;
+    VIEWS.about = function () { var html = about0.apply(null, arguments), k = '<h2>' + esc(t('about.settings')) + '</h2>'; return html.replace(k, '<p class="muted tmdb-note">' + esc(t('bt.tmdb.notice')) + '</p>' + k); };
+    var home1 = AFTER.home;
+    AFTER.home = function () { home1.apply(null, arguments); fillShowInfo(); };
+  })();
+
+  /* ---- Spotify player ---- */
+  function spotifyEmbed(url) {
+    var m = /^https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[a-z]{2})?\/)?(playlist|album|track|artist|show|episode)\/([A-Za-z0-9]{10,40})/i.exec(String(url || ''));
+    return m ? 'https://open.spotify.com/embed/' + m[1].toLowerCase() + '/' + m[2] + '?utm_source=generator' : '';
+  }
+  function spotifyPlayer(url, label) {
+    var src = spotifyEmbed(url); if (!src || navigator.onLine === false) return '';
+    return '<iframe class="today__embed" src="' + esc(src) + '" title="' + esc(tf('bt.pl.embedTitle', { name: label })) + '" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>';
+  }
+
+  /* ---- Show info from TMDB ---- */
+  var TMDB = window.TMDB_CONFIG || {}, TMDB_DAYS = 30, tmdbBusy = {};
+  function tmdbKey() { return String(TMDB.key || '').trim(); }
+  function tmdbAll() { var c = store.get('tmdb', {}); return c && typeof c === 'object' ? c : {}; }
+  function tmdbGet(title) { var c = tmdbAll()[String(title).toLowerCase()]; return c && Date.now() - (c.at || 0) < TMDB_DAYS * 864e5 ? c : null; }
+  function tmdbPut(title, info) {
+    var all = tmdbAll(); all[String(title).toLowerCase()] = info;
+    var ks = Object.keys(all); if (ks.length > 80) ks.sort(function (a, b) { return (all[a].at || 0) - (all[b].at || 0); }).slice(0, ks.length - 80).forEach(function (k) { delete all[k]; });
+    store.set('tmdb', all);
+  }
+  function tmdbFetch(title) {
+    var key = tmdbKey(); if (!key || navigator.onLine === false || !window.fetch) return Promise.resolve(null);
+    var bearer = key.length > 40, url = 'https://api.themoviedb.org/3/search/multi?include_adult=false&language=en-US&page=1&query=' + encodeURIComponent(title) + (bearer ? '' : '&api_key=' + encodeURIComponent(key));
+    return fetch(url, bearer ? { headers: { Authorization: 'Bearer ' + key, accept: 'application/json' } } : undefined)
+      .then(function (r) { if (!r.ok) throw new Error('tmdb ' + r.status); return r.json(); })
+      .then(function (j) {
+        var lo = String(title).toLowerCase(), hits = (j && j.results || []).filter(function (x) { return x.media_type === 'tv' || x.media_type === 'movie'; });
+        var exact = hits.filter(function (x) { return String(x.name || x.title || '').toLowerCase() === lo; });
+        var pool = exact.length ? exact : hits, h = pool.filter(function (x) { return x.media_type === 'tv'; })[0] || pool[0];
+        var info = h ? { at: Date.now(), id: h.id, type: h.media_type, name: cleanText(h.name || h.title, 120), year: String(h.first_air_date || h.release_date || '').slice(0, 4), ov: clip(h.overview || '', 420), img: /^\/[\w.-]+$/.test(h.backdrop_path || '') ? h.backdrop_path : '', poster: /^\/[\w.-]+$/.test(h.poster_path || '') ? h.poster_path : '' } : { at: Date.now(), none: true };
+        tmdbPut(title, info); return info;
+      });
+  }
+  function showInfoHTML(info) {
+    if (!info || info.none) return '';
+    var img = info.img ? 'https://image.tmdb.org/t/p/w780' + info.img : info.poster ? 'https://image.tmdb.org/t/p/w342' + info.poster : '';
+    return (img ? '<img class="today__still' + (info.img ? '' : ' today__still--poster') + '" src="' + esc(img) + '" alt="' + esc(tf('bt.tmdb.alt', { title: info.name })) + '" loading="lazy">' : '') +
+      (info.ov ? '<p class="today__blurb">' + esc(info.ov) + '</p>' : '') +
+      '<p class="today__credit">' + esc(info.name + (info.year ? ' (' + info.year + ')' : '')) + ' · ' + esc(t('bt.tmdb.credit')) + ' <a href="https://www.themoviedb.org/' + (info.type === 'movie' ? 'movie' : 'tv') + '/' + (+info.id || 0) + '" target="_blank" rel="noopener">TMDB</a></p>';
+  }
+  function fillShowInfo() {
+    main.querySelectorAll('[data-tmdb]').forEach(function (box) {
+      var title = box.getAttribute('data-tmdb');
+      var wire = function () { var im = box.querySelector('img'); if (im) im.addEventListener('error', function () { im.remove(); }); };
+      if (box.getAttribute('data-filled')) { wire(); return; }
+      if (tmdbBusy[title]) return; tmdbBusy[title] = 1;
+      tmdbFetch(title).then(function (info) {
+        delete tmdbBusy[title];
+        var cur = main.querySelector('[data-tmdb="' + (window.CSS && CSS.escape ? CSS.escape(title) : title) + '"]');
+        if (cur && info) { cur.innerHTML = showInfoHTML(info); cur.setAttribute('data-filled', '1'); box = cur; wire(); }
+      }).catch(function () { delete tmdbBusy[title]; });
+    });
+  }
+  function showInfoBox(title) {
+    var info = tmdbGet(title);
+    return '<div class="today__media" data-tmdb="' + esc(title) + '"' + (info ? ' data-filled="1"' : '') + '>' + showInfoHTML(info) + '</div>';
+  }
 
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();
