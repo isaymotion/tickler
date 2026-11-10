@@ -151,7 +151,7 @@ with sync_playwright() as p:
     pg.screenshot(path=out + '/tcard.png', full_page=True)
     go('#/tcard'); pg.wait_for_function("document.getElementById('tc-img').naturalWidth===1080", timeout=8000); ok(True, 'own trading card')
     # ---- My card save keeps everything
-    go('#/me'); ok(pg.locator('.fun-links .tile').count() == 8, 'fun links on my card')
+    go('#/me'); ok(pg.locator('.fun-links .tile').count() == 9, 'fun links on my card (9 incl. My pets, 1.19.0)')
     submit('#me-form'); pg.wait_for_function("location.hash.indexOf('#/person/')===0", timeout=5000)
     m2 = meC(); ok(all(k in m2 for k in ['truths', 'baby', 'tot', 'votes', 'qotw', 'capsule', 'anthem']) and m2['tot'].get('coffee') == 'a', 'save keeps fun keys')
     go('#/badges'); ok(pg.locator('.badge-card').count() == 28, '28 badges')
