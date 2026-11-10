@@ -67,14 +67,10 @@ with sync_playwright() as p:
     ics = open(dl.value.path()).read(); ok(ics.count('BEGIN:VEVENT') == 2 and 'T183000' in ics, 'all ics (2 events, timed)')
     ok('planner' in pg.evaluate("JSON.parse(localStorage.getItem('bt:v1:badges'))"), 'planner badge')
     noov('events'); pg.screenshot(path=out + '/events.png', full_page=True)
-    # share batch includes events; import merges
-    go('#/share')
-    with pg.expect_download() as dl: pg.click('#sh-all')
-    pay = json.load(open(dl.value.path())); ok(len(pay.get('events', [])) == 1, 'batch file carries events')
-    pay['events'][0]['title'] = 'Newer title'; pay['events'][0]['updated'] = '2099-01-01T00:00:00Z'
-    pay['events'].append({'id': 'x1', 'title': 'Board review', 'date': (td + datetime.timedelta(days=40)).isoformat(), 'updated': '2026-01-01T00:00:00Z'})
-    fp = os.path.join(tempfile.mkdtemp(), 'b.json'); json.dump(pay, open(fp, 'w'))
-    pg.set_input_files('#sh-file', fp); pg.wait_for_timeout(400); ok('2 event' in pg.inner_text('#sh-status'), 'import events msg: ' + pg.inner_text('#sh-status'))
+    # 1.18.0: the batch file is gone; events merge through Cloud sync (sync118_test). Seed the merged result.
+    evs0 = pg.evaluate("JSON.parse(localStorage.getItem('bt:v1:events'))"); evs0[0]['title'] = 'Newer title'; evs0[0]['updated'] = '2099-01-01T00:00:00Z'
+    evs0.append({'id': 'x1', 'title': 'Board review', 'date': (td + datetime.timedelta(days=40)).isoformat(), 'time': '', 'place': '', 'note': '', 'updated': '2026-01-01T00:00:00Z'})
+    pg.evaluate("a=>localStorage.setItem('bt:v1:events',JSON.stringify(a))", evs0)
     evs = pg.evaluate("JSON.parse(localStorage.getItem('bt:v1:events'))"); ok(sorted(e['title'] for e in evs) == ['Board review', 'Newer title'], 'events merged')
     go('#/'); ok('Newer title' in pg.inner_text('.home__stats'), 'home next event = soonest stored')
     # Monito

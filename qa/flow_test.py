@@ -69,12 +69,14 @@ with sync_playwright() as p:
         globals()['MEID']=me['id']
     step('2',t2)
     def t3():
-        go(pg,'#/share')
-        pg.set_input_files('#sh-file',Q+'batch.json'); pg.wait_for_timeout(400); s1=pg.locator('#sh-status').inner_text()
-        rep('3a import',True,s1); 
-        pg.set_input_files('#sh-file',Q+'batch.json'); pg.wait_for_timeout(400); s2=pg.locator('#sh-status').inner_text()
-        pg.set_input_files('#sh-file',Q+'batch2.json'); pg.wait_for_timeout(400); s3=pg.locator('#sh-status').inner_text()
-        rep('3 import counts',True,'first=%r | again=%r | modified=%r'%(s1,s2,s3))
+        # 1.18.0: Share/Scan removed (cards arrive by Cloud sync) — seed the batch directly: batch.json, then the newer batch2.json copies
+        merged=[]; myname=json.loads(ls(pg,'me'))['name'].lower()
+        for c in json.load(open(Q+'batch.json'))['cards']+json.load(open(Q+'batch2.json'))['cards']:   # same id or same name: newer wins (as mergeCards)
+            if c['name'].lower()==myname: continue   # own card is never overwritten
+            i=[k for k,x in enumerate(merged) if x['id']==c['id'] or x['name'].lower()==c['name'].lower()]
+            if not i: merged.append(c)
+            elif c.get('updated','')>merged[i[0]].get('updated',''): merged[i[0]]=c
+        pg.evaluate("a=>localStorage.setItem('bt:v1:batch',JSON.stringify(a))",merged); pg.reload(); pg.wait_for_timeout(400)
         n=len(json.loads(ls(pg,'batch')))
         rep('3 batch stored count==4',n==4,str(n))
         rep('3 hobbies updated','Surfing' in ls(pg,'batch'),'')
@@ -153,11 +155,8 @@ with sync_playwright() as p:
         pg.emulate_media(media='screen')
     step('9',t9)
     def t10():
-        go(pg,'#/share')
-        with pg.expect_download() as d: pg.locator('#sh-all').click()
-        j=json.load(open(d.value.path())); rep('10a all',j['kind']=='batch' and len(j['cards'])==5,'%s %d %s'%(j['kind'],len(j['cards']),d.value.suggested_filename))
-        with pg.expect_download() as d: pg.locator('#sh-mine').click()
-        j=json.load(open(d.value.path())); rep('10b mine',j['kind']=='card',j['kind']+' '+d.value.suggested_filename)
+        go(pg,'#/share'); rep('10a share screen removed',pg.locator('#sh-all').count()==0,'')
+        go(pg,'#/sync'); pg.wait_for_timeout(600); rep('10b cloud sync screen',pg.locator('.sync').count()==1,'')
     step('10',t10)
     def t11():
         go(pg,'#/batch')
@@ -194,7 +193,7 @@ with sync_playwright() as p:
         hit(pg,'#theme-btn'); hit(pg,'#theme-btn')   # cycle back
         print('theme end',pg.evaluate("document.documentElement.getAttribute('data-theme')"))
         # overflow check
-        for h in ['#/','#/batch','#/me','#/person/'+MEID,'#/birthdays','#/share','#/print','#/guess','#/about']:
+        for h in ['#/','#/batch','#/me','#/person/'+MEID,'#/birthdays','#/sync','#/print','#/guess','#/about']:
             go(pg,h); ov=pg.evaluate('document.documentElement.scrollWidth-document.documentElement.clientWidth')
             if ov>0: rep('overflow '+h,False,'scrollWidth overflow %d'%ov)
     step('13',t13)
@@ -212,7 +211,7 @@ with sync_playwright() as p:
     xs=set(round(b['x']) for b in [d.locator('.pcard').nth(i).bounding_box() for i in range(d.locator('.pcard').count())])
     nav=d.locator('#sidenav').inner_text().replace('\n',' | ')
     rep('14a multi-col grid',len(xs)>1,'distinct x=%s'%sorted(xs))
-    need=['The batch','My card','Birthdays','Guess who','Share cards','Print sheet']
+    need=['The batch','My card','Birthdays','Guess who','Cloud sync','Print sheet']
     rep('14b sidebar nav',all(n in nav for n in need) and d.locator('#sidenav').is_visible(),nav)
     d.screenshot(path=Q+'batch_1280.png',full_page=True)
     go(d,'#/print'); d.screenshot(path=Q+'print_1280.png',full_page=True)
