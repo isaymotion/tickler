@@ -1819,7 +1819,7 @@
     var e = earned(); if (e[id]) return false;
     e[id] = new Date().toISOString(); store.set('badges', e);
     var me = getMe();
-    if (me) { me.badges = earnedIds(); me.updated = new Date().toISOString(); var cl = sanitizeCard(me); if (cl) store.set('me', cl); }
+    if (me) { me.badges = earnedIds().concat(me.badges || []).filter(function (v, i, l) { return l.indexOf(v) === i; }); me.updated = new Date().toISOString(); var cl = sanitizeCard(me); if (cl) store.set('me', cl); }
     toast(tf('bt.badge.earned', { name: t('bt.badge.' + id) }));
     return true;
   }
@@ -2839,6 +2839,19 @@
     return api.cardsSince(c.code, full ? -1 : (c.lastPull || 0)).then(function (docs) {
       var maxU = c.lastPull || 0, byId = {}, incoming = [], removed = 0;
       getOthers().forEach(function (x) { byId[x.id] = x; });
+      // 1.19.2: my own card, uploaded from my other device (same Google account), becomes My card here when this device has none or an older copy
+      var gotMe = false, mine = docs.filter(function (d) { return d.card && u && d.owner === u.uid; }).sort(function (a, b) { return b.updated - a.updated; })[0];
+      if (mine && (!me || mine.updated > (Date.parse(me.updated) || 0))) {
+        var mc = sanitizeCard(mine.card), msh = mine.shared || {};
+        if (mc) {
+          if (me) PRIV.forEach(function (g) { if (!msh[g]) FIELDS.forEach(function (f) { if (f.group === g && me[f.key] && !mc[f.key]) mc[f.key] = me[f.key]; }); });
+          var eb = earned(); (mc.badges || []).forEach(function (id) { if (!eb[id]) eb[id] = mc.updated; }); store.set('badges', eb);   // badges earned on the other device count here too
+          store.set('me', mc); gotMe = true;
+          cset(function (x) { x.consent = { emergency: !!msh.emergency, contact: !!msh.contact }; x.pushKey = pushKey(mc, x.consent); });
+          if (me && me.id !== mc.id && api.deleteCard) docs.forEach(function (d) { if (d.owner === u.uid && d.id === me.id) api.deleteCard(c.code, d.id).catch(function () {}); });
+          me = mc;
+        }
+      }
       docs.forEach(function (d) {
         if (d.updated > maxU) maxU = d.updated;
         if (!d.card || (u && d.owner === u.uid) || (me && d.id === me.id)) return;
@@ -2854,7 +2867,7 @@
         if (removed) saveOthers(keep);
       }
       cset(function (x) { x.lastPull = maxU; x.syncIds = full ? ids : (x.syncIds || []).concat(ids).filter(function (v, i, a) { return a.indexOf(v) === i; }); if (full) x.lastFull = dayNum(new Date()); });
-      return { added: res.added, updated: res.updated, removed: removed };
+      return { added: res.added, updated: res.updated, removed: removed, me: gotMe };
     });
   }
   function syncEvents(api, c) {
@@ -2894,14 +2907,15 @@
       if (!api.user()) throw { code: 'signed-out' };
       return pushMe(api, c).then(function () {
         if (opts.pushOnly) return (c.evDel || []).length ? syncEvents(api, cst()).then(function () { return null; }) : null;
-        var full = cst().lastFull !== dayNum(new Date());
+        var full = cst().lastFull !== dayNum(new Date()) || !getMe();   // a device without My card looks at every card, so it can find its own
         var info = full || opts.force ? api.getBatch(c.code).then(function (b) { if (b) cset(function (x) { x.name = b.name || x.name; x.tmdbKey = okTmdbKey(b.tmdbKey); }); }).catch(function () {}) : Promise.resolve();
         return info.then(function () { return pullCards(api, cst(), full); }).then(function (r) { return syncEvents(api, cst()).then(function (n) { r.events = n; return r; }); });
       });
     }).then(function (r) {
       cloudBusy = false; again();
       cset(function (x) { if (!opts.pushOnly) x.lastSync = new Date().toISOString(); x.lastErr = ''; });
-      var changed = r && (r.added || r.updated || r.removed || r.events);
+      var changed = r && (r.added || r.updated || r.removed || r.events || r.me);
+      if (r && r.me) { rebuildIndex(); toast(t('bt.sync.gotMe')); if (currentKey() === 'me') route({ keepScroll: true }); }
       if (r && opts.force) syncFlash = changed ? tf('bt.sync.result', { added: r.added, updated: r.updated, removed: r.removed }) : t('bt.sync.upToDate');
       if (changed) { rebuildIndex(); if (SAFE_RERENDER.indexOf(currentKey()) >= 0) route({ keepScroll: true }); else toast(tf('bt.sync.result', { added: r.added, updated: r.updated, removed: r.removed })); }
       else if (currentKey() === 'sync') route({ keepScroll: true });

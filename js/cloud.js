@@ -85,6 +85,7 @@
         var u = me();
         return F.setDoc(d('batches', code, 'cards', card.id), { owner: u.uid, updated: Date.parse(card.updated) || Date.now(), shared: { emergency: !!shared.emergency, contact: !!shared.contact }, card: card });
       },
+      deleteCard: function (code, id) { return F.deleteDoc(d('batches', code, 'cards', id)); },   // owner rule: only my own
       cardsSince: function (code, since) {   // since < 0 = every card (daily full pull)
         var q = since >= 0 ? F.query(col('batches', code, 'cards'), F.where('updated', '>', since)) : col('batches', code, 'cards');
         return F.getDocs(q).then(function (s) { return rows(s).map(function (x) { return { id: x._id, owner: x.owner, updated: x.updated || 0, shared: x.shared || {}, card: x.card }; }); });

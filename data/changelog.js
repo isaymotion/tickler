@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.19.2', date: '2026-11-10', title: 'Your card on all your devices',
+    items: [
+      { type: 'correction', text: 'Signed in with the same Google account on another device (a laptop or second phone)? Cloud sync now brings your own card into My card there, with your sharing choices. Before, it only brought in your batchmates’ cards. Edit on any device; the newest version wins.', href: '#/me' }
+    ]
+  },
+  {
     version: '1.19.1', date: '2026-11-10', title: 'Show info key in Cloud sync',
     items: [
       { type: 'feature', text: 'The admin can now save the TMDB key on Cloud sync. It is kept with the batch in the cloud (not in the app’s public code), and every synced phone then shows a picture and description for the show of the day.' }
