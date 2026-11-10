@@ -106,6 +106,7 @@
      tkey:'nav.x' (label comes from data/strings.js). The "Other apps" group is added after these from window.APP_LINKS. ===== */
   var NAV = [
     { label: 'Home', tkey: 'nav.home', href: '#/', icon: 'home', group: 'Start', tile: false },
+    { label: 'Emergency info', tkey: 'nav.emergency', href: '#/emergency', icon: 'medic', group: 'Screens' },
     { label: 'The batch', tkey: 'nav.batch', href: '#/batch', icon: 'users', group: 'Screens' },
     { label: 'My card', tkey: 'nav.me', href: '#/me', icon: 'card', group: 'Screens' },
     { label: 'Birthdays', tkey: 'nav.birthdays', href: '#/birthdays', icon: 'cake', group: 'Screens' },
@@ -698,7 +699,7 @@
       var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), [].concat.apply([], LISTS.map(function (L) { return listOf(c, L.key).map(function (x) { return x.title; }); }))).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
-    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
+    [['nav.emergency', '#/emergency', 'bt.em.intro'], ['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -956,7 +957,7 @@
         '<p class="form__note"><span class="meter__bar" style="display:block;margin-bottom:6px"><span style="width:' + Math.round(100 * comp.n / comp.total) + '%"></span></span>' + esc(tf('bt.me.complete', comp)) + ' · ' + esc(t('bt.me.completeHint')) + ' <button type="button" class="link-btn" id="me-toggle-all" data-open="1">' + esc(t('bt.me.collapseAll')) + '</button></p>' +
         GROUPS.map(function (g, gi) {
           return '<details class="fgroup"' + (gi === 0 ? ' open' : '') + '><summary><span>' + esc(groupLabel(g)) + '</span><span class="muted fgroup__n" data-group="' + g + '"></span></summary><div class="fgroup__body">' +
-            (g === 'contact' ? '<p class="field__h">' + esc(t('bt.f.contactNote')) + '</p>' : '') +
+            (g === 'contact' ? '<p class="field__h">' + esc(t('bt.f.contactNote')) + '</p>' : g === 'emergency' ? '<p class="field__h">' + esc(t('bt.f.emergencyNote')) + '</p>' : '') +
             subChunks(g).map(function (ch) { return (ch.sub ? '<h3 class="fgroup__sub">' + esc(subLabel(ch.sub)) + '</h3>' : '') + ch.fields.map(function (f) {
               var v = me[f.key] || '';
               var ctl = f.type === 'textarea' ? '<textarea name="' + f.key + '" rows="2" maxlength="' + MAX_TEXT + '">' + esc(v) + '</textarea>'
@@ -2810,6 +2811,88 @@
   ICONS.chart = ICONS.chart || ICONS.list;
   TITLES.quiz = function () { return t('nav.quiz'); };
   TITLES.tcard = function () { return t('bt.tc.title'); };
+
+  /* ===================== 1.16.0: EMERGENCY INFO =====================
+     Group 'emergency' in data/fields.js (blood type, allergies, conditions, two emergency contacts).
+     #/emergency = whole batch (filter by name; me first; people without info listed at the end); #/emergency/<id> = one person.
+     Home: red strip above the stats. Tab bar: Emergency button. Person page: button in the head + section before the footer.
+     #/me/emergency opens My card with that group open. Nothing here is printed or put in QR beyond what fields.js allows. */
+  ICONS.medic = '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8v8M8 12h8"/>';
+  var EM_FIELDS = FIELDS.filter(function (f) { return f.group === 'emergency'; });
+  function hasEm(c) { return !!(c && (c.bloodType || c.allergies || c.dutyConditions || c.emergencyNumber || c.emergencyContact || c.emergencyNumber2 || c.emergencyContact2)); }
+  function emTel(num) {
+    var n = String(num || '').replace(/[^\d+]/g, ''); if (!n) return '';
+    return '<span class="em-acts"><a class="btn em-call" href="tel:' + esc(n) + '">' + icon('phone', 'btn__ico') + esc(t('bt.person.call')) + '</a><a class="btn" href="sms:' + esc(n) + '">' + esc(t('bt.person.text')) + '</a></span>';
+  }
+  function emLine(k, v, extra) { return '<div class="em-line"><span class="em-line__k">' + esc(k) + '</span><span class="em-line__v">' + v + '</span>' + (extra || '') + '</div>'; }
+  function emContact(name, rel, num) {
+    if (!name && !num) return '';
+    return emLine(t('bt.em.contact'), esc(name || '—') + (rel ? ' <span class="muted">(' + esc(rel) + ')</span>' : '') + (num ? '<br><span class="em-num">' + esc(num) + '</span>' : ''), emTel(num));
+  }
+  function emBody(c) {
+    return '<div class="em-body">' +
+      emLine(t('bt.em.allergies'), c.allergies ? '<strong class="em-alert">' + esc(c.allergies) + '</strong>' : '<span class="muted">' + esc(t('bt.em.noAllergy')) + '</span>') +
+      (c.dutyConditions ? emLine(t('bt.em.conditions'), esc(c.dutyConditions).replace(/\n/g, '<br>')) : '') +
+      (c.phone ? emLine(t('bt.em.own'), '<span class="em-num">' + esc(c.phone) + '</span>', emTel(c.phone)) : '') +
+      emContact(c.emergencyContact, c.emergencyRelation, c.emergencyNumber) +
+      emContact(c.emergencyContact2, c.emergencyRelation2, c.emergencyNumber2) + '</div>';
+  }
+  function emBlood(c) { return '<span class="em-blood' + (c.bloodType ? '' : ' em-blood--none') + '" title="' + esc(t('bt.em.blood')) + '"><small>' + esc(t('bt.em.blood')) + '</small>' + esc(c.bloodType || '—') + '</span>'; }
+  function emCard(c) {
+    return '<section class="card em-card" data-name="' + esc((c.name + ' ' + (c.nickname || '') + ' ' + (c.preferredName || '')).toLowerCase()) + '">' +
+      '<header class="em-card__head"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div class="em-card__who"><h3><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>' + (isMe(c) ? ' <span class="em-tag">' + esc(t('bt.em.yours')) + '</span>' : '') + '</h3>' + (c.nickname ? '<p class="muted">“' + esc(c.nickname) + '”</p>' : '') + '</div>' + emBlood(c) + '</header>' + emBody(c) +
+      (isMe(c) ? '<p class="em-card__edit"><a class="link-btn" href="#/me/emergency">' + esc(t('bt.em.edit')) + '</a></p>' : '') + '</section>';
+  }
+  VIEWS.emergency = function (id) {
+    var all = people(), me = getMe(), one = id ? findPerson(String(id)) : null;
+    var head = '<header class="page__head"><h1>' + icon('medic', 'page__ico em-ico') + esc(t('nav.emergency')) + '</h1><p>' + esc(t('bt.em.intro')) + '</p></header>' +
+      '<div class="callout callout--caution em-911"><p>' + esc(t('bt.em.note')) + '</p><p style="margin:0"><a class="btn btn--solid em-911__btn" href="tel:911">' + icon('phone', 'btn__ico') + esc(t('bt.em.call911')) + '</a></p></div>';
+    if (one) return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head + emCard(one) + '<p><a class="btn" href="#/emergency">' + icon('users', 'btn__ico') + esc(t('bt.em.all')) + '</a></p></div>';
+    if (!all.length) return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head + '<div class="empty"><p>' + esc(t('bt.em.none')) + '</p><p><a class="btn btn--solid" href="#/me/emergency">' + esc(t('nav.me')) + '</a> <a class="btn" href="#/share">' + esc(t('bt.share.importBtn')) + '</a></p></div></div>';
+    var withInfo = all.filter(hasEm).sort(function (a, b) { return (isMe(b) ? 1 : 0) - (isMe(a) ? 1 : 0) || byName(a, b); });
+    var without = all.filter(function (c) { return !hasEm(c) && !isMe(c); });
+    return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head +
+      (!me || !hasEm(me) ? '<div class="callout"><p class="callout__title">' + esc(t('bt.em.add')) + '</p><p style="margin:0 0 10px">' + esc(t('bt.em.addText')) + '</p><a class="btn btn--solid" href="#/me/emergency">' + esc(t('bt.em.add')) + '</a></div>' : '') +
+      (withInfo.length > 3 ? '<div class="toolbar"><label class="field field--inline"><span class="sr-only">' + esc(t('bt.em.filter')) + '</span><input type="search" id="em-q" placeholder="' + esc(t('bt.em.filter')) + '" autocomplete="off"></label></div>' : '') +
+      '<div class="em-grid">' + withInfo.map(emCard).join('') + '</div><p class="empty" id="em-nomatch" hidden>' + esc(t('bt.em.noMatch')) + '</p>' +
+      (without.length ? '<h2>' + esc(t('bt.em.missing')) + '</h2><p class="muted">' + esc(t('bt.em.missingText')) + '</p><p>' + without.map(function (c) { return '<a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>'; }).join(', ') + '</p>' : '') +
+      '</div>';
+  };
+  AFTER.emergency = function () {
+    var q = document.getElementById('em-q'); if (!q) return;
+    q.addEventListener('input', function () {
+      var v = q.value.trim().toLowerCase(), cards = document.querySelectorAll('.em-card'), n = 0;
+      for (var i = 0; i < cards.length; i++) { var on = !v || cards[i].getAttribute('data-name').indexOf(v) >= 0; cards[i].hidden = !on; if (on) n++; }
+      document.getElementById('em-nomatch').hidden = n > 0;
+    });
+  };
+  TITLES.emergency = function () { return t('nav.emergency'); };
+  (function () {
+    var home0 = VIEWS.home;
+    VIEWS.home = function () {
+      var html = home0.apply(null, arguments), all = people(), me = getMe();
+      if (!all.length) return html;
+      var n = all.filter(hasEm).length;
+      var strip = '<a class="card em-strip" href="#/emergency">' + icon('medic', 'em-strip__ico') + '<span class="em-strip__t"><strong>' + esc(t('nav.emergency')) + '</strong><span>' + esc(n === 1 ? t('bt.em.homeS1') : tf('bt.em.homeSN', { n: n })) + '</span></span>' + (me && !hasEm(me) ? '<span class="em-tag em-strip__add">' + esc(t('bt.em.homeAdd')) + '</span>' : '') + '</a>';
+      return html.replace('<div class="home__stats">', strip + '<div class="home__stats">');
+    };
+    var person0 = VIEWS.person;
+    VIEWS.person = function (id) {
+      var html = person0.apply(null, arguments), c = findPerson(String(id || ''));
+      if (!c || !hasEm(c)) return html;
+      html = html.replace('<p class="person__acts">', '<p class="person__acts"><a class="btn em-btn" href="#/emergency/' + encodeURIComponent(c.id) + '">' + icon('medic', 'btn__ico') + esc(t('nav.emergency')) + '</a>');
+      var sec = '<h2>' + esc(groupLabel('emergency')) + '</h2><div class="card em-card em-card--inline"><header class="em-card__head">' + emBlood(c) + '</header>' + emBody(c) + '</div>';
+      var i = html.lastIndexOf('<p class="person__foot');
+      return i < 0 ? html + sec : html.slice(0, i) + sec + html.slice(i);
+    };
+    var me0 = AFTER.me;
+    AFTER.me = function (arg) {
+      me0.apply(null, arguments);
+      if (arg !== 'emergency') return;
+      var n = document.querySelector('.fgroup__n[data-group="emergency"]'), d = n && n.closest('details');
+      if (d) { d.open = true; setTimeout(function () { d.scrollIntoView({ block: 'start' }); var f = d.querySelector('input,textarea'); if (f) f.focus({ preventScroll: true }); }, 60); }
+    };
+  })();
 
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();

@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.16.0', date: '2026-11-10', title: 'Emergency info, one tap away',
+    items: [
+      { type: 'feature', text: 'New Emergency info screen: everyone’s blood type, allergies, conditions, own number and emergency contacts in one place, with Call and Text buttons and a Call 911 button. Works offline.', href: '#/emergency' },
+      { type: 'feature', text: 'Emergency is on the bottom bar on phones, first in the menu, and a red strip on Home shows how many batchmates have filled it in.' },
+      { type: 'update', text: 'My card has a new “Emergency & medical” section near the top (moved out of Contact & practical), plus a relationship field for the second emergency contact.', href: '#/me/emergency' },
+      { type: 'update', text: 'Each person’s page has an Emergency info button and its own Emergency & medical section. Still never on the printed sheet or name tags.' }
+    ]
+  },
+  {
     version: '1.15.1',
     date: '2026-11-10',
     title: 'Home-screen name is now Batch Tickler',

@@ -3,7 +3,7 @@
    (contact, allergies, emergency contact, social handles stay in-app only).
    Name, birthday and photo are handled separately in the edit form; the list below is the free-text part of the card.
    Adding a field: one line here + 'bt.f.<key>' in both languages in data/strings.js. Old cards simply have it empty. */
-window.CARD_GROUPS = ['basics', 'background', 'favourites', 'life', 'contact'];
+window.CARD_GROUPS = ['basics', 'emergency', 'background', 'favourites', 'life', 'contact'];
 /* Sub-sections inside a group (labels: bt.s.<sub>), in display order. Fields carry sub: '<key>'. */
 window.CARD_SUBS = { favourites: ['screen', 'play', 'words', 'food', 'little', 'medschool'], life: ['everyday', 'growingup', 'you', 'horizons', 'residency', 'fun'] };
 
@@ -16,6 +16,15 @@ window.CARD_FIELDS = [
   { key: 'commute',         group: 'basics',      type: 'text',     print: false, icon: 'pin' },
   { key: 'languages',       group: 'basics',      type: 'text',     print: true,  icon: 'chat' },
   { key: 'askMe',           group: 'basics',      type: 'text',     print: true,  icon: 'chat', hint: true },
+  { key: 'bloodType',       group: 'emergency',     type: 'text',     print: false, icon: 'heart' },
+  { key: 'allergies',       group: 'emergency',     type: 'text',     print: false, icon: 'food' },
+  { key: 'dutyConditions',  group: 'emergency',     type: 'textarea', print: false, icon: 'heart', qr: false },
+  { key: 'emergencyContact',group: 'emergency',     type: 'text',     print: false, icon: 'phone' },
+  { key: 'emergencyRelation',group: 'emergency',    type: 'text',     print: false, icon: 'users' },
+  { key: 'emergencyNumber', group: 'emergency',     type: 'tel',      print: false, icon: 'phone' },
+  { key: 'emergencyContact2',group: 'emergency',    type: 'text',     print: false, icon: 'phone' },
+  { key: 'emergencyRelation2',group: 'emergency',  type: 'text',     print: false, icon: 'users' },
+  { key: 'emergencyNumber2',group: 'emergency',     type: 'tel',      print: false, icon: 'phone' },
   { key: 'medSchool',       group: 'background',  type: 'text',     print: true,  icon: 'school' },
   { key: 'internship',      group: 'background',  type: 'text',     print: true,  icon: 'school' },
   { key: 'gradYear',        group: 'background',  type: 'year',     print: true,  icon: 'school' },
@@ -133,14 +142,6 @@ window.CARD_FIELDS = [
   { key: 'shirtSize',       group: 'contact',     type: 'text',     print: false, icon: 'tag' },
   { key: 'scrubSize',       group: 'contact',     type: 'text',     print: false, icon: 'tag' },
   { key: 'shoeSize',        group: 'contact',     type: 'text',     print: false, icon: 'tag' },
-  { key: 'bloodType',       group: 'contact',     type: 'text',     print: false, icon: 'heart' },
-  { key: 'allergies',       group: 'contact',     type: 'text',     print: false, icon: 'food' },
-  { key: 'dutyConditions',  group: 'contact',     type: 'textarea', print: false, icon: 'heart', qr: false },
-  { key: 'emergencyContact',group: 'contact',     type: 'text',     print: false, icon: 'phone' },
-  { key: 'emergencyNumber', group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
-  { key: 'emergencyRelation',group: 'contact',    type: 'text',     print: false, icon: 'users' },
-  { key: 'emergencyContact2',group: 'contact',    type: 'text',     print: false, icon: 'phone' },
-  { key: 'emergencyNumber2',group: 'contact',     type: 'tel',      print: false, icon: 'phone' },
   { key: 'prcExpiry',       group: 'contact',     type: 'month',    print: false, icon: 'calendar', hint: true },
   { key: 'licenceExpiry',   group: 'contact',     type: 'month',    print: false, icon: 'calendar', hint: true },
   { key: 'passportExpiry',  group: 'contact',     type: 'month',    print: false, icon: 'calendar', hint: true }

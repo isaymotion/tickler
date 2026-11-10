@@ -602,6 +602,33 @@ window.STRINGS = {
     'bt.f.dutyConditions': 'Conditions to be aware of on duty (optional)',
     'bt.f.emergencyNumber': 'Emergency contact number',
     'bt.f.emergencyRelation': 'Emergency contact relationship',
+    'nav.emergency': "Emergency info",
+    'nav.emergencyShort': "Emergency",
+    'bt.g.emergency': "Emergency & medical",
+    'bt.f.emergencyRelation2': "Second emergency contact relationship",
+    'bt.f.emergencyNote': "Shown on the Emergency info screen of everyone you share your card with. Never on the printed sheet or name tags, and conditions never go in QR codes.",
+    'bt.em.intro': "Blood types, allergies, conditions and emergency contacts for the whole batch in one place. Works offline.",
+    'bt.em.note': "From the cards people chose to share with this phone. In a real emergency, call for help first.",
+    'bt.em.call911': "Call 911",
+    'bt.em.filter': "Find a batchmate",
+    'bt.em.yours': "You",
+    'bt.em.add': "Add your emergency info",
+    'bt.em.addText': "Your card has no blood type, allergies or emergency contact yet. It takes a minute, and it helps the batch help you.",
+    'bt.em.edit': "Edit my emergency info",
+    'bt.em.blood': "Blood type",
+    'bt.em.allergies': "Allergies",
+    'bt.em.noAllergy': "None listed",
+    'bt.em.conditions': "Conditions",
+    'bt.em.own': "Own number",
+    'bt.em.contact': "Emergency contact",
+    'bt.em.missing': "No emergency info yet",
+    'bt.em.missingText': "Ask them to fill in Emergency & medical on their card and share it again.",
+    'bt.em.none': "No cards yet. Add yours, then import your batchmates’ cards.",
+    'bt.em.noMatch': "No one matches.",
+    'bt.em.homeS1': "1 batchmate · blood types, allergies, emergency contacts",
+    'bt.em.homeSN': "{n} batchmates · blood types, allergies, emergency contacts",
+    'bt.em.homeAdd': "Add yours",
+    'bt.em.all': "Whole batch",
     'bt.f.emergencyContact2': 'Second emergency contact',
     'bt.f.emergencyNumber2': 'Second emergency contact number',
     'bt.f.prcExpiry': 'PRC licence expiry (month)',
@@ -1538,6 +1565,33 @@ window.STRINGS = {
     'bt.f.dutyConditions': 'Mga kondisyong dapat malaman habang naka-duty (opsyonal)',
     'bt.f.emergencyNumber': 'Numero ng emergency contact',
     'bt.f.emergencyRelation': 'Relasyon sa emergency contact',
+    'nav.emergency': "Emergency info",  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.emergencyShort': "Emergency",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.g.emergency': "Emergency at medikal",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.f.emergencyRelation2': "Relasyon sa pangalawang emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.f.emergencyNote': "Makikita sa Emergency info ng lahat ng binigyan mo ng card mo. Hindi kailanman sa printed sheet o name tag, at ang mga kondisyon ay hindi kailanman sa QR code.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.intro': "Blood type, allergy, kondisyon at emergency contact ng buong batch sa iisang lugar. Gumagana kahit offline.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.note': "Mula sa mga card na piniling ibahagi sa phone na ito. Sa tunay na emergency, tumawag muna ng tulong.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.call911': "Tumawag sa 911",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.filter': "Hanapin ang ka-batch",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.yours': "Ikaw",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.add': "Ilagay ang emergency info mo",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.addText': "Wala pang blood type, allergy o emergency contact sa card mo. Isang minuto lang, at makakatulong ito para matulungan ka ng batch.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.edit': "I-edit ang emergency info ko",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.blood': "Blood type",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.allergies': "Allergy",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.noAllergy': "Walang nakalista",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.conditions': "Mga kondisyon",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.own': "Sariling numero",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.contact': "Emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.missing': "Wala pang emergency info",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.missingText': "Pakiusapan silang punan ang Emergency at medikal sa card nila at ibahagi ulit.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.none': "Wala pang card. Ilagay ang sa iyo, saka i-import ang mga card ng ka-batch mo.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.noMatch': "Walang tumugma.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.homeS1': "1 ka-batch · blood type, allergy, emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.homeSN': "{n} ka-batch · blood type, allergy, emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.homeAdd': "Ilagay ang sa iyo",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.all': "Buong batch",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.f.emergencyContact2': 'Pangalawang emergency contact',
     'bt.f.emergencyNumber2': 'Numero ng pangalawang emergency contact',
     'bt.f.prcExpiry': 'Pag-expire ng PRC license (buwan)',
