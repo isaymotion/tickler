@@ -211,7 +211,7 @@ with sync_playwright() as p:
     xs=set(round(b['x']) for b in [d.locator('.pcard').nth(i).bounding_box() for i in range(d.locator('.pcard').count())])
     nav=d.locator('#sidenav').inner_text().replace('\n',' | ')
     rep('14a multi-col grid',len(xs)>1,'distinct x=%s'%sorted(xs))
-    need=['The batch','My card','Birthdays','Guess who','Cloud sync','Print sheet']
+    need=['The batch','My card','Birthdays','Guess who','Cloud sync','Print & PDF']
     rep('14b sidebar nav',all(n in nav for n in need) and d.locator('#sidenav').is_visible(),nav)
     d.screenshot(path=Q+'batch_1280.png',full_page=True)
     go(d,'#/print'); d.screenshot(path=Q+'print_1280.png',full_page=True)
