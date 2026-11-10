@@ -108,6 +108,7 @@
     { label: 'Home', tkey: 'nav.home', href: '#/', icon: 'home', group: 'Start', tile: false },
     { label: 'Emergency info', tkey: 'nav.emergency', href: '#/emergency', icon: 'medic', group: 'Screens' },
     { label: 'The batch', tkey: 'nav.batch', href: '#/batch', icon: 'users', group: 'Screens' },
+    { label: 'Partners', tkey: 'nav.partners', href: '#/partners', icon: 'heart', group: 'Screens' },
     { label: 'My card', tkey: 'nav.me', href: '#/me', icon: 'card', group: 'Screens' },
     { label: 'Birthdays', tkey: 'nav.birthdays', href: '#/birthdays', icon: 'cake', group: 'Screens' },
     { label: 'Hometown map', tkey: 'nav.map', href: '#/map', icon: 'pin', group: 'Screens' },
@@ -619,6 +620,8 @@
     out.shoutouts = (Array.isArray(c.shoutouts) ? c.shoutouts : []).map(function (x) { return x && typeof x === 'object' ? { to: cleanText(x.to, 40), name: cleanText(x.name, 80), text: cleanText(x.text, 280), date: cleanText(x.date, 30) } : null; }).filter(function (x) { return x && x.text && (x.to || x.name); }).slice(-30);
     out.badges = (Array.isArray(c.badges) ? c.badges : []).filter(function (b, i, a) { return typeof b === 'string' && /^[a-z0-9]{2,20}$/.test(b) && a.indexOf(b) === i; }).slice(0, 40);
     sanitizeFun(c, out);
+    out.partnerOf = String(c.partnerOf || '').replace(/[^\w-]/g, '').slice(0, 40); out.partnerName = cleanText(c.partnerName, 80);
+    if (out.partnerOf === out.id) out.partnerOf = '';
     out.lists = {};
     LISTS.forEach(function (L) { if (L.key === 'netflix') return; var v = cleanList(L, c.lists && typeof c.lists === 'object' ? c.lists[L.key] : null); if (v.length) out.lists[L.key] = v; });
     out.custom = (Array.isArray(c.custom) ? c.custom : []).map(function (x) {
@@ -674,13 +677,16 @@
   function getMe() { return sanitizeCard(store.get('me', null)); }
   function getOthers() { var a = store.get('batch', []); return (Array.isArray(a) ? a : []).map(sanitizeCard).filter(Boolean); }
   function saveOthers(list) { store.set('batch', list); rebuildIndex(); }
-  function people() {   // everyone, me included, sorted by name
+  function allCards() {   // everyone incl. partner cards (1.17.0), me included, sorted by name
     var me = getMe(), list = getOthers().filter(function (o) { return !me || o.id !== me.id; });
     if (me) list.push(me);
     return list.sort(byName);
   }
+  function isPartner(c) { return !!(c && (c.partnerOf || c.partnerName)); }
+  function people() { return allCards().filter(function (c) { return !isPartner(c); }); }   // residents only: games, stats, grid, map…
+  function partners() { return allCards().filter(isPartner); }
   function byName(a, b) { return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }); }
-  function findPerson(id) { var l = people(); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function findPerson(id) { var l = allCards(); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
   function isMe(c) { var me = getMe(); return !!(me && c && me.id === c.id); }
   function initials(name) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
   function monthName(m) { if (lang === 'tl') { var d = new Date(2000, m - 1, 1); try { return d.toLocaleDateString('fil', { month: 'long' }); } catch (e) {} } return MONTHS_EN[m - 1] || ''; }
@@ -695,11 +701,11 @@
   function ageOn(c, year) { return c.byear ? year - c.byear : 0; }
   function rebuildIndex() {
     SEARCH_INDEX.length = 0;
-    people().forEach(function (c) {
+    allCards().forEach(function (c) {
       var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), [].concat.apply([], LISTS.map(function (L) { return listOf(c, L.key).map(function (x) { return x.title; }); }))).filter(Boolean).join(' · ');
-      SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
+      SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t(isPartner(c) ? 'nav.partners' : 'nav.batch') });
     });
-    [['nav.emergency', '#/emergency', 'bt.em.intro'], ['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
+    [['nav.emergency', '#/emergency', 'bt.em.intro'], ['nav.partners', '#/partners', 'bt.pt.intro'], ['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -824,7 +830,7 @@
         '<p class="hero__lead">' + esc(META.tagline || '') + ' · ' + esc(HOSP.program || '') + '</p>' +
         '<p><a class="btn btn--solid" href="' + (me ? '#/batch' : '#/me') + '">' + esc(t(me ? 'bt.hero.ctaDone' : 'bt.hero.cta')) + '</a></p>' +
       '</div></section>' +
-      '<div class="wrap home">' + birthdayBanner(all, today) +
+      '<div class="wrap home">' + birthdayBanner(allCards(), today) +
         '<div class="home__stats">' +
           '<div class="card stat"><span class="stat__n">' + all.length + '</span><span class="stat__t">' + esc(tf(all.length === 1 ? 'bt.home.count1' : 'bt.home.countN', { n: all.length }).replace(/^\d+\s*/, '')) + '</span>' + (!me ? '<a class="link-btn" href="#/me">' + esc(t('bt.home.noMe')) + '</a>' : '') + '</div>' +
           (next ? '<a class="card stat stat--link" href="#/person/' + encodeURIComponent(next.c.id) + '">' + icon('cake', 'stat__ico') + '<span class="stat__t">' + esc(t('bt.home.nextBirthday')) + '</span><span class="stat__name">' + esc(next.c.name) + '</span><span class="stat__sub">' + esc(bdayText(next.c)) + ' · ' + esc(next.d === 0 ? t('bt.home.today') : next.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: next.d })) + '</span></a>' : '') + residencyStat(today) + nextEventStat(today) +
@@ -953,7 +959,7 @@
         '<fieldset class="field fieldset"><legend class="field__l">' + esc(t('bt.me.birthday')) + ' *</legend><div class="field__row">' +
           sel('bmonth', t('bt.me.month'), months, me.bmonth) + sel('bday', t('bt.me.day'), days, me.bday) +
           '<label class="field field--sm"><span class="field__l">' + esc(t('bt.me.year')) + ' *</span><input name="byear" type="number" inputmode="numeric" min="1900" max="2100" placeholder="1998" value="' + (me.byear || '') + '"></label>' +
-        '</div></fieldset>' +
+        '</div></fieldset>' + partnerFieldset(me) +
         '<p class="form__note"><span class="meter__bar" style="display:block;margin-bottom:6px"><span style="width:' + Math.round(100 * comp.n / comp.total) + '%"></span></span>' + esc(tf('bt.me.complete', comp)) + ' · ' + esc(t('bt.me.completeHint')) + ' <button type="button" class="link-btn" id="me-toggle-all" data-open="1">' + esc(t('bt.me.collapseAll')) + '</button></p>' +
         GROUPS.map(function (g, gi) {
           return '<details class="fgroup"' + (gi === 0 ? ' open' : '') + '><summary><span>' + esc(groupLabel(g)) + '</span><span class="muted fgroup__n" data-group="' + g + '"></span></summary><div class="fgroup__body">' +
@@ -1077,6 +1083,12 @@
       c.photo = pendingPhoto === null ? (old.photo || '') : pendingPhoto;
       c.shoutouts = old.shoutouts || []; c.badges = earnedIds();
       FUN_KEYS.forEach(function (k) { if (old[k] !== undefined) c[k] = old[k]; });
+      var role = form.querySelector('input[name="cardRole"]:checked');
+      if (role && role.value === 'partner') {
+        var po = form.elements.partnerOf ? form.elements.partnerOf.value : '', pr = po ? findPerson(po) : null, pn = cleanText(form.elements.partnerName ? form.elements.partnerName.value : '', 80);
+        if (!pr && !pn) { say(t('bt.pt.needWho'), true); (form.elements.partnerOf || form.elements.partnerName).focus(); return; }
+        c.partnerOf = pr ? pr.id : ''; c.partnerName = pr ? pr.name : pn;
+      } else { c.partnerOf = ''; c.partnerName = ''; }
       c.updated = new Date().toISOString();
       var clean = sanitizeCard(c);
       if (!clean) { say(t('bt.me.needName'), true); return; }
@@ -1090,7 +1102,7 @@
 
   /* ---- Birthdays ---- */
   VIEWS.birthdays = function () {
-    var today = new Date(), all = people();
+    var today = new Date(), all = allCards();
     var dated = all.filter(function (c) { return c.bmonth; }).map(function (c) { return { c: c, d: daysUntil(c, today) }; }).sort(function (a, b) { return a.d - b.d || byName(a.c, b.c); });
     var undated = all.filter(function (c) { return !c.bmonth; });
     var groups = [], seen = {};
@@ -1107,7 +1119,7 @@
           return '<h2>' + esc(g.label) + '</h2><div class="bdlist">' + g.items.map(function (x) {
             var c = x.c, yr = today.getFullYear() + (x.d > 0 && (c.bmonth < today.getMonth() + 1 || (c.bmonth === today.getMonth() + 1 && c.bday < today.getDate())) ? 1 : 0);
             return '<a class="row bdrow' + (x.d === 0 ? ' is-today' : '') + '" href="#/person/' + encodeURIComponent(c.id) + '"><span class="bdrow__date"><span class="bdrow__d">' + c.bday + '</span><span class="bdrow__m">' + esc(monthName(c.bmonth).slice(0, 3)) + '</span></span>' +
-              '<span><h3>' + esc(c.name) + '</h3><p>' + esc(x.d === 0 ? t('bt.home.today') : x.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: x.d })) + (c.byear ? ' · ' + esc(tf('bt.person.turns', { n: ageOn(c, yr) })) : '') + '</p></span>' + avatar(c, 'avatar--sm') + '</a>';
+              '<span><h3>' + esc(c.name) + (isPartner(c) ? ' <span class="em-tag">' + esc(t('bt.pt.tag')) + '</span>' : '') + '</h3><p>' + esc(x.d === 0 ? t('bt.home.today') : x.d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: x.d })) + (c.byear ? ' · ' + esc(tf('bt.person.turns', { n: ageOn(c, yr) })) : '') + '</p></span>' + avatar(c, 'avatar--sm') + '</a>';
           }).join('') + '</div>';
         }).join('')) +
       (undated.length ? '<h2>' + esc(t('bt.bd.noDate')) + '</h2><p class="muted">' + undated.map(function (c) { return esc(c.name); }).join(', ') + '</p>' : '') +
@@ -1116,7 +1128,7 @@
 
   AFTER.birthdays = function () {
     var b = document.getElementById('cal-all'); if (!b) return;
-    b.addEventListener('click', function () { icsOut(people(), 'batch-birthdays.ics', function (m) { var st = document.getElementById('cal-status'); if (st) st.textContent = m; }); });
+    b.addEventListener('click', function () { icsOut(allCards(), 'batch-birthdays.ics', function (m) { var st = document.getElementById('cal-status'); if (st) st.textContent = m; }); });
   };
 
   /* ---- Share cards: card files in and out ---- */
@@ -1162,7 +1174,7 @@
     return res;
   }
   VIEWS.share = function () {
-    var me = getMe(), n = people().length;
+    var me = getMe(), n = allCards().length;
     function block(title, text, action) { return '<section class="card share__blk"><h2>' + esc(t(title)) + '</h2><p>' + esc(t(text)) + '</p>' + action + '</section>'; }
     return '<div class="wrap page share">' + crumb(t('nav.share')) +
       '<header class="page__head"><h1>' + esc(t('nav.share')) + '</h1><p>' + esc(t('bt.share.intro')) + '</p></header>' +
@@ -1190,7 +1202,7 @@
       fileOut({ app: CARD_APP, kind: 'card', format: 1, exported: new Date().toISOString(), card: me }, 'batch-card-' + slug(me.name) + '.json', 'bt.share.mine', say);
     });
     if (all) all.addEventListener('click', function () {
-      var l = people(); if (!l.length) { say(t('bt.share.allEmpty'), true); return; }
+      var l = allCards(); if (!l.length) { say(t('bt.share.allEmpty'), true); return; }
       var d = new Date();
       fileOut({ app: CARD_APP, kind: 'batch', format: 1, exported: d.toISOString(), cards: l, events: storedEvents() }, 'batch-cards-' + d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + '.json', 'bt.share.all', say);
     });
@@ -1204,8 +1216,8 @@
         if ((!cards || !cards.length) && !evN) { say(t('bt.share.notCards'), true); return; }
         var res = mergeCards(cards || []);
         say(tf('bt.share.result', res) + (res.skipped && getMe() ? ' ' + t('bt.share.skippedMe') : '') + (evN ? ' ' + tf('bt.ev.imported', { n: evN }) : ''));
-        var n = document.querySelector('#sh-all + .muted'); if (n) n.textContent = tf('bt.share.ownAll', { n: people().length });
-        var ab = document.getElementById('sh-all'); if (ab) ab.disabled = !people().length;
+        var n = document.querySelector('#sh-all + .muted'); if (n) n.textContent = tf('bt.share.ownAll', { n: allCards().length });
+        var ab = document.getElementById('sh-all'); if (ab) ab.disabled = !allCards().length;
       };
       r.readAsText(f);
     });
@@ -1363,6 +1375,7 @@
   function qrPayload(c) {
     var keys = ['id', 'name', 'bmonth', 'bday', 'byear', 'updated'], total = 0, kept = 0;
     var base = {}; keys.forEach(function (k) { base[k] = c[k]; });
+    if (c.partnerOf) base.partnerOf = c.partnerOf; if (c.partnerName) base.partnerName = c.partnerName;   // 1.17.0: partner link always travels
     var fs = FIELDS.filter(function (f) { return c[f.key] && f.qr !== false; }); total = fs.length + (c.custom.length ? 1 : 0);
     var out = JSON.parse(JSON.stringify(base));
     for (var i = 0; i < fs.length; i++) {
@@ -2041,7 +2054,7 @@
   /* ---- Shoutouts (card.shoutouts on the sender's card) ---- */
   function shoutsFor(c) {
     var out = [];
-    people().forEach(function (from) { (from.shoutouts || []).forEach(function (s, i) { if (s.to === c.id || (s.name && s.name.toLowerCase() === c.name.toLowerCase())) out.push({ from: from, s: s, i: i }); }); });
+    allCards().forEach(function (from) { (from.shoutouts || []).forEach(function (s, i) { if (s.to === c.id || (s.name && s.name.toLowerCase() === c.name.toLowerCase())) out.push({ from: from, s: s, i: i }); }); });
     return out.sort(function (a, b) { return String(b.s.date).localeCompare(String(a.s.date)); });
   }
   function shoutSection(c) {
@@ -2548,7 +2561,7 @@
   }
   function wallFor(c) {
     var out = [];
-    people().forEach(function (from) { (from.bwall || []).forEach(function (s, i) { if (s.to === c.id || (s.name && s.name.toLowerCase() === c.name.toLowerCase())) out.push({ from: from, s: s, i: i }); }); });
+    allCards().forEach(function (from) { (from.bwall || []).forEach(function (s, i) { if (s.to === c.id || (s.name && s.name.toLowerCase() === c.name.toLowerCase())) out.push({ from: from, s: s, i: i }); }); });
     return out.sort(function (a, b) { return String(a.s.date).localeCompare(String(b.s.date)); });
   }
   function wallOpen(c, x, today) { var lb = lastBirthday(c, today); return !!lb && new Date(x.s.date) < new Date(lb.getTime() + 864e5); }
@@ -2852,7 +2865,7 @@
     var withInfo = all.filter(hasEm).sort(function (a, b) { return (isMe(b) ? 1 : 0) - (isMe(a) ? 1 : 0) || byName(a, b); });
     var without = all.filter(function (c) { return !hasEm(c) && !isMe(c); });
     return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head +
-      (!me || !hasEm(me) ? '<div class="callout"><p class="callout__title">' + esc(t('bt.em.add')) + '</p><p style="margin:0 0 10px">' + esc(t('bt.em.addText')) + '</p><a class="btn btn--solid" href="#/me/emergency">' + esc(t('bt.em.add')) + '</a></div>' : '') +
+      (!me || (!hasEm(me) && !isPartner(me)) ? '<div class="callout"><p class="callout__title">' + esc(t('bt.em.add')) + '</p><p style="margin:0 0 10px">' + esc(t('bt.em.addText')) + '</p><a class="btn btn--solid" href="#/me/emergency">' + esc(t('bt.em.add')) + '</a></div>' : '') +
       (withInfo.length > 3 ? '<div class="toolbar"><label class="field field--inline"><span class="sr-only">' + esc(t('bt.em.filter')) + '</span><input type="search" id="em-q" placeholder="' + esc(t('bt.em.filter')) + '" autocomplete="off"></label></div>' : '') +
       '<div class="em-grid">' + withInfo.map(emCard).join('') + '</div><p class="empty" id="em-nomatch" hidden>' + esc(t('bt.em.noMatch')) + '</p>' +
       (without.length ? '<h2>' + esc(t('bt.em.missing')) + '</h2><p class="muted">' + esc(t('bt.em.missingText')) + '</p><p>' + without.map(function (c) { return '<a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>'; }).join(', ') + '</p>' : '') +
@@ -2873,7 +2886,7 @@
       var html = home0.apply(null, arguments), all = people(), me = getMe();
       if (!all.length) return html;
       var n = all.filter(hasEm).length;
-      var strip = '<a class="card em-strip" href="#/emergency">' + icon('medic', 'em-strip__ico') + '<span class="em-strip__t"><strong>' + esc(t('nav.emergency')) + '</strong><span>' + esc(n === 1 ? t('bt.em.homeS1') : tf('bt.em.homeSN', { n: n })) + '</span></span>' + (me && !hasEm(me) ? '<span class="em-tag em-strip__add">' + esc(t('bt.em.homeAdd')) + '</span>' : '') + '</a>';
+      var strip = '<a class="card em-strip" href="#/emergency">' + icon('medic', 'em-strip__ico') + '<span class="em-strip__t"><strong>' + esc(t('nav.emergency')) + '</strong><span>' + esc(n === 1 ? t('bt.em.homeS1') : tf('bt.em.homeSN', { n: n })) + '</span></span>' + (me && !hasEm(me) && !isPartner(me) ? '<span class="em-tag em-strip__add">' + esc(t('bt.em.homeAdd')) + '</span>' : '') + '</a>';
       return html.replace('<div class="home__stats">', strip + '<div class="home__stats">');
     };
     var person0 = VIEWS.person;
@@ -2891,6 +2904,70 @@
       if (arg !== 'emergency') return;
       var n = document.querySelector('.fgroup__n[data-group="emergency"]'), d = n && n.closest('details');
       if (d) { d.open = true; setTimeout(function () { d.scrollIntoView({ block: 'start' }); var f = d.querySelector('input,textarea'); if (f) f.focus({ preventScroll: true }); }, 60); }
+    };
+  })();
+
+  /* ===================== 1.17.0: PARTNER (JOWA/ASAWA) CARDS — option B =====================
+     A card with partnerOf (resident id) or partnerName (typed, matched by name) is a partner card. people() = residents only,
+     so partners stay out of games, stats, superlatives, Wrapped, Kris Kringle, map, emergency and the batch grid.
+     allCards() = everyone: used by findPerson, search, Birthdays (+ .ics), birthday banner, sharing, shoutouts/birthday wall.
+     Partners show on their resident's page (section after the header), on #/partners, and say "Partner of X" on their own page. */
+  function resolveResident(c) {
+    if (!isPartner(c)) return null;
+    var r = c.partnerOf ? findPerson(c.partnerOf) : null;
+    if (r && !isPartner(r)) return r;
+    var n = (c.partnerName || '').toLowerCase(); if (!n) return null;
+    var l = people(); for (var i = 0; i < l.length; i++) if (l[i].name.toLowerCase() === n) return l[i];
+    return null;
+  }
+  function partnersOf(r) { return partners().filter(function (p) { var x = resolveResident(p); return x && x.id === r.id; }); }
+  function ofText(c) { var r = resolveResident(c); return tf('bt.pt.of', { name: r ? r.name : (c.partnerName || '?') }); }
+  function partnerCard(c, today) {
+    return personCard(c, today).replace(/<\/span><\/a>$/, '<span class="pcard__meta pt-meta">' + icon('heart', 'pcard__ico') + esc(ofText(c)) + '</span></span></a>');
+  }
+  function partnerFieldset(me) {
+    var pt = isPartner(me), res = people().filter(function (c) { return !me.id || c.id !== me.id; }), cur = resolveResident(me);
+    return '<fieldset class="field fieldset pt-role"><legend class="field__l">' + esc(t('bt.pt.role')) + '</legend>' +
+      '<label class="pt-radio"><input type="radio" name="cardRole" value="resident"' + (pt ? '' : ' checked') + '> ' + esc(t('bt.pt.roleRes')) + '</label>' +
+      '<label class="pt-radio"><input type="radio" name="cardRole" value="partner"' + (pt ? ' checked' : '') + '> ' + esc(t('bt.pt.rolePt')) + '</label>' +
+      '<div class="pt-who"' + (pt ? '' : ' hidden') + '>' +
+        (res.length ? '<label class="field"><span class="field__l">' + esc(t('bt.pt.pick')) + '</span><select name="partnerOf"><option value="">' + esc(t('bt.pt.pickNone')) + '</option>' + res.map(function (r) { return '<option value="' + esc(r.id) + '"' + (cur && cur.id === r.id ? ' selected' : '') + '>' + esc(r.name) + '</option>'; }).join('') + '</select></label>' : '') +
+        '<label class="field"><span class="field__l">' + esc(t(res.length ? 'bt.pt.name' : 'bt.pt.nameOnly')) + '</span><input type="text" name="partnerName" maxlength="80" value="' + esc(cur ? '' : (me.partnerName || '')) + '"></label>' +
+        '<p class="field__h">' + esc(t('bt.pt.hint')) + '</p></div></fieldset>';
+  }
+  VIEWS.partners = function () {
+    var today = new Date(), list = partners().sort(function (a, b) { var ra = resolveResident(a), rb = resolveResident(b); return ((ra ? ra.name : a.partnerName) || '').localeCompare((rb ? rb.name : b.partnerName) || '', undefined, { sensitivity: 'base' }) || byName(a, b); });
+    return '<div class="wrap page">' + crumb(t('nav.partners')) +
+      '<header class="page__head"><h1>' + esc(t('nav.partners')) + '</h1><p>' + esc(t('bt.pt.intro')) + '</p></header>' +
+      (list.length ? '<div class="pgrid">' + list.map(function (c) { return partnerCard(c, today); }).join('') + '</div>' : '<div class="empty"><p>' + esc(t('bt.pt.none')) + '</p></div>') +
+      '<div class="callout" style="margin-top:20px"><p class="callout__title">' + esc(t('bt.pt.how')) + '</p><p style="margin:0">' + esc(t('bt.pt.howText')) + '</p></div></div>';
+  };
+  TITLES.partners = function () { return t('nav.partners'); };
+  (function () {
+    var person0 = VIEWS.person;
+    VIEWS.person = function (id) {
+      var html = person0.apply(null, arguments), c = findPerson(String(id || ''));
+      if (!c) return html;
+      if (isPartner(c)) {
+        var r = resolveResident(c);
+        html = html.replace('</h1>', '</h1><p class="pt-of">' + icon('heart', 'fact__ico') + (r ? esc(t('bt.pt.ofLead')) + ' <a href="#/person/' + encodeURIComponent(r.id) + '">' + esc(r.name) + '</a>' : esc(ofText(c))) + '</p>');
+        return html.replace(/<a class="btn" href="#\/quiz\/[^"]*">[\s\S]*?<\/a>/, '');
+      }
+      var ps = partnersOf(c); if (!ps.length) return html;
+      var today = new Date(), sec = '<h2>' + esc(t('bt.pt.section')) + '</h2><div class="pgrid pt-grid">' + ps.map(function (p) { return personCard(p, today); }).join('') + '</div>';
+      var i = html.indexOf('</header>'); return i < 0 ? html : html.slice(0, i + 9) + sec + html.slice(i + 9);
+    };
+    var batch0 = VIEWS.batch;
+    VIEWS.batch = function () {
+      var html = batch0.apply(null, arguments), n = partners().length;
+      if (!n) return html;
+      return html.replace(/<\/div>$/, '<p class="pt-link"><a class="btn" href="#/partners">' + icon('heart', 'btn__ico') + esc(n === 1 ? t('bt.pt.count1') : tf('bt.pt.countN', { n: n })) + '</a></p></div>');
+    };
+    var me1 = AFTER.me;
+    AFTER.me = function () {
+      me1.apply(null, arguments);
+      var who = document.querySelector('.pt-who'); if (!who) return;
+      document.querySelectorAll('input[name="cardRole"]').forEach(function (r) { r.addEventListener('change', function () { who.hidden = r.value !== 'partner' || !r.checked; }); });
     };
   })();
 

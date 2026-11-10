@@ -725,3 +725,14 @@ a.filter{text-decoration:none;display:inline-flex;align-items:center;min-height:
 @media (max-width:1099px){.tabbar{grid-template-columns:repeat(5,1fr)}}
 @media (max-width:420px){.em-line{grid-template-columns:1fr}.em-acts{grid-column:1}}
 @media print{.em-911,.em-acts,.em-strip{display:none}}
+
+/* ---------- 1.17.0 Partner cards ---------- */
+.pt-role .pt-radio{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:500}
+.pt-role .pt-radio input{width:20px;height:20px;accent-color:var(--accent)}
+.pt-who{margin-top:6px;padding:12px 14px;border-radius:var(--r-md);background:var(--tint)}
+.pt-who[hidden]{display:none}
+.pt-of{display:flex;align-items:center;gap:6px;margin:2px 0 6px;font-weight:600;color:var(--ink-2)}
+.pt-of a{color:var(--accent)}
+.pt-meta{color:var(--ink-2)}
+.pt-grid{margin-bottom:18px}
+.pt-link{margin:22px 0 0}

@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.17.0', date: '2026-11-10', title: 'Jowa / asawa cards',
+    items: [
+      { type: 'feature', text: 'Partners of residents can now have full cards with all the same sections. On My card, choose “I’m the partner (jowa/asawa) of a resident” and pick your resident (or type their name).', href: '#/me' },
+      { type: 'feature', text: 'New Partners screen. Each resident’s page shows their jowa/asawa, and a partner’s page links back to their resident.', href: '#/partners' },
+      { type: 'update', text: 'Partners appear in Birthdays (with a Partner tag), the birthday banner, search and the whole-batch share file. They stay out of the batch grid, games, stats, superlatives, Wrapped, Kris Kringle, the map and Emergency info.' }
+    ]
+  },
+  {
     version: '1.16.0', date: '2026-11-10', title: 'Emergency info, one tap away',
     items: [
       { type: 'feature', text: 'New Emergency info screen: everyone’s blood type, allergies, conditions, own number and emergency contacts in one place, with Call and Text buttons and a Call 911 button. Works offline.', href: '#/emergency' },

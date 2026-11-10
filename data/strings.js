@@ -604,6 +604,26 @@ window.STRINGS = {
     'bt.f.emergencyRelation': 'Emergency contact relationship',
     'nav.emergency': "Emergency info",
     'nav.emergencyShort': "Emergency",
+    'nav.partners': "Partners",
+    'bt.pt.intro': "The jowas and asawas of the batch. They have full cards, but stay out of the games, stats and batch grid.",
+    'bt.pt.how': "How to add a partner",
+    'bt.pt.howText': "Your partner installs Batch Tickler on their own phone and imports your card. Then they fill in My card, choose “I’m a partner” and pick you. They share their card like anyone else — or send it to you and you share it with the batch.",
+    'bt.pt.none': "No partner cards yet.",
+    'bt.pt.of': "Partner of {name}",
+    'bt.pt.ofLead': "Partner of",
+    'bt.pt.section': "Jowa / Asawa",
+    'bt.pt.role': "Whose card is this?",
+    'bt.pt.roleRes': "I’m a resident in the batch",
+    'bt.pt.rolePt': "I’m the partner (jowa/asawa) of a resident",
+    'bt.pt.pick': "My partner is",
+    'bt.pt.pickNone': "— not on this phone yet —",
+    'bt.pt.name': "Or type their full name",
+    'bt.pt.nameOnly': "Your partner’s full name",
+    'bt.pt.hint': "Partner cards show on their resident’s page, in Birthdays and on the Partners screen — not in the games, stats or batch grid.",
+    'bt.pt.needWho': "Pick your partner, or type their name.",
+    'bt.pt.count1': "1 partner card",
+    'bt.pt.countN': "{n} partner cards",
+    'bt.pt.tag': "Partner",
     'bt.g.emergency': "Emergency & medical",
     'bt.f.emergencyRelation2': "Second emergency contact relationship",
     'bt.f.emergencyNote': "Shown on the Emergency info screen of everyone you share your card with. Never on the printed sheet or name tags, and conditions never go in QR codes.",
@@ -1567,6 +1587,26 @@ window.STRINGS = {
     'bt.f.emergencyRelation': 'Relasyon sa emergency contact',
     'nav.emergency': "Emergency info",  // Tagalog draft — Dr. Navarro reviews before release
     'nav.emergencyShort': "Emergency",  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.partners': "Mga jowa/asawa",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.intro': "Ang mga jowa at asawa ng batch. May buong card sila, pero wala sa mga laro, stats at batch grid.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.how': "Paano magdagdag ng jowa/asawa",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.howText': "I-install ng partner mo ang Batch Tickler sa sarili niyang phone at i-import ang card mo. Saka niya punan ang My card, piliin ang “Partner ako” at piliin ka. Ibabahagi niya ang card niya gaya ng iba — o ipadala sa iyo at ikaw ang magbahagi sa batch.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.none': "Wala pang card ng partner.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.of': "Partner ni {name}",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.ofLead': "Partner ni",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.section': "Jowa / Asawa",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.role': "Kanino ang card na ito?",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.roleRes': "Residente ako sa batch",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.rolePt': "Partner (jowa/asawa) ako ng isang residente",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.pick': "Ang partner ko ay si",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.pickNone': "— wala pa sa phone na ito —",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.name': "O i-type ang buong pangalan niya",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.nameOnly': "Buong pangalan ng partner mo",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.hint': "Lumalabas ang card ng partner sa page ng residente niya, sa Birthdays at sa screen na Mga jowa/asawa — hindi sa mga laro, stats o batch grid.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.needWho': "Piliin ang partner mo, o i-type ang pangalan niya.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.count1': "1 card ng partner",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.countN': "{n} card ng partner",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.tag': "Partner",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.g.emergency': "Emergency at medikal",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.f.emergencyRelation2': "Relasyon sa pangalawang emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.f.emergencyNote': "Makikita sa Emergency info ng lahat ng binigyan mo ng card mo. Hindi kailanman sa printed sheet o name tag, at ang mga kondisyon ay hindi kailanman sa QR code.",  // Tagalog draft — Dr. Navarro reviews before release
