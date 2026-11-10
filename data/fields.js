@@ -155,5 +155,24 @@ window.COMMON_FIELDS = {
 
 /* Spotify playlists: a list of up to PLAYLIST_MAX {label, url} links on the card (card.playlists). In-app only. */
 window.PLAYLIST_MAX = 10;
-/* Netflix top 10: up to NETFLIX_MAX {title, url} in rank order on the card (card.netflix); url optional. In-app only, not in QR. */
+/* Link lists (1.12.0 Netflix, 1.13.0 the rest): ranked lists of up to `max` {title, url} on the card. In-app only, not in QR.
+   Storage: netflix -> card.netflix (kept from 1.12.0); every other list -> card.lists[key].
+   hosts: allowed link hosts ('host' or 'host/path-prefix', subdomains allowed; '*' = any https link). url is optional;
+   without one the title links to `search` ({q} = title) or, with no search, shows as plain text.
+   common: counts in Things in common / twins. map: titles are plotted on the Hometown map's Bucket list layer. */
+(function () {
+  var MAPS = ['maps.app.goo.gl', 'goo.gl/maps', 'google.com/maps', 'google.com.ph/maps', 'maps.google.com'];
+  var MAPSEARCH = 'https://www.google.com/maps/search/?api=1&query={q}';
+  window.LINK_LISTS = [
+    { key: 'netflix', icon: 'tv', max: 10, common: true, hosts: ['netflix.com', 'disneyplus.com', 'primevideo.com', 'amazon.com/gp/video', 'hbomax.com', 'max.com', 'viu.com', 'tv.apple.com', 'iwant.ph', 'iwanttfc.com'], search: 'https://www.netflix.com/search?q={q}', ph: 'https://www.netflix.com/title/…' },
+    { key: 'wishlist', icon: 'gift', max: 10, hosts: ['shopee.ph', 'shope.ee', 'shp.ee', 'lazada.com.ph', 'lzd.co'], search: 'https://shopee.ph/search?keyword={q}', ph: 'https://shopee.ph/…' },
+    { key: 'films', icon: 'film', max: 10, common: true, hosts: ['letterboxd.com', 'boxd.it'], search: 'https://letterboxd.com/search/{q}/', ph: 'https://letterboxd.com/film/…' },
+    { key: 'youtube', icon: 'play', max: 10, common: true, hosts: ['youtube.com', 'youtu.be'], search: 'https://www.youtube.com/results?search_query={q}', ph: 'https://youtube.com/@…' },
+    { key: 'podcasts', icon: 'mic', max: 10, common: true, hosts: ['open.spotify.com', 'spotify.link', 'podcasts.apple.com'], search: 'https://open.spotify.com/search/{q}', ph: 'https://open.spotify.com/show/…' },
+    { key: 'books', icon: 'book', max: 10, common: true, hosts: ['goodreads.com'], search: 'https://www.goodreads.com/search?q={q}', ph: 'https://www.goodreads.com/book/show/…' },
+    { key: 'foodSpots', icon: 'food', max: 10, common: true, hosts: MAPS, search: MAPSEARCH, ph: 'https://maps.app.goo.gl/…' },
+    { key: 'travel', icon: 'plane', max: 10, common: true, map: true, hosts: MAPS, search: MAPSEARCH, ph: 'https://maps.app.goo.gl/…' },
+    { key: 'study', icon: 'school', max: 10, hosts: ['*'], search: '', ph: 'https://…' }
+  ];
+})();
 window.NETFLIX_MAX = 10;

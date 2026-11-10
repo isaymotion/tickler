@@ -4,6 +4,19 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.13.0',
+    date: '2026-11-10',
+    title: 'More lists: wishlists, food spots, films and more',
+    items: [
+      { type: 'feature', text: 'My card has new ranked link lists: Birthday wishlist (Shopee/Lazada), Top films (Letterboxd), YouTube favourites, Podcasts (Spotify/Apple), Books (Goodreads), Favourite food spots and Travel bucket list (Google Maps), and a Study stash.', href: '#/me' },
+      { type: 'feature', text: 'Top 10 shows now takes Disney+, Prime Video, Max, Viu, Apple TV and iWant links as well as Netflix; Home\'s pick is now the Show recommendation of the day.', href: '#/' },
+      { type: 'feature', text: 'Batch picks: everyone\'s lists in one place, most-listed first; wishlists sorted by whose birthday is next.', href: '#/picks' },
+      { type: 'feature', text: 'Birthday banner shows the birthday batchmate\'s top wishes.', href: '#/' },
+      { type: 'feature', text: 'Hometown map › Travel bucket list: Philippine places on everyone\'s bucket lists as dots.', href: '#/map/travel' },
+      { type: 'update', text: 'Shared films, books, podcasts, YouTube channels, food spots and bucket-list places count in Things in common and Batch twins.' }
+    ]
+  },
+  {
     version: '1.12.0',
     date: '2026-11-10',
     title: 'Top 10 Netflix shows',

@@ -110,6 +110,7 @@
     { label: 'My card', tkey: 'nav.me', href: '#/me', icon: 'card', group: 'Screens' },
     { label: 'Birthdays', tkey: 'nav.birthdays', href: '#/birthdays', icon: 'cake', group: 'Screens' },
     { label: 'Hometown map', tkey: 'nav.map', href: '#/map', icon: 'pin', group: 'Screens' },
+    { label: 'Batch picks', tkey: 'nav.picks', href: '#/picks', icon: 'list', group: 'Screens' },
     { label: 'Guess who', tkey: 'nav.guess', href: '#/guess', icon: 'quiz', group: 'Play' },
     { label: 'Who said it?', tkey: 'nav.whosaid', href: '#/whosaid', icon: 'chat', group: 'Play' },
     { label: 'Batch Bingo', tkey: 'nav.bingo', href: '#/bingo', icon: 'game', group: 'Play' },
@@ -553,7 +554,8 @@
   var GROUPS = window.CARD_GROUPS || ['basics'];
   var SUBS = window.CARD_SUBS || {};
   var COMMON = window.COMMON_FIELDS || { exact: [], items: [] };
-  var MAX_CUSTOM = 12, PLAYLIST_MAX = window.PLAYLIST_MAX || 5, NETFLIX_MAX = window.NETFLIX_MAX || 10;
+  var MAX_CUSTOM = 12, PLAYLIST_MAX = window.PLAYLIST_MAX || 5;
+  var LISTS = window.LINK_LISTS || [], LIST_BY = {}; LISTS.forEach(function (L) { LIST_BY[L.key] = L; });
   var GUESS_FIELDS = window.GUESS_FIELDS || [];
   var HOSP = window.HOSPITAL || {};
   var CARD_APP = 'batchtickler', MAX_PHOTO = 320, MAX_TEXT = 600;
@@ -563,6 +565,10 @@
   ICONS.pin = '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>';
   ICONS.school = '<path d="M2.5 9.5L12 5l9.5 4.5L12 14zM6 11.5v5c0 1.2 2.7 2.5 6 2.5s6-1.3 6-2.5v-5M21 10v5"/>';
   ICONS.heart = '<path d="M12 20.5s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7.5 2.5c0 5.4-7.5 10-7.5 10z"/>';
+  ICONS.gift = '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-3.5-5-1.2C7 8 9.5 8 12 8zm0 0c1.5-3 5-3.5 5-1.2C17 8 14.5 8 12 8z"/>';
+  ICONS.play = '<rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10 9.2v5.6l5-2.8z"/>';
+  ICONS.mic = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>';
+  ICONS.plane = '<path d="M10.5 13.5 3 11l1.5-1.5 7.5 1 4.2-4.2c.9-.9 2.6-1.4 3.3-.7s.2 2.4-.7 3.3L14.6 13l1 7.5L14 22l-2.5-7.5L8 18v2.5L6.5 22 5 18.5 1.5 17 3 15.5h2.5z"/>';
   ICONS.tv = '<rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M8 21h8M9 3l3 3 3-3"/>';
   ICONS.film = '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M7.5 4v16M16.5 4v16M3.5 9h4M3.5 15h4M16.5 9h4M16.5 15h4"/>';
   ICONS.music = '<path d="M9 18.5V6l11-2v12.5"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="17.5" cy="16.5" r="2.5"/>';
@@ -596,9 +602,9 @@
     out.playlists = (Array.isArray(c.playlists) ? c.playlists : []).map(function (x) {
       return x && typeof x === 'object' ? { label: cleanText(x.label, 60), url: spotifyUrl(x.url) } : null;
     }).filter(function (x) { return x && x.url; }).slice(0, PLAYLIST_MAX);
-    out.netflix = (Array.isArray(c.netflix) ? c.netflix : []).map(function (x) {
-      return x && typeof x === 'object' ? { title: cleanText(x.title, 80), url: netflixUrl(x.url) } : null;
-    }).filter(function (x) { return x && x.title; }).slice(0, NETFLIX_MAX);
+    out.netflix = cleanList(LIST_BY.netflix, c.netflix);
+    out.lists = {};
+    LISTS.forEach(function (L) { if (L.key === 'netflix') return; var v = cleanList(L, c.lists && typeof c.lists === 'object' ? c.lists[L.key] : null); if (v.length) out.lists[L.key] = v; });
     out.custom = (Array.isArray(c.custom) ? c.custom : []).map(function (x) {
       return x && typeof x === 'object' ? { label: cleanText(x.label, 60), value: cleanText(x.value, MAX_TEXT) } : null;
     }).filter(function (x) { return x && x.label && x.value; }).slice(0, MAX_CUSTOM);
@@ -617,9 +623,30 @@
   }
   function linkHref(f, v) { return /^https?:\/\//i.test(v) ? v : (f.base || '') + encodeURIComponent(v); }
   function linkText(v) { return /^https?:\/\//i.test(v) ? v.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '') : '@' + v; }
-  /* Netflix top 10 (1.12.0): card.netflix = [{title, url}] in rank order; url optional (https://www.netflix.com/… only); without one, the link opens a Netflix search for the title */
-  function netflixUrl(v) { v = cleanText(v, 300); return /^https:\/\/(www\.)?netflix\.com\/[^\s<>"']+$/i.test(v) ? v : ''; }
-  function netflixHref(x) { return x.url || 'https://www.netflix.com/search?q=' + encodeURIComponent(x.title); }
+  /* Link lists (1.12.0 / 1.13.0): see LINK_LISTS in data/fields.js. Items {title, url}; url optional and host-checked. */
+  function listUrl(L, v) {
+    v = cleanText(v, 300); if (!L || !/^https:\/\/[^\s<>"']+$/i.test(v)) return '';
+    var u; try { u = new URL(v); } catch (e) { return ''; }
+    if (u.protocol !== 'https:') return '';
+    var h = u.hostname.toLowerCase().replace(/^www\./, ''), path = u.pathname.toLowerCase();
+    return L.hosts.some(function (e) { if (e === '*') return true; var i = e.indexOf('/'), host = i < 0 ? e : e.slice(0, i), pre = i < 0 ? '' : e.slice(i); return (h === host || h.slice(-host.length - 1) === '.' + host) && path.indexOf(pre) === 0; }) ? v : '';
+  }
+  function cleanList(L, arr) {
+    return (Array.isArray(arr) ? arr : []).map(function (x) { return x && typeof x === 'object' ? { title: cleanText(x.title, 80), url: listUrl(L, x.url) } : null; }).filter(function (x) { return x && x.title; }).slice(0, (L && L.max) || 10);
+  }
+  function listOf(c, key) { return key === 'netflix' ? (c.netflix || []) : ((c.lists && c.lists[key]) || []); }
+  function listHref(L, x) { return x.url || (L.search ? L.search.replace('{q}', encodeURIComponent(x.title)) : ''); }
+  function netflixHref(x) { return listHref(LIST_BY.netflix, x); }
+  function listLabel(key) { return t('bt.l.' + key); }
+  var SERVICES = [['netflix.com', 'Netflix'], ['disneyplus.com', 'Disney+'], ['primevideo.com', 'Prime Video'], ['amazon.com', 'Prime Video'], ['hbomax.com', 'Max'], ['max.com', 'Max'], ['viu.com', 'Viu'], ['tv.apple.com', 'Apple TV'], ['iwant', 'iWant']];
+  function serviceName(url) { var h = ''; try { h = new URL(url).hostname.toLowerCase(); } catch (e) {} for (var i = 0; i < SERVICES.length; i++) if (h.indexOf(SERVICES[i][0]) >= 0) return SERVICES[i][1]; return 'Netflix'; }
+  function listSection(c, L) {
+    var xs = listOf(c, L.key); if (!xs.length) return '';
+    return '<h2 id="list-' + L.key + '">' + esc(listLabel(L.key)) + '</h2><div class="card"><ol class="nf-list">' + xs.map(function (x, i) {
+      var href = listHref(L, x);
+      return '<li><span class="nf-list__n">' + (i + 1) + '</span>' + (href ? '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' + (x.url ? '' : ' <span class="muted nf-list__s">' + esc(t('bt.l.search')) + '</span>') : '<span>' + esc(x.title) + '</span>') + '</li>';
+    }).join('') + '</ol></div>';
+  }
   function spotifyUrl(v) { v = cleanText(v, 300); return /^https:\/\/(open\.spotify\.com|spotify\.link)\/[^\s<>"']+$/i.test(v) ? v : ''; }
   /* Zodiac from the birthday: Western sign by month/day, Chinese animal by year (year boundary approximated at 1 Jan) */
   var SIGNS = [[1, 20, 'Capricorn'], [2, 19, 'Aquarius'], [3, 21, 'Pisces'], [4, 20, 'Aries'], [5, 21, 'Taurus'], [6, 21, 'Gemini'], [7, 23, 'Cancer'], [8, 23, 'Leo'], [9, 23, 'Virgo'], [10, 23, 'Libra'], [11, 22, 'Scorpio'], [12, 22, 'Sagittarius'], [12, 32, 'Capricorn']];
@@ -653,10 +680,10 @@
   function rebuildIndex() {
     SEARCH_INDEX.length = 0;
     people().forEach(function (c) {
-      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), c.netflix.map(function (x) { return x.title; })).filter(Boolean).join(' · ');
+      var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), [].concat.apply([], LISTS.map(function (L) { return listOf(c, L.key).map(function (x) { return x.title; }); }))).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
-    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro']].forEach(function (s) {
+    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -678,8 +705,9 @@
   function completeness(c) {   // filled / total over the standard fields + photo + birthday
     var fs = FIELDS.filter(function (f) { return f.print; }), n = 0;
     fs.forEach(function (f) { if (c[f.key]) n++; });
-    if (c.photo) n++; if (c.bmonth) n++; if (c.playlists.length) n++; if (c.netflix.length) n++;
-    return { n: n, total: fs.length + 3 };
+    if (c.photo) n++; if (c.bmonth) n++; if (c.playlists.length) n++;
+    LISTS.forEach(function (L) { if (listOf(c, L.key).length) n++; });
+    return { n: n, total: fs.length + 3 + LISTS.length };
   }
   function items(v) {   // "a, b\nc · d" -> ['a','b','c','d'] (original casing), short tokens dropped
     return String(v || '').split(/[,\n;·\/|]+/).map(function (x) { return x.replace(/\s+/g, ' ').trim(); }).filter(function (x) { return x.length > 2; });
@@ -691,8 +719,11 @@
       var ia = items(a[k]), ib = items(b[k]).map(function (x) { return x.toLowerCase(); }), hit = ia.filter(function (x) { return ib.indexOf(x.toLowerCase()) >= 0; });
       if (hit.length) out.push(tf('bt.common.shared', { field: fieldLabel(k).toLowerCase(), value: hit.join(', ') }));
     });
-    var nb = (b.netflix || []).map(function (x) { return x.title.toLowerCase(); }), nhit = (a.netflix || []).filter(function (x) { return nb.indexOf(x.title.toLowerCase()) >= 0; }).map(function (x) { return x.title; });
-    if (nhit.length) out.push(tf('bt.common.shared', { field: t('bt.nf.short'), value: nhit.join(', ') }));
+    LISTS.forEach(function (L) {
+      if (!L.common) return;
+      var lb = listOf(b, L.key).map(function (x) { return x.title.toLowerCase(); }), hit = listOf(a, L.key).filter(function (x) { return lb.indexOf(x.title.toLowerCase()) >= 0; }).map(function (x) { return x.title; });
+      if (hit.length) out.push(tf('bt.common.shared', { field: t('bt.l.' + L.key + '.short'), value: hit.join(', ') }));
+    });
     return out;
   }
   function fmtMonth(v) { var m = /^(\d{4})-(\d{2})$/.exec(String(v)); return m ? monthName(+m[2]) + ' ' + m[1] : String(v); }
@@ -744,7 +775,7 @@
       out += '<section class="card today" aria-labelledby="today-nf-h"><p class="today__k">' + icon('tv', 'today__ico') + '<span id="today-nf-h">' + esc(t('bt.today.nf')) + '</span></p>' +
         '<div class="today__pl"><a href="#/person/' + encodeURIComponent(top.c.id) + '">' + avatar(top.c, 'avatar--sm') + '</a><div><h3>' + esc(tp.nf.title) + '</h3><p class="muted">' + esc(tf('bt.today.nfBy', { name: short(top.c), n: top.rank })) + '</p></div></div>' +
         (fans.length > 1 ? '<p class="muted today__also">' + esc(tf('bt.today.nfAlso', { names: fans.slice(1).map(function (x) { return short(x.c); }).join(', ') })) + '</p>' : '') +
-        '<p class="today__acts"><a class="btn btn--solid" href="' + esc(netflixHref(tp.nf)) + '" target="_blank" rel="noopener">' + esc(t(tp.nf.url ? 'bt.nf.open' : 'bt.nf.find')) + '</a>' +
+        '<p class="today__acts"><a class="btn btn--solid" href="' + esc(netflixHref(tp.nf)) + '" target="_blank" rel="noopener">' + esc(tp.nf.url ? tf('bt.nf.watchOn', { s: serviceName(tp.nf.url) }) : t('bt.nf.find')) + '</a>' +
         (tp.nfN > 1 ? '<button type="button" class="btn" data-another="nf">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
     }
     if (tp.fk) {
@@ -843,11 +874,7 @@
         return '<div class="fact">' + icon(f.icon, 'fact__ico') + '<div><div class="fact__k">' + esc(fieldLabel(f.key)) + '</div><div class="fact__v">' + val + '</div>' + acts + '</div></div>';
       }).join('') + '</div>';
     }
-    if (c.netflix.length) {
-      contact = '<h2>' + esc(t('bt.f.netflix')) + '</h2><div class="card"><ol class="nf-list">' + c.netflix.map(function (x, i) {
-        return '<li><span class="nf-list__n">' + (i + 1) + '</span><a href="' + esc(netflixHref(x)) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' + (x.url ? '' : ' <span class="muted nf-list__s">' + esc(t('bt.nf.search')) + '</span>') + '</li>';
-      }).join('') + '</ol></div>' + contact;
-    }
+    contact = LISTS.map(function (L) { return listSection(c, L); }).join('') + contact;
     if (c.playlists.length) {
       contact = '<h2>' + esc(t('bt.f.playlists')) + '</h2><div class="card facts">' + c.playlists.map(function (pl) {
         return '<div class="fact">' + icon('music', 'fact__ico') + '<div><div class="fact__v"><strong>' + esc(pl.label || t('bt.f.playlists')) + '</strong></div><p class="contact__acts"><a class="btn" href="' + esc(pl.url) + '" target="_blank" rel="noopener">' + esc(t('bt.pl.open')) + '</a></p></div></div>';
@@ -886,11 +913,11 @@
   function playlistRow(label, url) {
     return '<div class="custom-row"><label class="field field--sm"><span class="field__l">' + esc(t('bt.pl.label')) + '</span><input type="text" name="plLabel" maxlength="60" value="' + esc(label || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.pl.url')) + '</span><input type="text" name="plUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="https://open.spotify.com/playlist/…" value="' + esc(url || '') + '"></label><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></div>';
   }
-  function netflixRow(title, url) {
-    return '<div class="custom-row nf-row"><span class="nf-row__n" aria-hidden="true"></span><label class="field field--sm"><span class="field__l">' + esc(t('bt.nf.title')) + '</span><input type="text" name="nfTitle" maxlength="80" value="' + esc(title || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.nf.url')) + '</span><input type="text" name="nfUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="https://www.netflix.com/title/…" value="' + esc(url || '') + '"></label><span class="nf-row__acts"><button type="button" class="link-btn nf-up">' + esc(t('bt.nf.up')) + '</button><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></span></div>';
+  function listRow(L, title, url) {
+    return '<div class="custom-row nf-row"><span class="nf-row__n" aria-hidden="true"></span><label class="field field--sm"><span class="field__l">' + esc(t('bt.l.' + L.key + '.item')) + '</span><input type="text" name="lTitle" maxlength="80" value="' + esc(title || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.l.' + L.key + '.url')) + '</span><input type="text" name="lUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="' + esc(L.ph || 'https://…') + '" value="' + esc(url || '') + '"></label><span class="nf-row__acts"><button type="button" class="link-btn nf-up">' + esc(t('bt.l.up')) + '</button><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></span></div>';
   }
   VIEWS.me = function () {
-    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [], netflix: [] };
+    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [], netflix: [], lists: {} };
     var comp = completeness(me);
     pendingPhoto = null;
     var months = MONTHS_EN.map(function (m, i) { return [i + 1, monthName(i + 1)]; });
@@ -925,9 +952,12 @@
         '<details class="fgroup"><summary><span>' + esc(t('bt.f.playlists')) + '</span><span class="muted fgroup__n" data-group="playlists"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.pl.hint', { n: PLAYLIST_MAX })) + '</p><div id="pl-rows">' +
           (me.playlists || []).map(function (x) { return playlistRow(x.label, x.url); }).join('') +
         '</div><p><button type="button" class="btn" id="pl-add">' + esc(t('bt.pl.add')) + '</button></p></div></details>' +
-        '<details class="fgroup"><summary><span>' + esc(t('bt.f.netflix')) + '</span><span class="muted fgroup__n" data-group="netflix"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.nf.hint', { n: NETFLIX_MAX })) + '</p><div id="nf-rows">' +
-          (me.netflix || []).map(function (x) { return netflixRow(x.title, x.url); }).join('') +
-        '</div><p><button type="button" class="btn" id="nf-add">' + esc(t('bt.nf.add')) + '</button></p></div></details>' +
+        '<p class="fgroup__intro">' + esc(t('bt.l.intro')) + '</p>' +
+        LISTS.map(function (L) {
+          return '<details class="fgroup"><summary><span>' + esc(listLabel(L.key)) + '</span><span class="muted fgroup__n" data-group="list-' + L.key + '"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(tf('bt.l.' + L.key + '.hint', { n: L.max })) + '</p><div class="lrows" id="rows-' + L.key + '" data-list="' + L.key + '">' +
+            listOf(me, L.key).map(function (x) { return listRow(L, x.title, x.url); }).join('') +
+            '</div><p><button type="button" class="btn" data-ladd="' + L.key + '">' + esc(t('bt.l.' + L.key + '.add')) + '</button></p></div></details>';
+        }).join('') +
         '<details class="fgroup"><summary><span>' + esc(t('bt.custom.title')) + '</span><span class="muted fgroup__n" data-group="custom"></span></summary><div class="fgroup__body"><p class="field__h">' + esc(t('bt.custom.hint')) + '</p><div id="custom-rows">' +
           (me.custom || []).map(function (x) { return customRow(x.label, x.value); }).join('') +
         '</div><p><button type="button" class="btn" id="custom-add">' + esc(t('bt.custom.add')) + '</button></p></div></details>' +
@@ -970,9 +1000,11 @@
       var cel = form.querySelector('.fgroup__n[data-group="custom"]'); if (cel) cel.textContent = String(form.querySelectorAll('#custom-rows .custom-row').length);
       var pel = form.querySelector('.fgroup__n[data-group="playlists"]'); if (pel) pel.textContent = form.querySelectorAll('#pl-rows .custom-row').length + '/' + PLAYLIST_MAX;
       var addBtn = document.getElementById('pl-add'); if (addBtn) addBtn.disabled = form.querySelectorAll('#pl-rows .custom-row').length >= PLAYLIST_MAX;
-      var nfr = form.querySelectorAll('#nf-rows .custom-row'), nel = form.querySelector('.fgroup__n[data-group="netflix"]'); if (nel) nel.textContent = nfr.length + '/' + NETFLIX_MAX;
-      nfr.forEach(function (r, i) { r.querySelector('.nf-row__n').textContent = '#' + (i + 1); r.querySelector('.nf-up').disabled = i === 0; });
-      var nfAdd = document.getElementById('nf-add'); if (nfAdd) nfAdd.disabled = nfr.length >= NETFLIX_MAX;
+      LISTS.forEach(function (L) {
+        var rs = form.querySelectorAll('#rows-' + L.key + ' .custom-row'), el = form.querySelector('.fgroup__n[data-group="list-' + L.key + '"]'); if (el) el.textContent = rs.length + '/' + L.max;
+        rs.forEach(function (r, i) { r.querySelector('.nf-row__n').textContent = '#' + (i + 1); r.querySelector('.nf-up').disabled = i === 0; });
+        var ab = form.querySelector('[data-ladd="' + L.key + '"]'); if (ab) ab.disabled = rs.length >= L.max;
+      });
     }
     paintCounts();
     form.addEventListener('input', function () { clearTimeout(form._ct); form._ct = setTimeout(paintCounts, 200); });
@@ -982,12 +1014,14 @@
     var plRows = document.getElementById('pl-rows');
     document.getElementById('pl-add').addEventListener('click', function () { if (plRows.querySelectorAll('.custom-row').length >= PLAYLIST_MAX) return; plRows.insertAdjacentHTML('beforeend', playlistRow('', '')); var last = plRows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
     plRows.addEventListener('click', function (e) { var b = e.target.closest('.custom-rm'); if (b) { b.closest('.custom-row').remove(); paintCounts(); } });
-    var nfRows = document.getElementById('nf-rows');
-    document.getElementById('nf-add').addEventListener('click', function () { if (nfRows.querySelectorAll('.custom-row').length >= NETFLIX_MAX) return; nfRows.insertAdjacentHTML('beforeend', netflixRow('', '')); var last = nfRows.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
-    nfRows.addEventListener('click', function (e) {
-      var rm = e.target.closest('.custom-rm'), up = e.target.closest('.nf-up');
-      if (rm) { rm.closest('.custom-row').remove(); paintCounts(); }
-      else if (up) { var row = up.closest('.custom-row'), prev = row.previousElementSibling; if (prev) { nfRows.insertBefore(row, prev); paintCounts(); var b = row.querySelector('.nf-up'); (b.disabled ? row.querySelector('input') : b).focus(); } }
+    form.querySelectorAll('[data-ladd]').forEach(function (btn) {
+      var L = LIST_BY[btn.getAttribute('data-ladd')], box = document.getElementById('rows-' + L.key);
+      btn.addEventListener('click', function () { if (box.querySelectorAll('.custom-row').length >= L.max) return; box.insertAdjacentHTML('beforeend', listRow(L, '', '')); var last = box.lastElementChild.querySelector('input'); if (last) last.focus(); paintCounts(); });
+      box.addEventListener('click', function (e) {
+        var rm = e.target.closest('.custom-rm'), up = e.target.closest('.nf-up');
+        if (rm) { rm.closest('.custom-row').remove(); paintCounts(); }
+        else if (up) { var row = up.closest('.custom-row'), prev = row.previousElementSibling; if (prev) { box.insertBefore(row, prev); paintCounts(); var b = row.querySelector('.nf-up'); (b.disabled ? row.querySelector('input') : b).focus(); } }
+      });
     });
     var tog = document.getElementById('me-toggle-all');
     tog.addEventListener('click', function () {
@@ -999,14 +1033,23 @@
       e.preventDefault();
       var old = getMe() || {}, c = { id: old.id || newId(), name: form.name.value };
       FIELDS.forEach(function (f) { c[f.key] = form.elements[f.key].value; });
-      c.custom = []; c.playlists = []; c.netflix = [];
+      c.custom = []; c.playlists = []; c.netflix = []; c.lists = {};
       form.querySelectorAll('#custom-rows .custom-row').forEach(function (r) { c.custom.push({ label: r.querySelector('[name=customLabel]').value, value: r.querySelector('[name=customValue]').value }); });
       var badPl = false;
       form.querySelectorAll('#pl-rows .custom-row').forEach(function (r) { var u = r.querySelector('[name=plUrl]').value.trim(); if (u && !spotifyUrl(u)) badPl = true; if (u) c.playlists.push({ label: r.querySelector('[name=plLabel]').value, url: u }); });
       if (badPl) { say(t('bt.pl.badUrl'), true); return; }
-      var badNf = false;
-      form.querySelectorAll('#nf-rows .custom-row').forEach(function (r) { var ti = r.querySelector('[name=nfTitle]').value.trim(), u = r.querySelector('[name=nfUrl]').value.trim(); if (u && !netflixUrl(u)) badNf = true; if (u && !ti) badNf = 'title'; if (ti) c.netflix.push({ title: ti, url: u }); });
-      if (badNf) { say(t(badNf === 'title' ? 'bt.nf.needTitle' : 'bt.nf.badUrl'), true); var nd = form.querySelector('#nf-rows'); if (nd) nd.closest('details').open = true; return; }
+      var badL = null;
+      LISTS.forEach(function (L) {
+        var arr = [];
+        form.querySelectorAll('#rows-' + L.key + ' .custom-row').forEach(function (r) {
+          var ti = r.querySelector('[name=lTitle]').value.trim(), u = r.querySelector('[name=lUrl]').value.trim();
+          if (!badL && u && !listUrl(L, u)) badL = { L: L, k: 'url', el: r.querySelector('[name=lUrl]') };
+          if (!badL && u && !ti) badL = { L: L, k: 'title', el: r.querySelector('[name=lTitle]') };
+          if (ti) arr.push({ title: ti, url: u });
+        });
+        if (L.key === 'netflix') c.netflix = arr; else if (arr.length) c.lists[L.key] = arr;
+      });
+      if (badL) { say(badL.k === 'title' ? tf('bt.l.needTitle', { list: listLabel(badL.L.key) }) : tf('bt.l.badUrl', { list: listLabel(badL.L.key), hosts: t('bt.l.' + badL.L.key + '.hosts') }), true); badL.el.closest('details').open = true; badL.el.focus(); return; }
       var m = toInt(form.bmonth.value, 1, 12), d = toInt(form.bday.value, 1, 31), y = toInt(form.byear.value, 1900, 2100);
       if (!cleanText(c.name, 80)) { say(t('bt.me.needName'), true); form.name.focus(); return; }
       if (!(m && d) || !validDay(m, d, y)) { say(t('bt.me.badBirthday'), true); form.bmonth.focus(); return; }
@@ -1172,7 +1215,7 @@
             return rows ? '<section class="full__group"><h4>' + esc(groupLabel(g)) + '</h4>' + rows + '</section>' : '';
           }).join('');
           if (c.playlists.length) groups += '<section class="full__group"><h4>' + esc(t('bt.f.playlists')) + '</h4>' + c.playlists.map(function (pl) { return '<p class="sheet__line"><strong>' + esc(pl.label || '—') + ':</strong> ' + esc(pl.url) + '</p>'; }).join('') + '</section>';
-          if (c.netflix.length) groups += '<section class="full__group"><h4>' + esc(t('bt.f.netflix')) + '</h4>' + c.netflix.map(function (x, i) { return '<p class="sheet__line"><strong>' + (i + 1) + '.</strong> ' + esc(x.title) + (x.url ? ' — ' + esc(x.url) : '') + '</p>'; }).join('') + '</section>';
+          LISTS.forEach(function (L) { var xs = listOf(c, L.key); if (xs.length) groups += '<section class="full__group"><h4>' + esc(listLabel(L.key)) + '</h4>' + xs.map(function (x, i) { return '<p class="sheet__line"><strong>' + (i + 1) + '.</strong> ' + esc(x.title) + (x.url ? ' — ' + esc(x.url) : '') + '</p>'; }).join('') + '</section>'; });
           if (c.custom.length) groups += '<section class="full__group"><h4>' + esc(t('bt.print.custom')) + '</h4>' + c.custom.map(function (x) { return '<p class="sheet__line"><strong>' + esc(x.label) + ':</strong> ' + esc(x.value).replace(/\n/g, ' · ') + '</p>'; }).join('') + '</section>';
           return '<article class="full__person">' + head + '<div class="full__cols">' + groups + '</div></article>';
         }).join('') + '<p class="sheet__foot">' + esc(ATTRIBUTION) + '</p></div>';
@@ -1466,7 +1509,7 @@
       '<h2>' + esc(t('bt.stats.hometowns')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.hometown ? [c.hometown] : []; })) + '</div>' +
       '<h2>' + esc(t('bt.stats.schools')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.medSchool ? [c.medSchool] : []; })) + '</div>' +
       '<h2>' + esc(t('bt.stats.languages')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return items(c.languages); })) + '</div>' +
-      (all.some(function (c) { return c.netflix.length; }) ? '<h2>' + esc(t('bt.f.netflix')) + '</h2><div class="card">' + countList(countBy(all, function (c) { return c.netflix.map(function (x) { return x.title; }); })) + '</div>' : '') +
+      LISTS.filter(function (L) { return L.common; }).map(function (L) { return all.some(function (c) { return listOf(c, L.key).length; }) ? '<h2>' + esc(listLabel(L.key)) + '</h2><div class="card">' + countList(countBy(all, function (c) { return listOf(c, L.key).map(function (x) { return x.title; }); }), 8) + '</div>' : ''; }).join('') +
       (n > 1 ? twinsHTML(all) : '') +
       (aged.length ? '<h2>' + esc(t('bt.stats.ages')) + '</h2><div class="card"><ol class="plain plain--num">' + aged.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a> <span class="muted">· ' + esc(bdayText(c, true)) + '</span></li>'; }).join('') + '</ol></div>' : '') +
       '<h2>' + esc(t('bt.stats.shared')) + '</h2>' + (shared.length ? shared.map(function (x) { return '<div class="card stats__shared"><h3>' + esc(fieldLabel(x.k)) + '</h3>' + countList(x.rows, 6) + '</div>'; }).join('') : '<div class="card"><p class="muted">' + esc(t('bt.stats.sharedNone')) + '</p></div>') +
@@ -1520,8 +1563,12 @@
       (meToday && rest.length ? '<p>' + esc(t('bt.bdt.youToo')) + '</p>' : '') +
       '<div class="bday-today__people">' + rest.map(function (c) {
         return '<div class="bday-today__p"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c) + '</a><div><strong>' + esc(c.name) + '</strong>' + (c.byear ? '<span class="muted">' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear()) })) + '</span>' : '') +
-          '<p class="today__acts"><button type="button" class="btn btn--solid" data-greet="' + esc(c.id) + '">' + esc(t('bt.bdt.greet')) + '</button></p></div></div>';
+          '<p class="today__acts"><button type="button" class="btn btn--solid" data-greet="' + esc(c.id) + '">' + esc(t('bt.bdt.greet')) + '</button></p>' + wishBits(c) + '</div></div>';
       }).join('') + '</div><p class="form__status" id="greet-status" role="status"></p></section>';
+  }
+  function wishBits(c) {
+    var w = listOf(c, 'wishlist'); if (!w.length) return '';
+    return '<div class="bday-today__wish"><span class="today__fk">' + esc(listLabel('wishlist')) + '</span><ul class="plain">' + w.slice(0, 3).map(function (x) { var h = listHref(LIST_BY.wishlist, x); return '<li>' + (h ? '<a href="' + esc(h) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' : esc(x.title)) + '</li>'; }).join('') + '</ul>' + (w.length > 3 ? '<a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(tf('bt.l.seeAll', { n: w.length })) + '</a>' : '') + '</div>';
   }
   function greetText(c) { var bn = batchName(); return tf(bn ? 'bt.bdt.msgBatch' : 'bt.bdt.msg', { name: short(c), batch: bn }); }
   function greet(c, st) {
@@ -1748,16 +1795,24 @@
     });
     return best;
   }
-  var mapSel = '';
-  VIEWS.map = function () {
+  var mapSel = '', mapMode = 'home';
+  VIEWS.map = function (mode) {
     var all = people(), M = window.PH_MAP;
-    var head = '<div class="wrap page map">' + crumb(t('nav.map')) + '<header class="page__head"><h1>' + esc(t('nav.map')) + '</h1><p>' + esc(t('bt.map.intro')) + '</p></header>';
+    var hasTravel = all.some(function (c) { return listOf(c, 'travel').length; });
+    mode = mode === 'travel' && hasTravel ? 'travel' : 'home';
+    if (mode !== mapMode) { mapMode = mode; mapSel = ''; }
+    var head = '<div class="wrap page map">' + crumb(t('nav.map')) + '<header class="page__head"><h1>' + esc(t('nav.map')) + '</h1><p>' + esc(t(mode === 'travel' ? 'bt.map.introTravel' : 'bt.map.intro')) + '</p></header>' +
+      (hasTravel ? '<div class="filters" role="group"><a class="filter" href="#/map" aria-pressed="' + (mode === 'home') + '">' + esc(t('bt.map.modeHome')) + '</a><a class="filter" href="#/map/travel" aria-pressed="' + (mode === 'travel') + '">' + esc(listLabel('travel')) + '</a></div>' : '');
     if (!M) return head + '<div class="empty"><p>' + esc(t('bt.map.noData')) + '</p></div></div>';
     var spots = {}, off = [], none = [];
+    function put(c, text) {
+      var p = locate(text); if (!p) { off.push({ c: c, text: text }); return; }
+      var key = p.n + '|' + p.p, sp = (spots[key] = spots[key] || { p: p, who: [], label: mode === 'travel' ? text : '' }); if (sp.who.indexOf(c) < 0) sp.who.push(c);
+    }
     all.forEach(function (c) {
+      if (mode === 'travel') { listOf(c, 'travel').forEach(function (x) { put(c, x.title); }); return; }
       if (!filled(c, 'hometown')) { none.push(c); return; }
-      var p = locate(c.hometown); if (!p) { off.push(c); return; }
-      var key = p.n + '|' + p.p; (spots[key] = spots[key] || { p: p, who: [] }).who.push(c);
+      put(c, c.hometown);
     });
     var list = Object.keys(spots).map(function (k) { return spots[k]; }).sort(function (a, b) { return b.who.length - a.who.length || a.p.n.localeCompare(b.p.n); });
     if (mapSel && !spots[mapSel]) mapSel = '';
@@ -1766,15 +1821,15 @@
       (hosp ? '<g class="map__hosp" transform="translate(' + hosp.x + ' ' + hosp.y + ')"><path d="M0-9l2.6 5.6 6.1.7-4.5 4.2 1.2 6L0 4.5-5.4 7.5l1.2-6-4.5-4.2 6.1-.7z"/></g>' : '') +
       list.slice().reverse().map(function (s) {
         var key = s.p.n + '|' + s.p.p, r = 7 + Math.sqrt(s.who.length) * 5;
-        return '<g class="map__spot' + (mapSel === key ? ' is-sel' : '') + '" tabindex="0" role="button" data-spot="' + esc(key) + '" aria-label="' + esc(s.p.n + ': ' + s.who.length) + '"><circle cx="' + s.p.x + '" cy="' + s.p.y + '" r="' + r.toFixed(1) + '"/>' + (s.who.length > 1 ? '<text x="' + s.p.x + '" y="' + s.p.y + '" dy=".35em">' + s.who.length + '</text>' : '') + '</g>';
+        return '<g class="map__spot' + (mapSel === key ? ' is-sel' : '') + '" tabindex="0" role="button" data-spot="' + esc(key) + '" aria-label="' + esc((s.label || s.p.n) + ': ' + s.who.length) + '"><circle cx="' + s.p.x + '" cy="' + s.p.y + '" r="' + r.toFixed(1) + '"/>' + (s.who.length > 1 ? '<text x="' + s.p.x + '" y="' + s.p.y + '" dy=".35em">' + s.who.length + '</text>' : '') + '</g>';
       }).join('') + '</svg>';
     var listHTML = list.map(function (s) {
       var key = s.p.n + '|' + s.p.p;
-      return '<li' + (mapSel === key ? ' class="is-sel"' : '') + ' id="spot-' + esc(key.replace(/[^A-Za-z0-9]/g, '-')) + '"><button type="button" class="link-btn" data-spot="' + esc(key) + '"><strong>' + esc(s.p.n) + '</strong>' + (s.p.kind !== 'province' && s.p.p !== s.p.n ? ' <span class="muted">' + esc(s.p.p) + '</span>' : '') + ' · ' + s.who.length + '</button><span class="map__who">' + s.who.map(personLink).join(', ') + '</span></li>';
+      return '<li' + (mapSel === key ? ' class="is-sel"' : '') + ' id="spot-' + esc(key.replace(/[^A-Za-z0-9]/g, '-')) + '"><button type="button" class="link-btn" data-spot="' + esc(key) + '"><strong>' + esc(s.label || s.p.n) + '</strong>' + (s.label && s.label.toLowerCase() !== s.p.n.toLowerCase() ? ' <span class="muted">' + esc(s.p.n + ', ' + s.p.p) + '</span>' : s.p.kind !== 'province' && s.p.p !== s.p.n ? ' <span class="muted">' + esc(s.p.p) + '</span>' : '') + ' · ' + s.who.length + '</button><span class="map__who">' + s.who.map(personLink).join(', ') + '</span></li>';
     }).join('');
-    return head + '<div class="map__wrap"><div class="card map__card">' + svg + '<p class="muted map__legend">' + (hosp ? icon('star', 'map__star') + esc(t('bt.map.hosp')) + ' · ' : '') + esc(t('bt.map.tap')) + '</p></div>' +
+    return head + '<div class="map__wrap"><div class="card map__card">' + svg + '<p class="muted map__legend">' + (hosp ? icon('star', 'map__star') + esc(t('bt.map.hosp')) + ' · ' : '') + esc(t(mode === 'travel' ? 'bt.map.tapTravel' : 'bt.map.tap')) + '</p></div>' +
       '<div><h2 style="margin-top:0">' + esc(tf('bt.map.places', { n: list.length })) + '</h2><div class="card"><ul class="plain map__list">' + (listHTML || '<li class="muted">' + esc(t('bt.map.empty')) + '</li>') + '</ul></div>' +
-      (off.length ? '<h2>' + esc(t('bt.map.off')) + '</h2><div class="card"><p class="muted">' + esc(t('bt.map.offHint')) + '</p><ul class="plain">' + off.map(function (c) { return '<li>' + personLink(c) + ' <span class="muted">· ' + esc(c.hometown) + '</span></li>'; }).join('') + '</ul></div>' : '') +
+      (off.length ? '<h2>' + esc(t('bt.map.off')) + '</h2><div class="card"><p class="muted">' + esc(t(mode === 'travel' ? 'bt.map.offHintTravel' : 'bt.map.offHint')) + '</p><ul class="plain">' + off.map(function (o) { return '<li>' + personLink(o.c) + ' <span class="muted">· ' + esc(o.text) + '</span></li>'; }).join('') + '</ul></div>' : '') +
       (none.length ? '<p class="muted">' + esc(tf('bt.map.none', { n: none.length })) + '</p>' : '') + '</div></div>' +
       '<p class="muted map__src">' + esc(t('bt.map.src')) + '</p></div>';
   };
@@ -1784,6 +1839,35 @@
       el.addEventListener('click', pick);
       el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
     });
+  };
+
+  /* ---- 1.13.0 Batch picks: every link list across the batch ---- */
+  VIEWS.picks = function (key) {
+    var all = people(), today = new Date();
+    var have = LISTS.filter(function (L) { return all.some(function (c) { return listOf(c, L.key).length; }); });
+    var head = '<div class="wrap page picks">' + crumb(t('nav.picks')) + '<header class="page__head"><h1>' + esc(t('nav.picks')) + '</h1><p>' + esc(t('bt.picks.intro')) + '</p></header>';
+    if (!have.length) return head + '<div class="empty"><p>' + esc(t('bt.picks.none')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a></p></div></div>';
+    var L = LIST_BY[key] && have.indexOf(LIST_BY[key]) >= 0 ? LIST_BY[key] : have[0];
+    var chips = '<div class="filters picks__chips" role="group">' + have.map(function (x) { return '<a class="filter" href="#/picks/' + x.key + '" aria-pressed="' + (x === L) + '">' + icon(x.icon, 'filter__ico') + esc(t('bt.l.' + x.key + '.short')) + '</a>'; }).join('') + '</div>';
+    var body;
+    if (L.key === 'wishlist') {
+      var ppl = all.filter(function (c) { return listOf(c, 'wishlist').length; }).sort(function (a, b) { return (daysUntil(a, today) === null ? 999 : daysUntil(a, today)) - (daysUntil(b, today) === null ? 999 : daysUntil(b, today)); });
+      body = '<p class="muted">' + esc(t('bt.picks.wishIntro')) + '</p><div class="twins">' + ppl.map(function (c) {
+        var d = daysUntil(c, today);
+        return '<div class="card twin"><div class="twin__pair">' + avatar(c, 'avatar--sm') + '<div style="margin-left:12px"><strong>' + personLink(c) + '</strong>' + (c.bmonth ? '<span class="muted">' + esc(bdayText(c)) + (d === 0 ? ' · ' + t('bt.home.today') : d !== null && d <= 60 ? ' · ' + (d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + '</span>' : '') + '</div></div>' +
+          '<ol class="nf-list">' + listOf(c, 'wishlist').map(function (x, i) { var h = listHref(L, x); return '<li><span class="nf-list__n">' + (i + 1) + '</span>' + (h ? '<a href="' + esc(h) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a>' : esc(x.title)) + '</li>'; }).join('') + '</ol></div>';
+      }).join('') + '</div>';
+    } else {
+      var m = {}, rows = [];
+      all.forEach(function (c) { listOf(c, L.key).forEach(function (x, i) { var k = x.title.toLowerCase(); if (!m[k]) { m[k] = { title: x.title, url: x.url, fans: [] }; rows.push(m[k]); } if (!m[k].url && x.url) m[k].url = x.url; m[k].fans.push({ c: c, rank: i + 1 }); }); });
+      rows.forEach(function (r) { r.fans.sort(function (a, b) { return a.rank - b.rank; }); });
+      rows.sort(function (a, b) { return b.fans.length - a.fans.length || a.fans[0].rank - b.fans[0].rank || a.title.localeCompare(b.title); });
+      body = '<div class="card"><ol class="nf-list picks__list">' + rows.map(function (r, i) {
+        var h = listHref(L, r);
+        return '<li><span class="nf-list__n">' + (i + 1) + '</span><div><div>' + (h ? '<a href="' + esc(h) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a>' : esc(r.title)) + (r.fans.length > 1 ? ' <span class="badge">' + esc(nPeople(r.fans.length)) + '</span>' : '') + '</div><div class="picks__who">' + r.fans.map(function (f) { return '<a href="#/person/' + encodeURIComponent(f.c.id) + '">' + esc(short(f.c)) + '</a> <span class="muted">#' + f.rank + '</span>'; }).join(' · ') + '</div></div></li>';
+      }).join('') + '</ol></div>' + (L.map ? '<p><a class="btn" href="#/map/travel">' + esc(t('bt.picks.onMap')) + '</a></p>' : '');
+    }
+    return head + chips + '<h2>' + esc(listLabel(L.key)) + '</h2>' + body + '</div>';
   };
 
   /* ---- 8. Batch Wrapped ---- */

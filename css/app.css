@@ -551,3 +551,13 @@ thead th{background:var(--tint);font-weight:700;border-top:none;white-space:nowr
 .nf-row__acts{display:flex;gap:12px;align-items:center}
 .nf-up:disabled{opacity:.35;cursor:default}
 .today__also{margin:10px 0 0;font-size:.92rem}
+/* 1.13.0 link lists + Batch picks */
+.fgroup__intro{margin:18px 0 6px;font:700 .78rem/1.3 var(--sans);text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+a.filter{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.filter__ico{width:16px;height:16px}
+.picks__list li{align-items:flex-start}
+.picks__who{font:400 .88rem/1.4 var(--sans);color:var(--ink-2);margin-top:2px}
+.picks__who a{color:inherit}
+.bday-today__wish{margin-top:10px}
+.bday-today__wish ul{margin:2px 0 4px;padding-left:1.1em;list-style:disc;display:grid;gap:2px}
+.bday-today__wish a{overflow-wrap:anywhere}

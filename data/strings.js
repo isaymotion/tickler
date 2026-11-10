@@ -343,23 +343,91 @@ window.STRINGS = {
     'bt.f.bloodType': 'Blood type',
     'bt.f.urlHint': 'Paste the link, or just the username.',
     'bt.f.playlists': 'Spotify playlists',
-    'bt.f.netflix': 'Top 10 Netflix shows',
-    'bt.nf.short': 'Netflix shows',
-    'bt.nf.hint': 'Your top {n}, best first. Type the title; adding the Netflix link (Share › Copy link in the Netflix app) is optional — without it the title opens a Netflix search.',
-    'bt.nf.title': 'Show title',
-    'bt.nf.url': 'Netflix link (optional)',
-    'bt.nf.add': 'Add a show',
-    'bt.nf.up': 'Move up',
-    'bt.nf.badUrl': 'A Netflix link must start with https://www.netflix.com/',
-    'bt.nf.needTitle': 'Add the show title next to each Netflix link.',
-    'bt.nf.open': 'Watch on Netflix',
     'bt.nf.find': 'Find on Netflix',
-    'bt.nf.search': '(opens a Netflix search)',
-    'bt.today.nf': 'Netflix recommendation of the day',
     'bt.today.nfBy': '#{n} on {name}’s top 10',
     'bt.today.nfAlso': 'Also on the top 10 of {names}',
     'bt.wrap.k8': 'Most-loved Netflix show',
     'bt.wrap.s8': 'on {n} top-10 lists',
+    'bt.l.intro': 'Link lists — ranked, best first. Use Move up to reorder.',
+    'bt.l.up': 'Move up',
+    'bt.l.search': '(opens a search)',
+    'bt.l.seeAll': 'See all {n}',
+    'bt.l.needTitle': '{list}: add a title next to each link.',
+    'bt.l.badUrl': '{list}: links must be from {hosts}.',
+    'nav.picks': 'Batch picks',
+    'bt.picks.intro': 'Everyone’s lists in one place — shows, films, food spots, wishlists and more. Most-listed first.',
+    'bt.picks.none': 'No lists yet. Add some to your card, then share it.',
+    'bt.picks.wishIntro': 'Sorted by whose birthday is next.',
+    'bt.picks.onMap': 'See the bucket list on the map',
+    'bt.map.offHintTravel': 'Places outside the Philippines, or names the map did not recognise.',
+    'bt.map.tapTravel': 'Tap a dot to see who wants to go there.',
+    'bt.map.introTravel': 'Where the batch wants to go, from everyone’s travel bucket lists.',
+    'bt.map.modeHome': 'Hometowns',
+    'bt.nf.watchOn': 'Watch on {s}',
+    'bt.today.nf': 'Show recommendation of the day',
+    'bt.l.netflix': 'Top 10 shows (Netflix & streaming)',
+    'bt.l.netflix.short': 'Shows',
+    'bt.l.netflix.hint': 'Your top {n} series, best first. Type the title; the link is optional (Netflix, Disney+, Prime Video, Max, Viu, Apple TV or iWant — Share › Copy link). Without a link the title opens a Netflix search.',
+    'bt.l.netflix.item': 'Show title',
+    'bt.l.netflix.url': 'Streaming link (optional)',
+    'bt.l.netflix.add': 'Add a show',
+    'bt.l.netflix.hosts': 'Netflix, Disney+, Prime Video, Max, Viu, Apple TV or iWant',
+    'bt.l.wishlist': 'Birthday wishlist',
+    'bt.l.wishlist.short': 'Wishlists',
+    'bt.l.wishlist.hint': 'Up to {n} things you’d love to get, top wish first. Paste a Shopee or Lazada link (Share › Copy link). It shows on your birthday banner so batchmates know what to give.',
+    'bt.l.wishlist.item': 'Item',
+    'bt.l.wishlist.url': 'Shopee or Lazada link (optional)',
+    'bt.l.wishlist.add': 'Add a wish',
+    'bt.l.wishlist.hosts': 'Shopee or Lazada',
+    'bt.l.films': 'Top films',
+    'bt.l.films.short': 'Films',
+    'bt.l.films.hint': 'Your top {n} films. Add a Letterboxd link if you use it; without one the title opens a Letterboxd search.',
+    'bt.l.films.item': 'Film title',
+    'bt.l.films.url': 'Letterboxd link (optional)',
+    'bt.l.films.add': 'Add a film',
+    'bt.l.films.hosts': 'Letterboxd',
+    'bt.l.youtube': 'YouTube favourites',
+    'bt.l.youtube.short': 'YouTube',
+    'bt.l.youtube.hint': 'Up to {n} channels or videos you love. Paste the YouTube link (Share › Copy link).',
+    'bt.l.youtube.item': 'Channel or video',
+    'bt.l.youtube.url': 'YouTube link (optional)',
+    'bt.l.youtube.add': 'Add a YouTube favourite',
+    'bt.l.youtube.hosts': 'YouTube',
+    'bt.l.podcasts': 'Podcasts',
+    'bt.l.podcasts.short': 'Podcasts',
+    'bt.l.podcasts.hint': 'Up to {n} podcasts you listen to. Paste a Spotify or Apple Podcasts link.',
+    'bt.l.podcasts.item': 'Podcast name',
+    'bt.l.podcasts.url': 'Spotify or Apple Podcasts link (optional)',
+    'bt.l.podcasts.add': 'Add a podcast',
+    'bt.l.podcasts.hosts': 'Spotify or Apple Podcasts',
+    'bt.l.books': 'Books',
+    'bt.l.books.short': 'Books',
+    'bt.l.books.hint': 'Up to {n} books you recommend. Add a Goodreads link if you have one; without one the title opens a Goodreads search.',
+    'bt.l.books.item': 'Book title',
+    'bt.l.books.url': 'Goodreads link (optional)',
+    'bt.l.books.add': 'Add a book',
+    'bt.l.books.hosts': 'Goodreads',
+    'bt.l.foodSpots': 'Favourite food spots',
+    'bt.l.foodSpots.short': 'Food spots',
+    'bt.l.foodSpots.hint': 'Up to {n} places to eat — near the hospital, in your hometown, anywhere. Paste the Google Maps link (Share › Copy link).',
+    'bt.l.foodSpots.item': 'Place name',
+    'bt.l.foodSpots.url': 'Google Maps link (optional)',
+    'bt.l.foodSpots.add': 'Add a food spot',
+    'bt.l.foodSpots.hosts': 'Google Maps',
+    'bt.l.travel': 'Travel bucket list',
+    'bt.l.travel.short': 'Bucket list',
+    'bt.l.travel.hint': 'Up to {n} places you want to go. Write the place name (e.g. Siargao, Batanes, Kyoto) — Philippine places also show on the Hometown map. Google Maps link optional.',
+    'bt.l.travel.item': 'Place',
+    'bt.l.travel.url': 'Google Maps link (optional)',
+    'bt.l.travel.add': 'Add a place',
+    'bt.l.travel.hosts': 'Google Maps',
+    'bt.l.study': 'Study stash',
+    'bt.l.study.short': 'Study stash',
+    'bt.l.study.hint': 'Up to {n} study resources you swear by — a lecture channel, an app, a book, a website.',
+    'bt.l.study.item': 'Resource',
+    'bt.l.study.url': 'Link (optional)',
+    'bt.l.study.add': 'Add a resource',
+    'bt.l.study.hosts': 'https links',
     'bt.pl.hint': 'Up to {n} playlists. Paste the Spotify share link and give it a name.',
     'bt.pl.label': 'Playlist name',
     'bt.pl.url': 'Spotify link',
@@ -927,23 +995,91 @@ window.STRINGS = {
     'bt.f.bloodType': 'Blood type',
     'bt.f.urlHint': 'I-paste ang link, o ang username lang.',
     'bt.f.playlists': 'Mga Spotify playlist',
-    'bt.f.netflix': 'Top 10 Netflix shows',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.short': 'Netflix shows',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.hint': 'Ang top {n} mo, pinakapaborito muna. I-type ang pamagat; opsyonal ang Netflix link (Share › Copy link sa Netflix app) — kung wala, magbubukas ng Netflix search ang pamagat.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.title': 'Pamagat ng show',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.url': 'Netflix link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.add': 'Magdagdag ng show',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.up': 'Itaas',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.badUrl': 'Dapat magsimula ang Netflix link sa https://www.netflix.com/',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.needTitle': 'Ilagay ang pamagat ng show sa tabi ng bawat Netflix link.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.open': 'Panoorin sa Netflix',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.nf.find': 'Hanapin sa Netflix',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.nf.search': '(magbubukas ng Netflix search)',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.today.nf': 'Netflix na rekomendasyon ngayong araw',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.today.nfBy': '#{n} sa top 10 ni {name}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.today.nfAlso': 'Nasa top 10 din nina {names}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.wrap.k8': 'Pinakamamahal na Netflix show',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.wrap.s8': 'nasa {n} top-10 list',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.intro': 'Mga link list — naka-ranggo, pinakapaborito muna. Gamitin ang Itaas para ayusin.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.up': 'Itaas',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.search': '(magbubukas ng search)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.seeAll': 'Tingnan lahat ({n})',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.needTitle': '{list}: maglagay ng pamagat sa tabi ng bawat link.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.badUrl': '{list}: dapat galing sa {hosts} ang mga link.',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.picks': 'Batch picks',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.picks.intro': 'Lahat ng list ng batch sa iisang lugar — show, pelikula, kainan, wishlist at iba pa. Pinakamaraming naglista muna.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.picks.none': 'Wala pang list. Magdagdag sa card mo, saka i-share.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.picks.wishIntro': 'Ayon sa kung kaninong kaarawan ang susunod.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.picks.onMap': 'Tingnan ang bucket list sa mapa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.offHintTravel': 'Mga lugar sa labas ng Pilipinas, o pangalang hindi nakilala ng mapa.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.tapTravel': 'I-tap ang tuldok para makita kung sino ang gustong pumunta roon.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.introTravel': 'Kung saan gustong pumunta ng batch, mula sa travel bucket list ng lahat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.map.modeHome': 'Mga hometown',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.nf.watchOn': 'Panoorin sa {s}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.today.nf': 'Show na rekomendasyon ngayong araw',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix': 'Top 10 shows (Netflix at streaming)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix.short': 'Mga show',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix.hint': 'Ang top {n} na serye mo, pinakapaborito muna. I-type ang pamagat; opsyonal ang link (Netflix, Disney+, Prime Video, Max, Viu, Apple TV o iWant — Share › Copy link). Kung walang link, magbubukas ng Netflix search ang pamagat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix.item': 'Pamagat ng show',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix.url': 'Streaming link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix.add': 'Magdagdag ng show',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.netflix.hosts': 'Netflix, Disney+, Prime Video, Max, Viu, Apple TV o iWant',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist': 'Birthday wishlist',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist.short': 'Mga wishlist',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist.hint': 'Hanggang {n} bagay na gusto mong matanggap, pinakagusto muna. I-paste ang Shopee o Lazada link (Share › Copy link). Lalabas ito sa birthday banner mo para alam ng kabatch kung ano ang ireregalo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist.item': 'Item',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist.url': 'Shopee o Lazada link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist.add': 'Magdagdag ng wish',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.wishlist.hosts': 'Shopee o Lazada',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films': 'Top films',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films.short': 'Mga pelikula',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films.hint': 'Ang top {n} na pelikula mo. Maglagay ng Letterboxd link kung gamit mo ito; kung wala, magbubukas ng Letterboxd search ang pamagat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films.item': 'Pamagat ng pelikula',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films.url': 'Letterboxd link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films.add': 'Magdagdag ng pelikula',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.films.hosts': 'Letterboxd',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube': 'Paborito sa YouTube',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube.short': 'YouTube',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube.hint': 'Hanggang {n} channel o video na gusto mo. I-paste ang YouTube link (Share › Copy link).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube.item': 'Channel o video',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube.url': 'YouTube link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube.add': 'Magdagdag ng YouTube',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.youtube.hosts': 'YouTube',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts': 'Mga podcast',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts.short': 'Mga podcast',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts.hint': 'Hanggang {n} podcast na pinapakinggan mo. I-paste ang Spotify o Apple Podcasts link.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts.item': 'Pangalan ng podcast',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts.url': 'Spotify o Apple Podcasts link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts.add': 'Magdagdag ng podcast',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.podcasts.hosts': 'Spotify o Apple Podcasts',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books': 'Mga libro',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books.short': 'Mga libro',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books.hint': 'Hanggang {n} librong nirerekomenda mo. Maglagay ng Goodreads link kung mayroon; kung wala, magbubukas ng Goodreads search ang pamagat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books.item': 'Pamagat ng libro',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books.url': 'Goodreads link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books.add': 'Magdagdag ng libro',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.books.hosts': 'Goodreads',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots': 'Paboritong kainan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots.short': 'Mga kainan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots.hint': 'Hanggang {n} kainan — malapit sa ospital, sa probinsya mo, kahit saan. I-paste ang Google Maps link (Share › Copy link).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots.item': 'Pangalan ng lugar',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots.url': 'Google Maps link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots.add': 'Magdagdag ng kainan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.foodSpots.hosts': 'Google Maps',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel': 'Travel bucket list',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel.short': 'Bucket list',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel.hint': 'Hanggang {n} lugar na gusto mong puntahan. Isulat ang pangalan ng lugar (hal. Siargao, Batanes, Kyoto) — lalabas din sa Hometown map ang mga lugar sa Pilipinas. Opsyonal ang Google Maps link.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel.item': 'Lugar',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel.url': 'Google Maps link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel.add': 'Magdagdag ng lugar',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.travel.hosts': 'Google Maps',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study': 'Study stash',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study.short': 'Study stash',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study.hint': 'Hanggang {n} study resource na maaasahan — lecture channel, app, libro, website.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study.item': 'Resource',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study.url': 'Link (opsyonal)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study.add': 'Magdagdag ng resource',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.l.study.hosts': 'mga https link',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pl.hint': 'Hanggang {n} playlist. I-paste ang Spotify share link at pangalanan ito.',
     'bt.pl.label': 'Pangalan ng playlist',
     'bt.pl.url': 'Spotify link',
