@@ -154,7 +154,7 @@ with sync_playwright() as p:
     go('#/me'); ok(pg.locator('.fun-links .tile').count() == 9, 'fun links on my card (9 incl. My pets, 1.19.0)')
     submit('#me-form'); pg.wait_for_function("location.hash.indexOf('#/person/')===0", timeout=5000)
     m2 = meC(); ok(all(k in m2 for k in ['truths', 'baby', 'tot', 'votes', 'qotw', 'capsule', 'anthem']) and m2['tot'].get('coffee') == 'a', 'save keeps fun keys')
-    go('#/badges'); ok(pg.locator('.badge-card').count() == 28, '28 badges')
+    go('#/badges'); ok(pg.locator('.badge-card').count() == 29, '29 badges (1.21.0 adds Chatterbox)')
     for h in ['#/qotw', '#/quiz', '#/superlatives/results']: go(h); noov(h)
     ctx.close()
     for tag, sch, lang, vp in [('dark', 'dark', 'en', (390, 844)), ('tl', 'light', 'tl', (390, 844)), ('desk', 'light', 'en', (1280, 900))]:
