@@ -429,7 +429,7 @@ window.STRINGS = {
     'bt.l.study.add': 'Add a resource',
     'bt.l.study.hosts': 'https links',
     'nav.events': 'Batch events',
-    'nav.monito': 'Monito-monita',
+    'nav.monito': 'Kris Kringle',
     'nav.badges': 'Badges',
     'bt.f.askMe': 'Ask me about',
     'bt.h.askMe': 'Up to 3 topics, separated by commas — e.g. K-dramas, running, cats. They show on your card in the batch list.',
@@ -503,8 +503,8 @@ window.STRINGS = {
     'bt.mm.clearConfirm': 'Clear the draw? The matches will be lost.',
     'bt.mm.sentTo': 'Sent to {name}.',
     'bt.mm.copied': 'Copied {name}’s match — paste it in a private chat with them.',
-    'bt.mm.evTitle': 'Monito-monita exchange',
-    'bt.mm.msg': 'Hi {giver}! 🎁 Your monito/monita for {batch} is {receiver}.',
+    'bt.mm.evTitle': 'Kris Kringle exchange',
+    'bt.mm.msg': 'Hi {giver}! 🎁 Your Kris Kringle for {batch} is {receiver}.',
     'bt.mm.msgBudget': 'Budget: {budget}',
     'bt.mm.msgDate': 'Exchange: {date}',
     'bt.mm.msgWish': 'Their wishlist:',
@@ -546,7 +546,7 @@ window.STRINGS = {
     'bt.badge.planner': 'Planner',
     'bt.badge.planner.how': 'Add a batch event.',
     'bt.badge.monito': 'Santa’s helper',
-    'bt.badge.monito.how': 'Run a monito-monita draw.',
+    'bt.badge.monito.how': 'Run a Kris Kringle draw.',
     'bt.pl.hint': 'Up to {n} playlists. Paste the Spotify share link and give it a name.',
     'bt.pl.label': 'Playlist name',
     'bt.pl.url': 'Spotify link',
@@ -1200,7 +1200,7 @@ window.STRINGS = {
     'bt.l.study.add': 'Magdagdag ng resource',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.l.study.hosts': 'mga https link',  // Tagalog draft — Dr. Navarro reviews before release
     'nav.events': 'Mga batch event',  // Tagalog draft — Dr. Navarro reviews before release
-    'nav.monito': 'Monito-monita',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.monito': 'Kris Kringle',  // Tagalog draft — Dr. Navarro reviews before release
     'nav.badges': 'Mga badge',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.f.askMe': 'Tanungin mo ako tungkol sa',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.h.askMe': 'Hanggang 3 paksa, hiwalay sa kuwit — hal. K-drama, running, pusa. Lalabas ito sa card mo sa batch list.',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1274,8 +1274,8 @@ window.STRINGS = {
     'bt.mm.clearConfirm': 'Burahin ang draw? Mawawala ang mga match.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.mm.sentTo': 'Naipadala kay {name}.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.mm.copied': 'Nakopya ang match ni {name} — i-paste sa pribadong chat ninyo.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.mm.evTitle': 'Monito-monita exchange',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.mm.msg': 'Hi {giver}! 🎁 Ang monito/monita mo para sa {batch} ay si {receiver}.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.evTitle': 'Kris Kringle exchange',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.mm.msg': 'Hi {giver}! 🎁 Ang Kris Kringle mo para sa {batch} ay si {receiver}.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.mm.msgBudget': 'Budget: {budget}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.mm.msgDate': 'Exchange: {date}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.mm.msgWish': 'Wishlist niya:',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1317,7 +1317,7 @@ window.STRINGS = {
     'bt.badge.planner': 'Planner',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.planner.how': 'Magdagdag ng batch event.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.monito': 'Katulong ni Santa',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.badge.monito.how': 'Magpatakbo ng monito-monita draw.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.monito.how': 'Magpatakbo ng Kris Kringle draw.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pl.hint': 'Hanggang {n} playlist. I-paste ang Spotify share link at pangalanan ito.',
     'bt.pl.label': 'Pangalan ng playlist',
     'bt.pl.url': 'Spotify link',

@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.14.1',
+    date: '2026-11-10',
+    title: 'Monito-monita is now Kris Kringle',
+    items: [
+      { type: 'update', text: 'The gift-exchange draw is now called Kris Kringle (menu, page, messages, badge). An exchange date already added to Batch events is renamed too.', href: '#/monito' }
+    ]
+  },
+  {
     version: '1.14.0',
     date: '2026-11-10',
     title: 'Monito-monita, badges, events and shoutouts',

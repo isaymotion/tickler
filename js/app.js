@@ -117,7 +117,7 @@
     { label: 'Batch Bingo', tkey: 'nav.bingo', href: '#/bingo', icon: 'game', group: 'Play' },
     { label: 'Icebreakers', tkey: 'nav.icebreakers', href: '#/icebreakers', icon: 'spark', group: 'Play' },
     { label: 'Batch Wrapped', tkey: 'nav.wrapped', href: '#/wrapped', icon: 'star', group: 'Play' },
-    { label: 'Monito-monita', tkey: 'nav.monito', href: '#/monito', icon: 'gift', group: 'Play' },
+    { label: 'Kris Kringle', tkey: 'nav.monito', href: '#/monito', icon: 'gift', group: 'Play' },
     { label: 'Badges', tkey: 'nav.badges', href: '#/badges', icon: 'spark', group: 'Play' },
     { label: 'Share cards', tkey: 'nav.share', href: '#/share', icon: 'share', group: 'Screens' },
     { label: 'Scan a card', tkey: 'nav.scan', href: '#/scan', icon: 'qr', group: 'Screens' },
@@ -2073,7 +2073,7 @@
     var title = cleanText(e.title, 80); if (!title) return null;
     return { id: cleanText(e.id, 40) || newId(), title: title, date: d, time: /^\d{2}:\d{2}$/.test(tm) ? tm : '', place: cleanText(e.place, 120), note: cleanText(e.note, 300), updated: cleanText(e.updated, 30) || new Date().toISOString() };
   }
-  function storedEvents() { var a = store.get('events', []); return (Array.isArray(a) ? a : []).map(cleanEvent).filter(Boolean); }
+  function storedEvents() { var a = store.get('events', []); return (Array.isArray(a) ? a : []).map(cleanEvent).filter(Boolean).map(function (e) { if (/^monito-/.test(e.id) && e.title === 'Monito-monita exchange') e.title = t('bt.mm.evTitle'); return e; }); }
   function getEvents() {
     var list = storedEvents(), s = startDate();
     if (s && !list.some(function (e) { return e.id === 'residency-start'; })) list.push({ id: 'residency-start', title: t('bt.ev.firstDay'), date: s, time: '', place: HOSP.name || '', note: '', builtin: true });
@@ -2155,7 +2155,7 @@
     var all = document.getElementById('ev-all'); if (all) all.addEventListener('click', function () { var today = new Date(); icsEventsOut(getEvents().filter(function (e) { return evDays(e, today) >= 0; }), 'batch-events.ics', function (m) { cst.textContent = m; }); });
   };
 
-  /* ---- Monito-monita draw ---- */
+  /* ---- Kris Kringle draw (was Monito-monita) ---- */
   function getMonito() { var m = store.get('monito', null); return m && Array.isArray(m.pairs) ? m : null; }
   var monitoPeek = {};
   function sattolo(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * i); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
