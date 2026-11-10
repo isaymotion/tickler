@@ -98,3 +98,7 @@ Block "1.11.0: FUN FEATURES" in js/app.js (before `TITLES.person`): birthday ban
 ## 1.11.1 / 1.12.0 (2026-11-10)
 1.11.1: residency counter defaults to `HOSPITAL.residencyStart = '2027-01-01'` (data/hospital.js); About date overrides per phone, clearing returns to the default.
 1.12.0: `card.netflix` = up to `NETFLIX_MAX` (10) `{title, url}` in rank order (url optional, `netflixUrl()` allows https://(www.)netflix.com/ only; `netflixHref()` falls back to a Netflix search). Editor group with Move up; person page numbered list; Home "Netflix recommendation of the day" (salt 5, `pickOff.nf`); in-common, stats, Wrapped slide, Full directory print. Not in QR. Test: `python3 qa/nf_test.py ./tickler <outdir>` (45 checks).
+
+## 1.13.0 / 1.14.0 (2026-11-10)
+1.13.0: generic `LINK_LISTS` (data/fields.js) — netflix (card.netflix) + wishlist, films, youtube, podcasts, books, foodSpots, travel, study (card.lists[key]); `listUrl()` host check, `listHref()` search fallback; `#/picks`; wishlist on birthday banner; `#/map/travel`. Test: `qa/lists_test.py` (69).
+1.14.0: block "1.14.0" before `TITLES.person`: toast, badges (19; `badges`, `counters`, `seen` keys; `checkBadges()` after every route; card.badges), Ask me about (`askMe` field), word of the day (`teachWords` field, salt 6), shoutouts (card.shoutouts), events (`events` key + built-in first day; whole-batch file carries `events`; `mergeEvents`), monito-monita (`monito` key, Sattolo). Test: `qa/f114_test.py` (64).
