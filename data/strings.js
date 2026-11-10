@@ -7,7 +7,6 @@ window.STRINGS = {
     'nav.batch': 'The batch',
     'nav.me': 'My card',
     'nav.birthdays': 'Birthdays',
-    'nav.share': 'Share cards',
     'nav.print': 'Print sheet',
     'nav.guess': 'Guess who',
     'bt.hero.cta': 'Fill in my card',
@@ -45,7 +44,7 @@ window.STRINGS = {
     'bt.ws.other': 'Another question',
     'bt.ws.ask': 'Who gave this as their {field}?',
     'bt.bingo.intro': 'Find batchmates who match each square. Tap a square when you find someone. Five in a row (or column, or diagonal) wins.',
-    'bt.bingo.notEnough': 'Not enough details on the cards yet. Import a few more cards first.',
+    'bt.bingo.notEnough': 'Not enough details on the cards yet. Wait for more cards to sync.',
     'bt.bingo.win': 'BINGO! 🎉',
     'bt.bingo.winN': 'BINGO × {n}! 🎉',
     'bt.bingo.free': 'Free',
@@ -68,7 +67,7 @@ window.STRINGS = {
     'bt.ice.askWho': 'Try asking {name}.',
     'bt.ice.next': 'Next',
     'bt.ice.otherWho': 'Someone else',
-    'bt.ice.noCards': 'Import some batchmates’ cards first.',
+    'bt.ice.noCards': 'No batchmates’ cards yet. Check Cloud sync.',
     'bt.ice.cardQ': 'Ask {name} about their {field}.',
     'bt.ice.theirCard': 'Their card says',
     'bt.ice.reveal': 'Peek at their card',
@@ -129,20 +128,20 @@ window.STRINGS = {
     'bt.home.today': 'Today!',
     'bt.home.inDays1': 'tomorrow',
     'bt.home.inDaysN': 'in {n} days',
-    'bt.home.noMe': 'Start with your own card, then share it with the batch.',
+    'bt.home.noMe': 'Start with your own card; it reaches the batch after you save it.',
     'bt.batch.intro': 'Everyone whose card is on this device. Tap a card to read more.',
     'bt.batch.filter': 'Filter by name, hometown, school…',
     'bt.batch.sortName': 'By name',
     'bt.batch.sortBirthday': 'By birthday',
     'bt.batch.sortHometown': 'By hometown',
     'bt.batch.emptyTitle': 'No cards yet',
-    'bt.batch.emptyText': 'Fill in your own card first, then import the cards your batchmates share with you.',
+    'bt.batch.emptyText': 'Fill in your own card first, then your batchmates’ cards arrive through Cloud sync.',
     'bt.batch.noMatch': 'Nobody matches that.',
     'bt.batch.you': 'You',
     'bt.person.notFound': 'That card is not on this device.',
     'bt.person.edit': 'Edit my card',
     'bt.person.remove': 'Remove this card',
-    'bt.person.confirmRemove': 'Remove {name} from this device? You can import their card again later.',
+    'bt.person.confirmRemove': 'Remove {name} from this device? Their card comes back at the next sync.',
     'bt.person.updated': 'Card updated {date}',
     'bt.person.birthday': 'Birthday',
     'bt.person.turns': 'turns {n}',
@@ -151,7 +150,7 @@ window.STRINGS = {
     'bt.person.text': 'Message',
     'bt.person.mail': 'Email',
     'bt.me.title': 'My card',
-    'bt.me.intro': 'Only you can edit this card; it is saved on this device. Share it with the batch from Share cards.',
+    'bt.me.intro': 'Only you can edit this card. It is saved on this device and reaches the batch through Cloud sync.',
     'bt.me.name': 'Full name',
     'bt.me.nameHint': 'As you would like the batch to see it.',
     'bt.me.photo': 'Photo',
@@ -239,28 +238,7 @@ window.STRINGS = {
     'bt.common.shared': 'You both like: {value} ({field})',
     'bt.batchName': 'Batch name',
     'bt.batchNameHint': 'Shown on the home screen and the printed sheet, e.g. “Batch 2027”.',
-    'nav.scan': 'Scan a card',
     'nav.stats': 'Batch stats',
-    'bt.qr.title': 'Show my QR',
-    'bt.qr.text': 'A batchmate opens Scan a card and points their camera here. The QR carries your card’s text, not the photo — share the file for the full card.',
-    'bt.qr.btn': 'Show my QR',
-    'bt.qr.hide': 'Hide QR',
-    'bt.qr.trimmed': 'Your card is long, so the QR carries the first {n} of {total} fields. Share the file for everything.',
-    'bt.qr.linkText': 'Open Batch Tickler',
-    'bt.scan.intro': 'Point the camera at a batchmate’s QR, or pick a screenshot of one. The card is added to your batch.',
-    'bt.scan.start': 'Start camera',
-    'bt.scan.stop': 'Stop camera',
-    'bt.scan.photo': 'Scan a screenshot or photo',
-    'bt.scan.noCamera': 'No camera available here — use a screenshot instead.',
-    'bt.scan.denied': 'Camera permission was not given. You can still scan a screenshot.',
-    'bt.scan.looking': 'Looking for a QR…',
-    'bt.scan.notFound': 'No QR code found in that image.',
-    'bt.scan.notCard': 'That QR is not a Batch Tickler card.',
-    'bt.scan.added': 'Added {name} to your batch.',
-    'bt.scan.updated': 'Updated {name}’s card.',
-    'bt.scan.same': '{name} is already up to date.',
-    'bt.scan.me': 'That is your own card.',
-    'bt.scan.again': 'Scan another',
     'bt.cal.one': 'Add to calendar',
     'bt.cal.all': 'Batch birthday calendar',
     'bt.cal.allText': 'One calendar file with every birthday, repeating yearly. Open it on your phone and it offers to add the events.',
@@ -300,7 +278,7 @@ window.STRINGS = {
     'bt.guess.needDates': 'Needs four cards with birthdays.',
     'bt.guess.player': 'Player',
     'bt.banner.title': 'Batch photo',
-    'bt.banner.hint': 'Optional. Replaces the home-screen picture on this device — a wide group photo works best. It is included in backups but not in shared cards.',
+    'bt.banner.hint': 'Optional. Replaces the home-screen picture on this device — a wide group photo works best. It is included in backups; it is not synced to the cloud.',
     'bt.banner.choose': 'Choose photo',
     'bt.banner.remove': 'Use the default picture',
     'bt.banner.saved': 'Batch photo saved.',
@@ -356,7 +334,7 @@ window.STRINGS = {
     'bt.l.badUrl': '{list}: links must be from {hosts}.',
     'nav.picks': 'Batch picks',
     'bt.picks.intro': 'Everyone’s lists in one place — shows, films, food spots, wishlists and more. Most-listed first.',
-    'bt.picks.none': 'No lists yet. Add some to your card, then share it.',
+    'bt.picks.none': 'No lists yet. Add some to your card and save it.',
     'bt.picks.wishIntro': 'Sorted by whose birthday is next.',
     'bt.picks.onMap': 'See the bucket list on the map',
     'bt.map.offHintTravel': 'Places outside the Philippines, or names the map did not recognise.',
@@ -441,17 +419,17 @@ window.STRINGS = {
     'bt.badge.earned': 'Badge earned: {name} 🎉',
     'bt.badge.intro': '{n} of {total} badges earned on this phone.',
     'bt.badge.on': 'Earned {date}',
-    'bt.badge.note': 'Badges are earned on this phone and show on your card when you share it.',
+    'bt.badge.note': 'Badges are earned on this phone and show on your card, which reaches your batchmates after you save it.',
     'bt.shout.h': 'Shoutouts',
     'bt.shout.forYou': 'Shoutouts for you',
     'bt.shout.none': 'No shoutouts yet. Be the first!',
-    'bt.shout.noneYou': 'None yet. When batchmates send you a shoutout and share their card, it shows here.',
+    'bt.shout.noneYou': 'None yet. When batchmates send you a shoutout, it shows here after their card syncs.',
     'bt.shout.you': 'you',
     'bt.shout.label': 'A shoutout for {name}',
     'bt.shout.ph': 'Thanks for covering my rounds! 🙏',
-    'bt.shout.hint': 'Up to 280 characters. It travels with your card — share your card so they see it.',
+    'bt.shout.hint': 'Up to 280 characters. It travels with your card, so they see it after you save.',
     'bt.shout.send': 'Send shoutout',
-    'bt.shout.sent': 'Shoutout added to your card. Share your card so it reaches them.',
+    'bt.shout.sent': 'Shoutout added to your card. It reaches them after you save.',
     'bt.shout.needCard': 'Make your card first to send shoutouts',
     'bt.shout.homeH': 'A shoutout for you',
     'bt.shout.all': 'See all {n}',
@@ -464,7 +442,7 @@ window.STRINGS = {
     'bt.ev.none': 'No upcoming events yet. Add one below.',
     'bt.ev.allCal': 'Add all upcoming to calendar',
     'bt.ev.past': 'Past events',
-    'bt.ev.shareHint': 'Events travel with the batch file: Share cards › Share the whole batch.',
+    'bt.ev.shareHint': 'Events are shared with the batch through Cloud sync.',
     'bt.ev.add': 'Add an event',
     'bt.ev.edit': 'Edit event',
     'bt.ev.title': 'What',
@@ -607,7 +585,7 @@ window.STRINGS = {
     'nav.partners': "Partners",
     'bt.pt.intro': "The jowas and asawas of the batch. They have full cards, but stay out of the games, stats and batch grid.",
     'bt.pt.how': "How to add a partner",
-    'bt.pt.howText': "Your partner installs Batch Tickler on their own phone and imports your card. Then they fill in My card, choose “I’m a partner” and pick you. They share their card like anyone else — or send it to you and you share it with the batch.",
+    'bt.pt.howText': 'Your partner installs Batch Tickler on their own phone and signs in on Cloud sync with the same join code; the admin approves them. Then they fill in My card and choose “I’m a partner” and pick you.',
     'bt.pt.none': "No partner cards yet.",
     'bt.pt.of': "Partner of {name}",
     'bt.pt.ofLead': "Partner of",
@@ -626,9 +604,9 @@ window.STRINGS = {
     'bt.pt.tag': "Partner",
     'bt.g.emergency': "Emergency & medical",
     'bt.f.emergencyRelation2': "Second emergency contact relationship",
-    'bt.f.emergencyNote': "Shown on the Emergency info screen of everyone you share your card with. Never on the printed sheet or name tags, and conditions never go in QR codes.",
+    'bt.f.emergencyNote': 'Shown on the Emergency info screen of your batch members only if you tick Emergency & medical on Cloud sync. Never on the printed sheet or name tags.',
     'bt.em.intro': "Blood types, allergies, conditions and emergency contacts for the whole batch in one place. Works offline.",
-    'bt.em.note': "From the cards people chose to share with this phone. In a real emergency, call for help first.",
+    'bt.em.note': 'From the cards batchmates chose to share through Cloud sync. In a real emergency, call for help first.',
     'bt.em.call911': "Call 911",
     'bt.em.filter': "Find a batchmate",
     'bt.em.yours': "You",
@@ -642,8 +620,8 @@ window.STRINGS = {
     'bt.em.own': "Own number",
     'bt.em.contact': "Emergency contact",
     'bt.em.missing': "No emergency info yet",
-    'bt.em.missingText': "Ask them to fill in Emergency & medical on their card and share it again.",
-    'bt.em.none': "No cards yet. Add yours, then import your batchmates’ cards.",
+    'bt.em.missingText': 'Ask them to fill in Emergency & medical on their card and tick it on Cloud sync.',
+    'bt.em.none': 'No cards yet. Add yours, then check Cloud sync for your batchmates’ cards.',
     'bt.em.noMatch': "No one matches.",
     'bt.em.homeS1': "1 batchmate · blood types, allergies, emergency contacts",
     'bt.em.homeSN': "{n} batchmates · blood types, allergies, emergency contacts",
@@ -657,8 +635,8 @@ window.STRINGS = {
     'bt.h.prcExpiry': 'Just the month — to remind us when to renew. No numbers, please.',
     'bt.h.licenceExpiry': 'Just the month — to remind us when to renew. No numbers, please.',
     'bt.h.passportExpiry': 'Just the month — to remind us when to renew (and when to plan the batch trip). No numbers, please.',
-    'bt.h.dutyConditions': 'Shared only with people you give your card to; never in QR codes or prints.',
-    'bt.h.gcash': 'Never in QR codes or prints.',
+    'bt.h.dutyConditions': 'Only sent to batch members if you tick Emergency & medical on Cloud sync; never in prints.',
+    'bt.h.gcash': 'Never in prints; sent to batch members only if you tick Contact on Cloud sync.',
     'bt.s.screen': 'On screen',
     'bt.s.play': 'Games & fandoms',
     'bt.s.words': 'Music & words',
@@ -684,25 +662,8 @@ window.STRINGS = {
     'bt.bd.upcoming': 'Coming up',
     'bt.bd.none': 'No birthdays entered yet. Each resident adds theirs on My card.',
     'bt.bd.noDate': 'Birthday not given',
-    'bt.share.intro': 'Cards move between phones as small files. Share yours, import the ones you receive, or send the whole batch to someone who is just starting.',
-    'bt.share.mine': 'Share my card',
-    'bt.share.mineText': 'Sends a file with your card only. Batchmates import it on their phone.',
-    'bt.share.mineBtn': 'Share my card',
-    'bt.share.needMe': 'Fill in My card first.',
-    'bt.share.import': 'Import cards',
-    'bt.share.importText': 'Accepts a single card, a whole batch, or a Batch Tickler backup. Newer cards replace older copies; your own card is never overwritten.',
-    'bt.share.importBtn': 'Import cards',
-    'bt.share.all': 'Share the whole batch',
-    'bt.share.allText': 'Sends every card on this device in one file. Handy for a batchmate who is starting from nothing.',
-    'bt.share.allBtn': 'Share the batch',
-    'bt.share.allEmpty': 'There are no cards to share yet.',
     'bt.share.shared': 'Ready to send — pick a chat or save it to Files.',
-    'bt.share.saved': 'Saved {name}. Send it to your batchmates.',
     'bt.share.cancelled': 'Sharing cancelled.',
-    'bt.share.notCards': 'That file does not contain Batch Tickler cards.',
-    'bt.share.result': 'Imported: {added} new, {updated} updated, {skipped} skipped.',
-    'bt.share.skippedMe': 'Your own card is not replaced by imports.',
-    'bt.share.ownAll': 'Cards on this device: {n}.',
     'bt.print.intro': 'Batch sheet: a compact “meet the batch” page without contact details. Name tags: eight per page. Full directory: everything, over as many pages as needed. Use your browser’s Print (or Share → Print on iPhone) to print or save as PDF.',
     'bt.print.btn': 'Print',
     'bt.print.title': 'Meet the batch',
@@ -829,7 +790,7 @@ window.STRINGS = {
     'nav.anthem': 'Batch anthem',
     'bt.fun.needCard': 'Make your card first so your answers can travel with it.',
     'bt.fun.more': 'More on your card',
-    'bt.fun.moreHint': 'These live on their own screens and travel with your card file.',
+    'bt.fun.moreHint': 'These live on their own screens and travel with your card.',
     'bt.common.tot': 'Same This-or-that picks: {value}',
     'bt.res.text': '{game} — {right}/{n} · {batch}',
     'bt.res.bingo': 'Batch Bingo! · {batch} · {n} squares',
@@ -842,12 +803,12 @@ window.STRINGS = {
     'bt.tt.isLie': 'This is the lie',
     'bt.tt.need3': 'Fill in all three statements.',
     'bt.tt.needLie': 'Mark which one is the lie.',
-    'bt.tt.saved': 'Saved. Share your card so the batch can play.',
-    'bt.tt.none': 'Nobody else has added theirs yet. Once batchmates add theirs and share their cards, you can play here.',
+    'bt.tt.saved': 'Saved. Your card reaches the batch so they can play.',
+    'bt.tt.none': 'Nobody else has added theirs yet. Once batchmates add theirs and their cards sync, you can play here.',
     'bt.tt.ask': 'Which one is the lie?',
     'bt.quiz.intro': 'A quick quiz made from one batchmate’s card. Then send them your score.',
     'bt.quiz.title': 'How well do you know {name}?',
-    'bt.quiz.none': 'Needs batchmates with fuller cards — import a few cards first.',
+    'bt.quiz.none': 'Needs batchmates with fuller cards — wait for more cards to sync.',
     'bt.quiz.few': 'Their card doesn’t have enough answers for a quiz yet.',
     'bt.quiz.nq': '{n} questions',
     'bt.quiz.best': 'your best: {right}/{n}',
@@ -862,7 +823,7 @@ window.STRINGS = {
     'bt.quiz.other': 'Another batchmate',
     'bt.baby.intro': 'Match each baby photo to the batchmate.',
     'bt.baby.mine': 'Your baby photo',
-    'bt.baby.hint': 'Optional. A childhood photo of you. It travels with your card file (not the QR code).',
+    'bt.baby.hint': 'Optional. A childhood photo of you. It travels with your card to batch members.',
     'bt.baby.saved': 'Baby photo saved.',
     'bt.baby.none': 'Needs at least 2 batchmates with baby photos (and 4 cards). Ask the batch to add theirs!',
     'bt.baby.ask': 'Who is this baby?',
@@ -873,19 +834,19 @@ window.STRINGS = {
     'bt.tot.progress': '{n} of {total} answered. Tap again to clear a pick.',
     'bt.tot.twins': 'Most like you',
     'bt.tot.same': 'same pick on {same} of {both}',
-    'bt.tot.none': 'No picks yet. Answer yours and share your card.',
+    'bt.tot.none': 'No picks yet. Answer yours and save your card.',
     'bt.sup.intro': 'Yearbook-style awards. Vote for a batchmate in each; results count the votes on every card on this phone.',
     'bt.sup.vote': 'My votes',
     'bt.sup.results': 'Results',
     'bt.sup.pick': '— choose —',
     'bt.sup.progress': '{n} of {total} voted.',
-    'bt.sup.noOthers': 'Import your batchmates’ cards first so you have someone to vote for.',
-    'bt.sup.note': 'Your votes travel with your card file, so batchmates see the totals after they import it.',
+    'bt.sup.noOthers': 'No batchmates’ cards yet, so there is no one to vote for. Check Cloud sync.',
+    'bt.sup.note': 'Your votes travel with your card, so batchmates see the totals once it syncs.',
     'bt.sup.votes1': '1 vote',
     'bt.sup.votesN': '{n} votes',
     'bt.sup.also': 'Also voted:',
     'bt.sup.none': 'No votes yet.',
-    'bt.qotw.intro': 'One new question every Monday. Answer it, share your card, and read everyone’s answers.',
+    'bt.qotw.intro': 'One new question every Monday. Answer it, save your card, and read everyone’s answers.',
     'bt.qotw.thisWeek': 'This week',
     'bt.qotw.yours': 'You:',
     'bt.qotw.ph': 'Your answer',
@@ -904,7 +865,7 @@ window.STRINGS = {
     'bt.bw.waitN': '{n} messages are waiting for your birthday.',
     'bt.bw.label': 'A birthday message for {name}',
     'bt.bw.ph': 'Happy birthday! …',
-    'bt.bw.hint': 'It travels with your card. {name} sees it on their birthday after importing your card.',
+    'bt.bw.hint': 'It travels with your card. {name} sees it on their birthday once it syncs.',
     'bt.bw.post': 'Add to the wall',
     'bt.bw.posted': 'Added to the birthday wall.',
     'bt.bw.home1': '1 message on the birthday wall',
@@ -920,7 +881,7 @@ window.STRINGS = {
     'bt.cap.openOn': 'Open on',
     'bt.cap.seal': 'Seal it',
     'bt.cap.sealed': 'Sealed. 🔒',
-    'bt.cap.note': 'Sealed means hidden in this app, not encrypted — anyone who opens your card file could still read a letter to the batch.',
+    'bt.cap.note': 'Sealed means hidden in this app, not encrypted — anyone with access to your synced card could still read a letter to the batch.',
     'bt.cap.needText': 'Write something first.',
     'bt.cap.needDate': 'Pick an opening date after today.',
     'bt.cap.max': 'Up to 5 letters to the batch. Remove one first.',
@@ -981,7 +942,88 @@ window.STRINGS = {
     'bt.badge.dj': 'Batch DJ',
     'bt.badge.dj.how': 'Add your song to the batch anthem.',
     'bt.badge.foodie': 'Food tripper',
-    'bt.badge.foodie.how': 'Spin Where should we eat?'
+    'bt.badge.foodie.how': 'Spin Where should we eat?',
+    // 1.18.0 Cloud sync
+    'nav.sync': 'Cloud sync',
+    'bt.sync.intro': 'Your card reaches every approved batchmate through the cloud, and theirs reach you. No more swapping files or QR codes.',
+    'bt.sync.loading': 'Connecting to the cloud…',
+    'bt.sync.retry': 'Try again',
+    'bt.sync.step1': 'Sign in',
+    'bt.sync.signInText': 'Sign in with your Google account. It is only used to check that you belong to the batch; Batch Tickler never sees your password.',
+    'bt.sync.signIn': 'Sign in with Google',
+    'bt.sync.signingIn': 'Opening Google sign-in…',
+    'bt.sync.signedInAs': 'Signed in as {email}',
+    'bt.sync.signOut': 'Sign out',
+    'bt.sync.confirmOut': 'Sign out of the cloud on this phone? The cards already here stay; they just stop updating until you sign in again.',
+    'bt.sync.joinH': 'Join your batch',
+    'bt.sync.joinText': 'Type the join code you got from the admin. The admin then approves you, and the cards start to arrive.',
+    'bt.sync.code': 'Join code',
+    'bt.sync.join': 'Ask to join',
+    'bt.sync.badCode': 'That code looks too short. Check it and try again.',
+    'bt.sync.checking': 'Checking the code…',
+    'bt.sync.noBatch': 'No batch has that code. Check it with the admin.',
+    'bt.sync.createH': 'Create a batch (admin)',
+    'bt.sync.createText': 'Makes a new batch and its join code. Give the code to your batchmates, then approve each request here.',
+    'bt.sync.create': 'Create batch',
+    'bt.sync.existing': 'Or open a batch you already made:',
+    'bt.sync.pendingH': 'Waiting for approval',
+    'bt.sync.pendingText': 'Your request to join {name} was sent. Once the admin approves it, your batchmates’ cards arrive here on their own.',
+    'bt.sync.checkAgain': 'Check again',
+    'bt.sync.stillPending': 'Not approved yet. Try again later.',
+    'bt.sync.cancelReq': 'Cancel request',
+    'bt.sync.approved': 'You’re in! Getting the batch’s cards…',
+    'bt.sync.removed': 'This account is no longer a member of the batch. Ask the admin, or enter the code again to request to join.',
+    'bt.sync.batch': 'Your batch',
+    'bt.sync.memberText': 'You’re a member. Your card is sent whenever you save it, and new cards come in each time you open the app.',
+    'bt.sync.inviteCode': 'Join code:',
+    'bt.sync.copy': 'Copy',
+    'bt.sync.copied': 'Join code copied.',
+    'bt.sync.now': 'Sync now',
+    'bt.sync.busy': 'Syncing…',
+    'bt.sync.last': 'Last synced {when}',
+    'bt.sync.never': 'Not synced yet',
+    'bt.sync.result': 'Synced: {added} new, {updated} updated, {removed} removed.',
+    'bt.sync.upToDate': 'Everything is up to date.',
+    'bt.sync.needCard': 'Fill in My card so your batchmates get yours too.',
+    'bt.sync.consentH': 'What leaves your phone',
+    'bt.sync.consentText': 'Everything on your card is sent to batch members except the two groups below, which stay on this phone until you tick them. You can untick them any time.',
+    'bt.sync.consent.emergency': 'Blood type, allergies, conditions and emergency contacts. Shown on everyone’s Emergency info screen.',
+    'bt.sync.consent.contact': 'Your numbers, emails, GCash, socials, where you stay and sizes.',
+    'bt.sync.consentConfirm.emergency': 'Share your Emergency & medical details with the members of your batch? This is sensitive personal information; only approved members can see it, and you can stop sharing it any time.',
+    'bt.sync.consentConfirm.contact': 'Share your Contact details (numbers, emails, GCash, socials) with the members of your batch? Only approved members can see them, and you can stop sharing any time.',
+    'bt.sync.consentOn': 'Saved. Sending your card…',
+    'bt.sync.consentOff': 'Saved. That group is removed from the cloud copy of your card.',
+    'bt.sync.adminH': 'Admin',
+    'bt.sync.requests': 'Join requests',
+    'bt.sync.noRequests': 'No requests waiting.',
+    'bt.sync.approve': 'Approve',
+    'bt.sync.decline': 'Decline',
+    'bt.sync.approvedX': '{name} approved.',
+    'bt.sync.confirmDecline': 'Decline the request from {name}?',
+    'bt.sync.members': 'Members',
+    'bt.sync.you': 'You',
+    'bt.sync.remove': 'Remove',
+    'bt.sync.confirmRemove': 'Remove {name} from the batch? Their card is deleted from the cloud and disappears from everyone’s phone at the next daily sync.',
+    'bt.sync.reload': 'Refresh the lists',
+    'bt.sync.leaveH': 'Leave the batch',
+    'bt.sync.leaveText': 'Deletes your card from the cloud and stops syncing on this phone. Cards already on this phone stay.',
+    'bt.sync.leave': 'Leave batch',
+    'bt.sync.confirmLeave': 'Leave the batch? Your card is deleted from the cloud and removed from your batchmates’ phones at their next daily sync.',
+    'bt.sync.left': 'You left the batch.',
+    'bt.sync.privacyH': 'Privacy',
+    'bt.sync.privacy1': 'Only batch members approved by the admin can read the cards. Each person can only change their own.',
+    'bt.sync.privacy2': 'Cards are stored in Google Firebase (Firestore) for this app only. There are no ads and no tracking.',
+    'bt.sync.privacy3': 'Emergency & medical and Contact details leave your phone only if you tick them on this screen.',
+    'bt.sync.privacy4': 'Leaving the batch deletes your card from the cloud.',
+    'bt.sync.errPerm': 'The cloud refused that. You may not be approved yet, or you were removed from the batch.',
+    'bt.sync.errNet': 'Can’t reach the cloud. Check your internet connection and try again.',
+    'bt.sync.errClosed': 'Sign-in was closed before it finished.',
+    'bt.sync.errSignedOut': 'You are signed out. Sign in again on Cloud sync.',
+    'bt.sync.errOther': 'Something went wrong ({code}).',
+    'bt.sync.homeH': 'Join your batch in the cloud',
+    'bt.sync.home': 'Sign in once and everyone’s cards arrive on their own.',
+    'bt.sync.homePendingH': 'Waiting for approval',
+    'bt.sync.homePending': 'The admin hasn’t approved your join request yet.'
   },
 
   // Tagalog draft — Dr. Navarro reviews before release
@@ -990,7 +1032,6 @@ window.STRINGS = {
     'nav.batch': 'Ang batch',
     'nav.me': 'Card ko',
     'nav.birthdays': 'Mga kaarawan',
-    'nav.share': 'Ibahagi ang mga card',
     'nav.print': 'Print sheet',
     'nav.guess': 'Hulaan kung sino',
     'bt.hero.cta': 'Punan ang card ko',
@@ -1028,7 +1069,7 @@ window.STRINGS = {
     'bt.ws.other': 'Ibang tanong',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ws.ask': 'Kanino ang sagot na ito sa {field}?',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bingo.intro': 'Hanapin ang mga kabatch na tugma sa bawat kahon. I-tap ang kahon kapag may nahanap ka. Lima nang sunod-sunod (pahalang, pababa o pahilis) ang panalo.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.bingo.notEnough': 'Kulang pa ang detalye sa mga card. Mag-import muna ng ilan pang card.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bingo.notEnough': 'Kulang pa ang detalye sa mga card. Hintayin munang ma-sync ang iba pang card.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bingo.win': 'BINGO! 🎉',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bingo.winN': 'BINGO × {n}! 🎉',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bingo.free': 'Libre',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1051,7 +1092,7 @@ window.STRINGS = {
     'bt.ice.askWho': 'Subukang tanungin si {name}.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ice.next': 'Susunod',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ice.otherWho': 'Iba naman',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.ice.noCards': 'Mag-import muna ng mga card ng kabatch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ice.noCards': 'Wala pang card ng kabatch. Tingnan ang Cloud sync.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ice.cardQ': 'Tanungin si {name} tungkol sa {field} niya.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ice.theirCard': 'Sabi ng card niya',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ice.reveal': 'Silipin ang card niya',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1112,20 +1153,20 @@ window.STRINGS = {
     'bt.home.today': 'Ngayon!',
     'bt.home.inDays1': 'bukas',
     'bt.home.inDaysN': 'sa loob ng {n} araw',
-    'bt.home.noMe': 'Magsimula sa sarili mong card, tapos ibahagi ito sa batch.',
+    'bt.home.noMe': 'Magsimula sa sarili mong card; makakarating ito sa batch pagkatapos mong i-save.',
     'bt.batch.intro': 'Lahat ng may card sa device na ito. I-tap ang card para magbasa pa.',
     'bt.batch.filter': 'I-filter ayon sa pangalan, bayan, paaralan…',
     'bt.batch.sortName': 'Ayon sa pangalan',
     'bt.batch.sortBirthday': 'Ayon sa kaarawan',
     'bt.batch.sortHometown': 'Ayon sa bayan',
     'bt.batch.emptyTitle': 'Wala pang card',
-    'bt.batch.emptyText': 'Punan muna ang sarili mong card, tapos i-import ang mga card na ibabahagi ng mga kabatch mo.',
+    'bt.batch.emptyText': 'Punan muna ang sarili mong card, tapos darating ang mga card ng kabatch mo sa pamamagitan ng Cloud sync.',
     'bt.batch.noMatch': 'Walang tumutugma.',
     'bt.batch.you': 'Ikaw',
     'bt.person.notFound': 'Wala ang card na iyan sa device na ito.',
     'bt.person.edit': 'I-edit ang card ko',
     'bt.person.remove': 'Alisin ang card na ito',
-    'bt.person.confirmRemove': 'Alisin si {name} sa device na ito? Maaari mong i-import muli ang card niya mamaya.',
+    'bt.person.confirmRemove': 'Alisin si {name} sa device na ito? Babalik ang card niya sa susunod na sync.',
     'bt.person.updated': 'Na-update ang card noong {date}',
     'bt.person.birthday': 'Kaarawan',
     'bt.person.turns': 'magiging {n}',
@@ -1134,7 +1175,7 @@ window.STRINGS = {
     'bt.person.text': 'I-message',
     'bt.person.mail': 'I-email',
     'bt.me.title': 'Card ko',
-    'bt.me.intro': 'Ikaw lang ang makakapag-edit ng card na ito; naka-save ito sa device na ito. Ibahagi ito sa batch mula sa Ibahagi ang mga card.',
+    'bt.me.intro': 'Ikaw lang ang puwedeng mag-edit ng card na ito. Naka-save ito sa device na ito at makakarating sa batch sa pamamagitan ng Cloud sync.',
     'bt.me.name': 'Buong pangalan',
     'bt.me.nameHint': 'Kung paano mo gustong makita ito ng batch.',
     'bt.me.photo': 'Larawan',
@@ -1222,28 +1263,7 @@ window.STRINGS = {
     'bt.common.shared': 'Pareho kayong mahilig sa: {value} ({field})',
     'bt.batchName': 'Pangalan ng batch',
     'bt.batchNameHint': 'Lalabas sa home screen at sa printed sheet, hal. “Batch 2027”.',
-    'nav.scan': 'I-scan ang card',
     'nav.stats': 'Batch stats',
-    'bt.qr.title': 'Ipakita ang QR ko',
-    'bt.qr.text': 'Bubuksan ng kabatch ang I-scan ang card at itututok ang camera dito. Dala ng QR ang teksto ng card mo, hindi ang larawan — ibahagi ang file para sa buong card.',
-    'bt.qr.btn': 'Ipakita ang QR ko',
-    'bt.qr.hide': 'Itago ang QR',
-    'bt.qr.trimmed': 'Mahaba ang card mo, kaya dala ng QR ang unang {n} sa {total} field. Ibahagi ang file para sa lahat.',
-    'bt.qr.linkText': 'Buksan ang Batch Tickler',
-    'bt.scan.intro': 'Itutok ang camera sa QR ng kabatch, o pumili ng screenshot nito. Idadagdag ang card sa batch mo.',
-    'bt.scan.start': 'Buksan ang camera',
-    'bt.scan.stop': 'Isara ang camera',
-    'bt.scan.photo': 'I-scan ang screenshot o larawan',
-    'bt.scan.noCamera': 'Walang camera dito — gumamit na lang ng screenshot.',
-    'bt.scan.denied': 'Hindi ibinigay ang pahintulot sa camera. Puwede ka pa ring mag-scan ng screenshot.',
-    'bt.scan.looking': 'Naghahanap ng QR…',
-    'bt.scan.notFound': 'Walang nakitang QR code sa larawang iyan.',
-    'bt.scan.notCard': 'Hindi Batch Tickler card ang QR na iyan.',
-    'bt.scan.added': 'Naidagdag si {name} sa batch mo.',
-    'bt.scan.updated': 'Na-update ang card ni {name}.',
-    'bt.scan.same': 'Napapanahon na ang card ni {name}.',
-    'bt.scan.me': 'Sarili mong card iyan.',
-    'bt.scan.again': 'Mag-scan ulit',
     'bt.cal.one': 'Idagdag sa kalendaryo',
     'bt.cal.all': 'Kalendaryo ng mga kaarawan ng batch',
     'bt.cal.allText': 'Isang calendar file na may lahat ng kaarawan, taun-taon. Buksan ito sa telepono mo at iaalok nitong idagdag ang mga event.',
@@ -1283,7 +1303,7 @@ window.STRINGS = {
     'bt.guess.needDates': 'Kailangan ng apat na card na may kaarawan.',
     'bt.guess.player': 'Manlalaro',
     'bt.banner.title': 'Larawan ng batch',
-    'bt.banner.hint': 'Opsyonal. Pinapalitan nito ang larawan sa home screen sa device na ito — pinakamaganda ang malapad na group photo. Kasama ito sa backup pero hindi sa mga ibinahaging card.',
+    'bt.banner.hint': 'Opsyonal. Pinapalitan nito ang larawan sa home screen sa device na ito — pinakamaganda ang malapad na group photo. Kasama ito sa backup; hindi ito sini-sync sa cloud.',
     'bt.banner.choose': 'Pumili ng larawan',
     'bt.banner.remove': 'Gamitin ang default na larawan',
     'bt.banner.saved': 'Na-save ang larawan ng batch.',
@@ -1339,7 +1359,7 @@ window.STRINGS = {
     'bt.l.badUrl': '{list}: dapat galing sa {hosts} ang mga link.',  // Tagalog draft — Dr. Navarro reviews before release
     'nav.picks': 'Batch picks',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.picks.intro': 'Lahat ng list ng batch sa iisang lugar — show, pelikula, kainan, wishlist at iba pa. Pinakamaraming naglista muna.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.picks.none': 'Wala pang list. Magdagdag sa card mo, saka i-share.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.picks.none': 'Wala pang list. Magdagdag sa card mo at i-save.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.picks.wishIntro': 'Ayon sa kung kaninong kaarawan ang susunod.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.picks.onMap': 'Tingnan ang bucket list sa mapa',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.map.offHintTravel': 'Mga lugar sa labas ng Pilipinas, o pangalang hindi nakilala ng mapa.',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1424,17 +1444,17 @@ window.STRINGS = {
     'bt.badge.earned': 'Nakakuha ng badge: {name} 🎉',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.intro': '{n} sa {total} badge ang nakuha sa phone na ito.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.on': 'Nakuha {date}',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.badge.note': 'Nakukuha ang mga badge sa phone na ito at lumalabas sa card mo kapag ibinahagi mo ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.note': 'Nakukuha ang mga badge sa phone na ito at lumalabas sa card mo, na makakarating sa mga kabatch mo pagkatapos mong i-save.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.h': 'Mga shoutout',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.forYou': 'Mga shoutout para sa iyo',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.none': 'Wala pang shoutout. Ikaw na ang mauna!',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.shout.noneYou': 'Wala pa. Kapag nagpadala ng shoutout ang kabatch at ibinahagi ang card nila, lalabas ito rito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.noneYou': 'Wala pa. Kapag nagpadala ng shoutout ang kabatch, lalabas ito rito pagka-sync ng card nila.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.you': 'ikaw',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.label': 'Shoutout para kay {name}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.ph': 'Salamat sa pag-cover ng rounds ko! 🙏',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.shout.hint': 'Hanggang 280 character. Kasama ito ng card mo — i-share ang card mo para makita nila.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.hint': 'Hanggang 280 character. Kasama ito ng card mo, kaya makikita nila ito pagkatapos mong i-save.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.send': 'Ipadala ang shoutout',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.shout.sent': 'Naidagdag ang shoutout sa card mo. I-share ang card mo para makarating sa kanila.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.shout.sent': 'Naidagdag ang shoutout sa card mo. Makakarating ito sa kanila pagkatapos mong i-save.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.needCard': 'Gumawa muna ng card para makapag-shoutout',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.homeH': 'Shoutout para sa iyo',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.shout.all': 'Tingnan lahat ({n})',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1447,7 +1467,7 @@ window.STRINGS = {
     'bt.ev.none': 'Wala pang paparating na event. Magdagdag sa ibaba.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ev.allCal': 'Idagdag lahat ng paparating sa calendar',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ev.past': 'Mga nakaraang event',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.ev.shareHint': 'Kasama ang mga event sa batch file: Share cards › Share the whole batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.ev.shareHint': 'Ibinabahagi ang mga event sa batch sa pamamagitan ng Cloud sync.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ev.add': 'Magdagdag ng event',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ev.edit': 'I-edit ang event',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.ev.title': 'Ano',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1590,7 +1610,7 @@ window.STRINGS = {
     'nav.partners': "Mga jowa/asawa",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pt.intro': "Ang mga jowa at asawa ng batch. May buong card sila, pero wala sa mga laro, stats at batch grid.",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pt.how': "Paano magdagdag ng jowa/asawa",  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.pt.howText': "I-install ng partner mo ang Batch Tickler sa sarili niyang phone at i-import ang card mo. Saka niya punan ang My card, piliin ang “Partner ako” at piliin ka. Ibabahagi niya ang card niya gaya ng iba — o ipadala sa iyo at ikaw ang magbahagi sa batch.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.pt.howText': 'I-install ng partner mo ang Batch Tickler sa sarili niyang phone at mag-sign in sa Cloud sync gamit ang parehong join code; aaprubahan siya ng admin. Saka niya punan ang My card, piliin ang “Partner ako” at piliin ka.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pt.none': "Wala pang card ng partner.",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pt.of': "Partner ni {name}",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.pt.ofLead': "Partner ni",  // Tagalog draft — Dr. Navarro reviews before release
@@ -1609,9 +1629,9 @@ window.STRINGS = {
     'bt.pt.tag': "Partner",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.g.emergency': "Emergency at medikal",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.f.emergencyRelation2': "Relasyon sa pangalawang emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.f.emergencyNote': "Makikita sa Emergency info ng lahat ng binigyan mo ng card mo. Hindi kailanman sa printed sheet o name tag, at ang mga kondisyon ay hindi kailanman sa QR code.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.f.emergencyNote': 'Makikita sa Emergency info ng mga kabatch mo kung titikan mo lang ang Emergency & medical sa Cloud sync. Hindi kailanman sa printed sheet o name tag.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.intro': "Blood type, allergy, kondisyon at emergency contact ng buong batch sa iisang lugar. Gumagana kahit offline.",  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.em.note': "Mula sa mga card na piniling ibahagi sa phone na ito. Sa tunay na emergency, tumawag muna ng tulong.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.note': 'Mula sa mga card na piniling ibahagi ng mga kabatch sa pamamagitan ng Cloud sync. Sa tunay na emergency, tumawag muna ng tulong.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.call911': "Tumawag sa 911",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.filter': "Hanapin ang ka-batch",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.yours': "Ikaw",  // Tagalog draft — Dr. Navarro reviews before release
@@ -1625,8 +1645,8 @@ window.STRINGS = {
     'bt.em.own': "Sariling numero",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.contact': "Emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.missing': "Wala pang emergency info",  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.em.missingText': "Pakiusapan silang punan ang Emergency at medikal sa card nila at ibahagi ulit.",  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.em.none': "Wala pang card. Ilagay ang sa iyo, saka i-import ang mga card ng ka-batch mo.",  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.missingText': 'Pakiusapan silang punan ang Emergency at medikal sa card nila at tikan ito sa Cloud sync.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.em.none': 'Wala pang card. Ilagay ang sa iyo, saka tingnan ang Cloud sync para sa mga card ng ka-batch mo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.noMatch': "Walang tumugma.",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.homeS1': "1 ka-batch · blood type, allergy, emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
     'bt.em.homeSN': "{n} ka-batch · blood type, allergy, emergency contact",  // Tagalog draft — Dr. Navarro reviews before release
@@ -1640,8 +1660,8 @@ window.STRINGS = {
     'bt.h.prcExpiry': 'Buwan lang — para maalala natin kung kailan mag-renew. Walang numero, please.',
     'bt.h.licenceExpiry': 'Buwan lang — para maalala natin kung kailan mag-renew. Walang numero, please.',
     'bt.h.passportExpiry': 'Buwan lang — para maalala natin kung kailan mag-renew (at kung kailan magplano ng batch trip). Walang numero, please.',
-    'bt.h.dutyConditions': 'Ibinabahagi lang sa mga binigyan mo ng card mo; hindi kailanman sa QR code o print.',
-    'bt.h.gcash': 'Hindi kailanman sa QR code o print.',
+    'bt.h.dutyConditions': 'Ipinapadala lang sa mga miyembro ng batch kung titikan mo ang Emergency & medical sa Cloud sync; hindi kailanman sa print.',
+    'bt.h.gcash': 'Hindi kailanman sa print; ipinapadala lang sa mga miyembro ng batch kung titikan mo ang Contact sa Cloud sync.',
     'bt.s.screen': 'Sa screen',
     'bt.s.play': 'Mga laro at fandom',
     'bt.s.words': 'Musika at salita',
@@ -1667,25 +1687,8 @@ window.STRINGS = {
     'bt.bd.upcoming': 'Paparating',
     'bt.bd.none': 'Wala pang nakalagay na kaarawan. Idinadagdag ito ng bawat residente sa Card ko.',
     'bt.bd.noDate': 'Walang ibinigay na kaarawan',
-    'bt.share.intro': 'Lumilipat ang mga card sa pagitan ng mga telepono bilang maliliit na file. Ibahagi ang sa iyo, i-import ang mga natanggap mo, o ipadala ang buong batch sa kabatch na nagsisimula pa lang.',
-    'bt.share.mine': 'Ibahagi ang card ko',
-    'bt.share.mineText': 'Nagpapadala ng file na card mo lang ang laman. Ini-import ito ng mga kabatch sa telepono nila.',
-    'bt.share.mineBtn': 'Ibahagi ang card ko',
-    'bt.share.needMe': 'Punan muna ang Card ko.',
-    'bt.share.import': 'I-import ang mga card',
-    'bt.share.importText': 'Tumatanggap ng isang card, buong batch, o backup ng Batch Tickler. Pinapalitan ng mas bagong card ang mas luma; hindi kailanman napapalitan ang sarili mong card.',
-    'bt.share.importBtn': 'I-import ang mga card',
-    'bt.share.all': 'Ibahagi ang buong batch',
-    'bt.share.allText': 'Nagpapadala ng bawat card sa device na ito sa isang file. Madaling gamitin para sa kabatch na nagsisimula sa wala.',
-    'bt.share.allBtn': 'Ibahagi ang batch',
-    'bt.share.allEmpty': 'Wala pang card na maibabahagi.',
     'bt.share.shared': 'Handa nang ipadala — pumili ng chat o i-save sa Files.',
-    'bt.share.saved': 'Na-save ang {name}. Ipadala ito sa mga kabatch mo.',
     'bt.share.cancelled': 'Kinansela ang pagbabahagi.',
-    'bt.share.notCards': 'Walang Batch Tickler card ang file na iyan.',
-    'bt.share.result': 'Na-import: {added} bago, {updated} na-update, {skipped} nilaktawan.',
-    'bt.share.skippedMe': 'Hindi pinapalitan ng import ang sarili mong card.',
-    'bt.share.ownAll': 'Mga card sa device na ito: {n}.',
     'bt.print.intro': 'Batch sheet: compact na “meet the batch” na pahina na walang contact details. Mga name tag: walo bawat pahina. Buong direktoryo: lahat, sa kahit ilang pahina. Gamitin ang Print ng browser (o Share → Print sa iPhone) para i-print o i-save bilang PDF.',
     'bt.print.btn': 'I-print',
     'bt.print.title': 'Kilalanin ang batch',
@@ -1812,7 +1815,7 @@ window.STRINGS = {
     'nav.anthem': 'Batch anthem',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.fun.needCard': 'Gawin muna ang card mo para sumama ang mga sagot mo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.fun.more': 'Higit pa sa card mo',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.fun.moreHint': 'May sarili silang screen at sumasama sa card file mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.fun.moreHint': 'May sarili silang screen at sumasama sa card mo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.common.tot': 'Parehong pick sa This or that: {value}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.res.text': '{game} — {right}/{n} · {batch}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.res.bingo': 'Batch Bingo! · {batch} · {n} squares',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1825,12 +1828,12 @@ window.STRINGS = {
     'bt.tt.isLie': 'Ito ang lie',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.tt.need3': 'Punan ang lahat ng tatlong statement.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.tt.needLie': 'Markahan kung alin ang lie.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.tt.saved': 'Na-save na. I-share ang card mo para makapaglaro ang batch.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.tt.none': 'Wala pang nagdagdag ng sa kanila. Kapag nagdagdag na ang batchmates mo at nag-share ng cards, makakapaglaro ka na dito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.saved': 'Na-save. Makakarating ang card mo sa batch para makapaglaro sila.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.none': 'Wala pang nagdagdag ng sa kanila. Kapag nagdagdag na ang batchmates mo at na-sync na ang mga card nila, makakapaglaro ka na dito.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.tt.ask': 'Alin ang lie?',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.quiz.intro': 'Mabilis na quiz mula sa card ng isang batchmate. Tapos ipadala sa kanila ang score mo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.quiz.title': 'Gaano mo kakilala si {name}?',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.quiz.none': 'Kailangan ng batchmates na mas kumpleto ang card — mag-import muna ng ilang cards.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.none': 'Kailangan ng batchmates na mas kumpleto ang card — hintayin munang ma-sync ang iba pang card.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.quiz.few': 'Kulang pa ang sagot sa card nila para sa quiz.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.quiz.nq': '{n} tanong',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.quiz.best': 'best mo: {right}/{n}',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1845,7 +1848,7 @@ window.STRINGS = {
     'bt.quiz.other': 'Ibang batchmate',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.baby.intro': 'Ipares ang bawat baby photo sa batchmate.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.baby.mine': 'Baby photo mo',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.baby.hint': 'Optional. Childhood photo mo. Sumasama ito sa card file mo (hindi sa QR code).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.hint': 'Optional. Childhood photo mo. Sumasama ito sa card mo papunta sa mga miyembro ng batch.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.baby.saved': 'Na-save ang baby photo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.baby.none': 'Kailangan ng hindi bababa sa 2 batchmates na may baby photo (at 4 na cards). Sabihan ang batch na magdagdag!',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.baby.ask': 'Sino ang baby na ito?',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1856,19 +1859,19 @@ window.STRINGS = {
     'bt.tot.progress': '{n} sa {total} ang nasagot. I-tap ulit para burahin ang pick.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.tot.twins': 'Pinakakapareho mo',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.tot.same': 'parehong pick sa {same} sa {both}',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.tot.none': 'Wala pang picks. Sagutan ang sa iyo at i-share ang card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.none': 'Wala pang picks. Sagutan ang sa iyo at i-save ang card mo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.intro': 'Awards na parang yearbook. Bumoto ng batchmate sa bawat isa; bibilangin ng results ang votes sa lahat ng cards sa phone na ito.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.vote': 'Mga boto ko',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.results': 'Results',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.pick': '— pumili —',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.progress': '{n} sa {total} ang nabotohan.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.sup.noOthers': 'I-import muna ang cards ng batchmates mo para may mabotohan ka.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.sup.note': 'Sumasama ang votes mo sa card file mo, kaya makikita ng batchmates ang totals pagkatapos nilang i-import ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.noOthers': 'Wala pang card ng batchmates mo kaya wala pang mabotohan. Tingnan ang Cloud sync.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.note': 'Sumasama ang votes mo sa card mo, kaya makikita ng batchmates ang totals pagka-sync nito.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.votes1': '1 boto',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.votesN': '{n} boto',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.also': 'Binoto rin:',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.sup.none': 'Wala pang boto.',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.qotw.intro': 'Isang bagong tanong tuwing Lunes. Sagutin ito, i-share ang card mo, at basahin ang sagot ng lahat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.intro': 'Isang bagong tanong tuwing Lunes. Sagutin ito, i-save ang card mo, at basahin ang sagot ng lahat.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.qotw.thisWeek': 'Ngayong linggo',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.qotw.yours': 'Ikaw:',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.qotw.ph': 'Sagot mo',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1887,7 +1890,7 @@ window.STRINGS = {
     'bt.bw.waitN': 'May {n} mensaheng naghihintay sa birthday mo.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bw.label': 'Birthday message para kay {name}',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bw.ph': 'Happy birthday! …',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.bw.hint': 'Sasama ito sa card mo. Makikita ito ni {name} sa birthday niya pagkatapos i-import ang card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.hint': 'Sasama ito sa card mo. Makikita ito ni {name} sa birthday niya pagka-sync nito.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bw.post': 'Idagdag sa wall',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bw.posted': 'Naidagdag sa birthday wall.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bw.home1': '1 mensahe sa birthday wall',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1903,7 +1906,7 @@ window.STRINGS = {
     'bt.cap.openOn': 'Bubuksan sa',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.cap.seal': 'I-seal',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.cap.sealed': 'Naka-seal na. 🔒',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.cap.note': 'Ang sealed ay nakatago lang sa app na ito, hindi encrypted — mababasa pa rin ng sinumang magbukas ng card file mo ang sulat para sa batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.note': 'Ang sealed ay nakatago lang sa app na ito, hindi encrypted — mababasa pa rin ng sinumang may access sa na-sync mong card ang sulat para sa batch.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.cap.needText': 'Sumulat muna ng kahit ano.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.cap.needDate': 'Pumili ng petsa ng pagbubukas pagkatapos ng ngayon.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.cap.max': 'Hanggang 5 sulat lang para sa batch. Magtanggal muna ng isa.',  // Tagalog draft — Dr. Navarro reviews before release
@@ -1964,6 +1967,87 @@ window.STRINGS = {
     'bt.badge.dj': 'Batch DJ',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.dj.how': 'Idagdag ang kanta mo sa batch anthem.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.badge.foodie': 'Food tripper',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.badge.foodie.how': 'Mag-spin sa Saan tayo kakain?'  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.foodie.how': 'Mag-spin sa Saan tayo kakain?',  // Tagalog draft — Dr. Navarro reviews before release
+    // 1.18.0 Cloud sync — Tagalog draft — Dr. Navarro reviews before release
+    'nav.sync': 'Cloud sync',
+    'bt.sync.intro': 'Dumadating ang card mo sa bawat aprubadong kabatch sa pamamagitan ng cloud, at dumadating din sa iyo ang sa kanila. Wala nang palitan ng file o QR code.',
+    'bt.sync.loading': 'Kumokonekta sa cloud…',
+    'bt.sync.retry': 'Subukan ulit',
+    'bt.sync.step1': 'Mag-sign in',
+    'bt.sync.signInText': 'Mag-sign in gamit ang Google account mo. Ginagamit lang ito para tiyaking kabilang ka sa batch; hindi kailanman nakikita ng Batch Tickler ang password mo.',
+    'bt.sync.signIn': 'Mag-sign in gamit ang Google',
+    'bt.sync.signingIn': 'Binubuksan ang Google sign-in…',
+    'bt.sync.signedInAs': 'Naka-sign in bilang {email}',
+    'bt.sync.signOut': 'Mag-sign out',
+    'bt.sync.confirmOut': 'Mag-sign out sa cloud sa phone na ito? Mananatili ang mga card na nandito na; hihinto lang silang mag-update hangga’t hindi ka ulit nagsa-sign in.',
+    'bt.sync.joinH': 'Sumali sa batch mo',
+    'bt.sync.joinText': 'I-type ang join code na galing sa admin. Aaprubahan ka ng admin, at saka darating ang mga card.',
+    'bt.sync.code': 'Join code',
+    'bt.sync.join': 'Humiling na sumali',
+    'bt.sync.badCode': 'Parang masyadong maikli ang code na iyan. Suriin at subukan ulit.',
+    'bt.sync.checking': 'Sinusuri ang code…',
+    'bt.sync.noBatch': 'Walang batch na may ganyang code. Itanong sa admin.',
+    'bt.sync.createH': 'Gumawa ng batch (admin)',
+    'bt.sync.createText': 'Gagawa ng bagong batch at join code nito. Ibigay ang code sa mga kabatch mo, tapos aprubahan dito ang bawat request.',
+    'bt.sync.create': 'Gumawa ng batch',
+    'bt.sync.existing': 'O buksan ang batch na nagawa mo na:',
+    'bt.sync.pendingH': 'Naghihintay ng approval',
+    'bt.sync.pendingText': 'Naipadala na ang request mong sumali sa {name}. Kapag inaprubahan ito ng admin, kusang darating dito ang mga card ng kabatch mo.',
+    'bt.sync.checkAgain': 'Tingnan ulit',
+    'bt.sync.stillPending': 'Hindi pa aprubado. Subukan ulit mamaya.',
+    'bt.sync.cancelReq': 'Bawiin ang request',
+    'bt.sync.approved': 'Kasama ka na! Kinukuha ang mga card ng batch…',
+    'bt.sync.removed': 'Hindi na miyembro ng batch ang account na ito. Magtanong sa admin, o ilagay ulit ang code para humiling na sumali.',
+    'bt.sync.batch': 'Batch mo',
+    'bt.sync.memberText': 'Miyembro ka na. Naipapadala ang card mo tuwing sine-save mo ito, at pumapasok ang mga bagong card tuwing bubuksan mo ang app.',
+    'bt.sync.inviteCode': 'Join code:',
+    'bt.sync.copy': 'Kopyahin',
+    'bt.sync.copied': 'Nakopya na ang join code.',
+    'bt.sync.now': 'I-sync ngayon',
+    'bt.sync.busy': 'Nagsi-sync…',
+    'bt.sync.last': 'Huling na-sync {when}',
+    'bt.sync.never': 'Hindi pa na-sync',
+    'bt.sync.result': 'Na-sync: {added} bago, {updated} na-update, {removed} inalis.',
+    'bt.sync.upToDate': 'Updated na ang lahat.',
+    'bt.sync.needCard': 'Punan ang My card para makuha rin ng mga kabatch mo ang sa iyo.',
+    'bt.sync.consentH': 'Ano ang lumalabas sa phone mo',
+    'bt.sync.consentText': 'Lahat ng nasa card mo ay ipinapadala sa mga miyembro ng batch maliban sa dalawang grupo sa ibaba, na mananatili sa phone na ito hangga’t hindi mo tinitikan. Puwede mo silang alisan ng tick anumang oras.',
+    'bt.sync.consent.emergency': 'Blood type, allergy, kondisyon, at emergency contacts. Lalabas sa Emergency info screen ng lahat.',
+    'bt.sync.consent.contact': 'Mga numero, email, GCash, socials, tinutuluyan, at sizes mo.',
+    'bt.sync.consentConfirm.emergency': 'Ibahagi ang Emergency & medical details mo sa mga miyembro ng batch? Sensitibong personal na impormasyon ito; ang mga aprubadong miyembro lang ang makakakita, at puwede mong ihinto ang pagbabahagi anumang oras.',
+    'bt.sync.consentConfirm.contact': 'Ibahagi ang Contact details mo (numero, email, GCash, socials) sa mga miyembro ng batch? Ang mga aprubadong miyembro lang ang makakakita, at puwede mong ihinto ang pagbabahagi anumang oras.',
+    'bt.sync.consentOn': 'Na-save. Ipinapadala ang card mo…',
+    'bt.sync.consentOff': 'Na-save. Inalis na ang grupong iyon sa cloud copy ng card mo.',
+    'bt.sync.adminH': 'Admin',
+    'bt.sync.requests': 'Mga request na sumali',
+    'bt.sync.noRequests': 'Walang naghihintay na request.',
+    'bt.sync.approve': 'Aprubahan',
+    'bt.sync.decline': 'Tanggihan',
+    'bt.sync.approvedX': 'Naaprubahan na si {name}.',
+    'bt.sync.confirmDecline': 'Tanggihan ang request ni {name}?',
+    'bt.sync.members': 'Mga miyembro',
+    'bt.sync.you': 'Ikaw',
+    'bt.sync.remove': 'Alisin',
+    'bt.sync.confirmRemove': 'Alisin si {name} sa batch? Made-delete ang card niya sa cloud at mawawala sa phone ng lahat sa susunod na daily sync.',
+    'bt.sync.reload': 'I-refresh ang mga listahan',
+    'bt.sync.leaveH': 'Umalis sa batch',
+    'bt.sync.leaveText': 'Idi-delete ang card mo sa cloud at titigil ang pag-sync sa phone na ito. Mananatili ang mga card na nasa phone na ito.',
+    'bt.sync.leave': 'Umalis sa batch',
+    'bt.sync.confirmLeave': 'Umalis sa batch? Made-delete ang card mo sa cloud at maaalis ito sa phone ng mga kabatch mo sa susunod nilang daily sync.',
+    'bt.sync.left': 'Umalis ka na sa batch.',
+    'bt.sync.privacyH': 'Privacy',
+    'bt.sync.privacy1': 'Ang mga miyembro lang ng batch na inaprubahan ng admin ang makakabasa ng mga card. Bawat isa ay makakapagbago lang ng sarili niyang card.',
+    'bt.sync.privacy2': 'Naka-store ang mga card sa Google Firebase (Firestore) para sa app na ito lang. Walang ads at walang tracking.',
+    'bt.sync.privacy3': 'Lumalabas lang sa phone mo ang Emergency & medical at Contact details kapag tinikan mo ang mga ito sa screen na ito.',
+    'bt.sync.privacy4': 'Kapag umalis ka sa batch, made-delete ang card mo sa cloud.',
+    'bt.sync.errPerm': 'Tinanggihan ng cloud iyon. Baka hindi ka pa aprubado, o inalis ka na sa batch.',
+    'bt.sync.errNet': 'Hindi maabot ang cloud. Suriin ang internet connection mo at subukan ulit.',
+    'bt.sync.errClosed': 'Nasarhan ang sign-in bago matapos.',
+    'bt.sync.errSignedOut': 'Naka-sign out ka. Mag-sign in ulit sa Cloud sync.',
+    'bt.sync.errOther': 'May nangyaring mali ({code}).',
+    'bt.sync.homeH': 'Sumali sa batch mo sa cloud',
+    'bt.sync.home': 'Mag-sign in nang isang beses at kusang darating ang mga card ng lahat.',
+    'bt.sync.homePendingH': 'Naghihintay ng approval',
+    'bt.sync.homePending': 'Hindi pa inaaprubahan ng admin ang request mong sumali.'
   }
 };

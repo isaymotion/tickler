@@ -21,11 +21,11 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **Batch events** (`#/events`) — `events` key; built-in first day of residency; countdown, .ics; travel in the whole-batch file (`events` array).
 - **Shoutouts** — `card.shoutouts` on the sender's card, shown on the receiver's card and Home.
 - **Ask me about** (`askMe` field, chips on cards) and **Word of the day** (`teachWords` field, Home).
-- **Hometown map** — offline map of the Philippines (`data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; unrecognised hometowns listed separately.
+- **Hometown map** — offline map of the Philippines (`data/cloud.js           Firebase web config, admin list, private card groups (window.CLOUD_CONFIG)
+data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; unrecognised hometowns listed separately.
 - **Batch twins** (Batch stats) — the pairs with the most things in common.
 - **Birthdays** — grouped Today / This month / by month, days to go, and the age when a year was given.
-- **Share cards** — cards travel as small JSON files: share your own card, import cards from batchmates (newer copies replace older ones; your own card is never overwritten), or send the whole batch to someone starting from nothing. Uses the phone share sheet when installed.
-- **Scan a card / Show my QR** — pass a card phone-to-phone with a QR code (camera, or a screenshot of the QR). Text only; the photo travels with the file.
+- **Cloud sync** (1.18.0, `#/sync`) — cards travel through Firebase (Firestore, free Spark plan) instead of files and QR codes (both removed in 1.18.0). Sign in with Google, enter the batch's join code, wait for the admin to approve; then your card is sent whenever you save it and new cards arrive each time the app opens (at most every 5 minutes, or Sync now). Emergency & medical and Contact details leave the phone only if their owner ticks consent. Batch events sync too. The admin (`CLOUD_CONFIG.admins` in data/cloud.js, mirrored in `firestore.rules`) creates the batch and join code, approves or declines requests and removes members. Leaving deletes your card from the cloud. Security rules: `firestore.rules` (paste into Firebase console › Firestore › Rules › Publish).
 - **Birthday calendar** — add one birthday or the whole batch to the phone calendar (.ics, yearly).
 - **Batch stats** — hometowns, med schools, languages, birthdays by month, oldest to youngest, most shared favourites.
 - **Print sheet** — three modes: a compact "meet the batch" page without contact details; Name tags (8 per A4 page); and a Full directory with every field including contact details, one person per page. Print or save as PDF from the browser.
@@ -43,8 +43,8 @@ README.md
 index.html              App shell (top bar, sidebar menu, footer, bottom tabs)
 css/app.css             Styles (light and dark themes)
 js/app.js               Router, menu, views (VIEWS), navigation (NAV), search, theme, backup
-js/vendor/qrcode.js     QR encoder (qrcode-generator, MIT, Kazuhiko Arase)
-js/vendor/jsQR.js       QR decoder (jsQR, Apache-2.0; loaded only on the Scan screen)
+js/cloud.js             Cloud adapter (Firebase calls), loaded only for Cloud sync
+js/vendor/firebase.js   Firebase JS SDK 13.2 (app, auth, firestore/lite), bundled with esbuild, Apache-2.0
 data/app-meta.js        App name, version, attribution (window.APP_META), menu links (window.APP_LINKS)
                         and the commented MIGRATE_KEYS example
 data/changelog.js       What's new entries (window.APP_CHANGELOG)
@@ -58,6 +58,7 @@ icons/                  icon-192.png, icon-512.png, icon-maskable-512.png, favic
                         favicon.ico, apple-touch-icon.png, icon-source.png (the original artwork)
 manifest.webmanifest    Install metadata
 sw.js                   Offline cache
+firestore.rules         Firestore security rules (not used by the site itself; pasted into the Firebase console)
 ```
 
 Replace `index.html` whenever icon or manifest links change. The header logo uses `icons/icon-192.png`.

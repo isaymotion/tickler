@@ -130,8 +130,6 @@
     { label: 'Where should we eat?', tkey: 'nav.eat', href: '#/eat', icon: 'food', group: 'Play' },
     { label: 'Kris Kringle', tkey: 'nav.monito', href: '#/monito', icon: 'gift', group: 'Play' },
     { label: 'Badges', tkey: 'nav.badges', href: '#/badges', icon: 'spark', group: 'Play' },
-    { label: 'Share cards', tkey: 'nav.share', href: '#/share', icon: 'share', group: 'Screens' },
-    { label: 'Scan a card', tkey: 'nav.scan', href: '#/scan', icon: 'qr', group: 'Screens' },
     { label: 'Batch stats', tkey: 'nav.stats', href: '#/stats', icon: 'chart', group: 'Screens' },
     { label: 'Print sheet', tkey: 'nav.print', href: '#/print', icon: 'print', group: 'Screens' },
     { label: 'What’s new', tkey: 'nav.whatsNew', href: '#/whats-new', icon: 'news', group: 'App', tile: false, badge: 'news' },
@@ -572,7 +570,7 @@
   var LISTS = window.LINK_LISTS || [], LIST_BY = {}; LISTS.forEach(function (L) { LIST_BY[L.key] = L; });
   var GUESS_FIELDS = window.GUESS_FIELDS || [];
   var HOSP = window.HOSPITAL || {};
-  var CARD_APP = 'batchtickler', MAX_PHOTO = 320, MAX_TEXT = 600;
+  var MAX_PHOTO = 320, MAX_TEXT = 600;
   var MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   ICONS.tag = '<path d="M3.5 12.5V5a1.5 1.5 0 0 1 1.5-1.5h7.5l8 8-9 9z"/><circle cx="8" cy="8" r="1.2"/>';
@@ -705,7 +703,7 @@
       var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), [].concat.apply([], LISTS.map(function (L) { return listOf(c, L.key).map(function (x) { return x.title; }); }))).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t(isPartner(c) ? 'nav.partners' : 'nav.batch') });
     });
-    [['nav.emergency', '#/emergency', 'bt.em.intro'], ['nav.partners', '#/partners', 'bt.pt.intro'], ['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
+    [['nav.emergency', '#/emergency', 'bt.em.intro'], ['nav.partners', '#/partners', 'bt.pt.intro'], ['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -855,7 +853,7 @@
       '<header class="page__head"><h1>' + esc(t('nav.batch')) + '</h1><p>' + esc(t('bt.batch.intro')) + '</p></header>' +
       (all.length ? '<div class="toolbar"><label class="field field--inline"><span class="sr-only">' + esc(t('bt.batch.filter')) + '</span><input type="search" id="batch-q" placeholder="' + esc(t('bt.batch.filter')) + '" value="' + esc(batchQ) + '" autocomplete="off"></label>' +
         '<div class="filters" role="group">' + sorts.map(function (s) { return '<button type="button" class="filter" data-sort="' + s[0] + '" aria-pressed="' + (batchSort === s[0]) + '">' + esc(t(s[1])) + '</button>'; }).join('') + '</div></div>' : '') +
-      (!all.length ? '<div class="empty"><h2>' + esc(t('bt.batch.emptyTitle')) + '</h2><p>' + esc(t('bt.batch.emptyText')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a> <a class="btn" href="#/share">' + esc(t('bt.share.importBtn')) + '</a></p></div>'
+      (!all.length ? '<div class="empty"><h2>' + esc(t('bt.batch.emptyTitle')) + '</h2><p>' + esc(t('bt.batch.emptyText')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a> <a class="btn" href="#/sync">' + esc(t('nav.sync')) + '</a></p></div>'
         : shown.length ? '<div class="pgrid">' + shown.map(function (c) { return personCard(c, today); }).join('') + '</div>' : '<div class="empty"><p>' + esc(t('bt.batch.noMatch')) + '</p></div>') +
       '</div>';
   };
@@ -1132,33 +1130,7 @@
   };
 
   /* ---- Share cards: card files in and out ---- */
-  function fileOut(payload, name, titleKey, cb) {   // share sheet on installed phone apps, download elsewhere
-    var json = JSON.stringify(payload, null, 1), file = null;
-    try { file = new File([json], name, { type: 'application/json' }); } catch (e) {}
-    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: t(titleKey) }).then(function () { cb(t('bt.share.shared')); }).catch(function () { cb(t('bt.share.cancelled')); });
-      return;
-    }
-    var url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
-    var a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-    cb(tf('bt.share.saved', { name: name }));
-  }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'card'; }
-  function cardsFrom(p) {   // cards inside a card file, a batch file or a Batch Tickler backup
-    if (p && p.a === 'bt' && p.k === 'card' && p.c) return [p.c];   // compact QR form
-    if (!p || p.app !== CARD_APP) return null;
-    if (p.kind === 'card' && p.card) return [p.card];
-    if (p.kind === 'batch' && Array.isArray(p.cards)) return p.cards;
-    if (p.data && typeof p.data === 'object') {   // footer backup format
-      var out = [];
-      try { var me = JSON.parse(p.data.me || 'null'); if (me) out.push(me); } catch (e) {}
-      try { var b = JSON.parse(p.data.batch || '[]'); if (Array.isArray(b)) out = out.concat(b); } catch (e2) {}
-      return out;
-    }
-    return null;
-  }
   function mergeCards(incoming) {
     var me = getMe(), list = getOthers(), res = { added: 0, updated: 0, skipped: 0 };
     incoming.map(sanitizeCard).forEach(function (c) {
@@ -1173,56 +1145,6 @@
     saveOthers(list);
     return res;
   }
-  VIEWS.share = function () {
-    var me = getMe(), n = allCards().length;
-    function block(title, text, action) { return '<section class="card share__blk"><h2>' + esc(t(title)) + '</h2><p>' + esc(t(text)) + '</p>' + action + '</section>'; }
-    return '<div class="wrap page share">' + crumb(t('nav.share')) +
-      '<header class="page__head"><h1>' + esc(t('nav.share')) + '</h1><p>' + esc(t('bt.share.intro')) + '</p></header>' +
-      block('bt.share.mine', 'bt.share.mineText', me ? '<button type="button" class="btn btn--solid" id="sh-mine">' + icon('share', 'btn__ico') + esc(t('bt.share.mineBtn')) + '</button>' : '<a class="btn btn--solid" href="#/me">' + esc(t('bt.share.needMe')) + '</a>') +
-      block('bt.share.import', 'bt.share.importText', '<input type="file" id="sh-file" class="sr-only" accept=".json,application/json"><label class="btn btn--solid" for="sh-file" id="sh-file-label">' + esc(t('bt.share.importBtn')) + '</label>') +
-      block('bt.qr.title', 'bt.qr.text', me ? '<button type="button" class="btn btn--solid" id="sh-qr" aria-expanded="false">' + icon('qr', 'btn__ico') + esc(t('bt.qr.btn')) + '</button> <a class="btn" href="#/scan">' + esc(t('nav.scan')) + '</a><div id="sh-qr-box" class="qr" hidden></div>' : '<a class="btn btn--solid" href="#/me">' + esc(t('bt.share.needMe')) + '</a>') +
-      block('bt.share.all', 'bt.share.allText', '<button type="button" class="btn" id="sh-all"' + (n ? '' : ' disabled') + '>' + esc(t('bt.share.allBtn')) + '</button> <span class="muted">' + esc(tf('bt.share.ownAll', { n: n })) + '</span>') +
-      '<p class="form__status" id="sh-status" role="status" aria-live="polite"></p></div>';
-  };
-  AFTER.share = function () {
-    var st = document.getElementById('sh-status');
-    function say(m, err) { st.textContent = m; st.classList.toggle('is-error', !!err); }
-    var mine = document.getElementById('sh-mine'), all = document.getElementById('sh-all'), fi = document.getElementById('sh-file');
-    var qrBtn = document.getElementById('sh-qr'), qrBox = document.getElementById('sh-qr-box');
-    if (qrBtn) qrBtn.addEventListener('click', function () {
-      var me = getMe(); if (!me) return;
-      if (!qrBox.hidden) { qrBox.hidden = true; qrBox.innerHTML = ''; qrBtn.setAttribute('aria-expanded', 'false'); qrBtn.innerHTML = icon('qr', 'btn__ico') + esc(t('bt.qr.btn')); return; }
-      var pl = qrPayload(me), svg = qrSvg(pl.text);
-      qrBox.innerHTML = (svg ? '<div class="qr__img">' + svg + '</div>' : '') + '<p class="qr__name">' + esc(me.name) + '</p>' + (pl.kept < pl.total ? '<p class="muted">' + esc(tf('bt.qr.trimmed', { n: pl.kept, total: pl.total })) + '</p>' : '');
-      qrBox.hidden = false; qrBtn.setAttribute('aria-expanded', 'true'); qrBtn.innerHTML = esc(t('bt.qr.hide'));
-      setTimeout(function () { qrBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 50);
-    });
-    if (mine) mine.addEventListener('click', function () {
-      var me = getMe(); if (!me) { say(t('bt.share.needMe'), true); return; }
-      fileOut({ app: CARD_APP, kind: 'card', format: 1, exported: new Date().toISOString(), card: me }, 'batch-card-' + slug(me.name) + '.json', 'bt.share.mine', say);
-    });
-    if (all) all.addEventListener('click', function () {
-      var l = allCards(); if (!l.length) { say(t('bt.share.allEmpty'), true); return; }
-      var d = new Date();
-      fileOut({ app: CARD_APP, kind: 'batch', format: 1, exported: d.toISOString(), cards: l, events: storedEvents() }, 'batch-cards-' + d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + '.json', 'bt.share.all', say);
-    });
-    fi.addEventListener('change', function () {
-      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
-      var r = new FileReader();
-      r.onerror = function () { say(t('backup.unreadable'), true); };
-      r.onload = function () {
-        var p; try { p = JSON.parse(r.result); } catch (e) { say(t('bt.share.notCards'), true); return; }
-        var cards = cardsFrom(p), evN = p && Array.isArray(p.events) ? mergeEvents(p.events) : 0;
-        if ((!cards || !cards.length) && !evN) { say(t('bt.share.notCards'), true); return; }
-        var res = mergeCards(cards || []);
-        say(tf('bt.share.result', res) + (res.skipped && getMe() ? ' ' + t('bt.share.skippedMe') : '') + (evN ? ' ' + tf('bt.ev.imported', { n: evN }) : ''));
-        var n = document.querySelector('#sh-all + .muted'); if (n) n.textContent = tf('bt.share.ownAll', { n: allCards().length });
-        var ab = document.getElementById('sh-all'); if (ab) ab.disabled = !allCards().length;
-      };
-      r.readAsText(f);
-    });
-  };
-
   /* ---- Print: batch sheet or name tags ---- */
   var printMode = 'sheet';
   VIEWS.print = function () {
@@ -1370,27 +1292,6 @@
   ICONS.camera = '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.5-2.5h5L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>';
   ICONS.chart = '<path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/>';
 
-  /* QR payload: the card without its photo, each field trimmed, fields dropped from the end until it fits a scannable size */
-  var QR_LIMIT = 2200, QR_FIELD_MAX = 160;
-  function qrPayload(c) {
-    var keys = ['id', 'name', 'bmonth', 'bday', 'byear', 'updated'], total = 0, kept = 0;
-    var base = {}; keys.forEach(function (k) { base[k] = c[k]; });
-    if (c.partnerOf) base.partnerOf = c.partnerOf; if (c.partnerName) base.partnerName = c.partnerName;   // 1.17.0: partner link always travels
-    var fs = FIELDS.filter(function (f) { return c[f.key] && f.qr !== false; }); total = fs.length + (c.custom.length ? 1 : 0);
-    var out = JSON.parse(JSON.stringify(base));
-    for (var i = 0; i < fs.length; i++) {
-      var trial = JSON.parse(JSON.stringify(out)); trial[fs[i].key] = String(c[fs[i].key]).slice(0, QR_FIELD_MAX);
-      if (JSON.stringify({ a: 'bt', k: 'card', c: trial }).length > QR_LIMIT) break;
-      out = trial; kept++;
-    }
-    if (c.custom.length) { var t2 = JSON.parse(JSON.stringify(out)); t2.custom = c.custom.map(function (x) { return { label: x.label, value: x.value.slice(0, QR_FIELD_MAX) }; }); if (JSON.stringify({ a: 'bt', k: 'card', c: t2 }).length <= QR_LIMIT) { out = t2; kept++; } }
-    return { text: JSON.stringify({ a: 'bt', k: 'card', c: out }), kept: kept, total: total };
-  }
-  function qrSvg(text) {
-    if (typeof window.qrcode !== 'function') return '';
-    try { var q = window.qrcode(0, 'L'); q.addData(text, 'Byte'); q.make(); return q.createSvgTag({ cellSize: 4, margin: 3, scalable: true }); } catch (e) { return ''; }
-  }
-
   /* ICS (calendar) export: yearly all-day events */
   function icsDate(y, m, d) { return String(y) + pad2(m) + pad2(d); }
   function icsEscape(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
@@ -1423,91 +1324,6 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
     cb(tf('bt.cal.saved', { name: name }));
   }
-
-  /* Scan: camera via getUserMedia + jsQR (loaded on demand), or a picked image */
-  var scanStream = null, scanTimer = null, jsqrLoading = null;
-  function loadJsQR() {
-    if (typeof window.jsQR === 'function') return Promise.resolve();
-    if (jsqrLoading) return jsqrLoading;
-    jsqrLoading = new Promise(function (res, rej) { var sc = document.createElement('script'); sc.src = 'js/vendor/jsQR.js'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
-    return jsqrLoading;
-  }
-  function stopScan() {
-    clearTimeout(scanTimer); scanTimer = null;
-    if (scanStream) { scanStream.getTracks().forEach(function (tr) { tr.stop(); }); scanStream = null; }
-    var v = document.getElementById('scan-video'); if (v) { v.srcObject = null; v.hidden = true; }
-    var b = document.getElementById('scan-start'); if (b) { b.textContent = t('bt.scan.start'); b.setAttribute('data-on', '0'); }
-  }
-  window.addEventListener('hashchange', stopScan);
-  function decodeImageData(img) {
-    if (typeof window.jsQR !== 'function') return null;
-    var r = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
-    return r && r.data ? r.data : null;
-  }
-  function handleScanned(text, say) {
-    var p; try { p = JSON.parse(text); } catch (e) { say(t('bt.scan.notCard'), true); return false; }
-    var cards = cardsFrom(p);
-    if (!cards || !cards.length) { say(t('bt.scan.notCard'), true); return false; }
-    var c = sanitizeCard(cards[0]); if (!c) { say(t('bt.scan.notCard'), true); return false; }
-    if (isMe(c)) { say(t('bt.scan.me'), true); return true; }
-    var before = findPerson(c.id), res = mergeCards([c]);
-    var msg = res.added ? tf('bt.scan.added', { name: c.name }) : res.updated ? tf('bt.scan.updated', { name: c.name }) : tf('bt.scan.same', { name: (before || c).name });
-    say(msg + ' ', false, '#/person/' + encodeURIComponent(c.id));
-    return true;
-  }
-  VIEWS.scan = function () {
-    return '<div class="wrap page scan">' + crumb(t('nav.scan')) +
-      '<header class="page__head"><h1>' + esc(t('nav.scan')) + '</h1><p>' + esc(t('bt.scan.intro')) + '</p></header>' +
-      '<div class="card scan__card"><video id="scan-video" class="scan__video" playsinline muted hidden></video><canvas id="scan-canvas" hidden></canvas>' +
-        '<div class="form__acts"><button type="button" class="btn btn--solid" id="scan-start" data-on="0">' + icon('camera', 'btn__ico') + esc(t('bt.scan.start')) + '</button>' +
-        '<input type="file" id="scan-file" class="sr-only" accept="image/*"><label class="btn" for="scan-file" id="scan-file-label">' + esc(t('bt.scan.photo')) + '</label></div>' +
-        '<p class="form__status" id="scan-status" role="status" aria-live="polite"></p><p id="scan-link" hidden><a class="btn" id="scan-open" href="#/batch">' + esc(t('bt.guess.open')) + '</a> <button type="button" class="btn" id="scan-again">' + esc(t('bt.scan.again')) + '</button></p></div></div>';
-  };
-  AFTER.scan = function () {
-    var st = document.getElementById('scan-status'), link = document.getElementById('scan-link'), open = document.getElementById('scan-open');
-    var video = document.getElementById('scan-video'), canvas = document.getElementById('scan-canvas'), startBtn = document.getElementById('scan-start'), fi = document.getElementById('scan-file');
-    function say(m, err, href) { st.textContent = m; st.classList.toggle('is-error', !!err); link.hidden = !href; if (href) open.setAttribute('href', href); }
-    function tick() {
-      if (!scanStream || !video.videoWidth) { scanTimer = setTimeout(tick, 250); return; }
-      var w = Math.min(640, video.videoWidth), h = Math.round(video.videoHeight * w / video.videoWidth);
-      canvas.width = w; canvas.height = h;
-      var cx = canvas.getContext('2d', { willReadFrequently: true }); cx.drawImage(video, 0, 0, w, h);
-      var text = decodeImageData(cx.getImageData(0, 0, w, h));
-      if (text) { stopScan(); handleScanned(text, say); return; }
-      scanTimer = setTimeout(tick, 220);
-    }
-    startBtn.addEventListener('click', function () {
-      if (startBtn.getAttribute('data-on') === '1') { stopScan(); return; }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { say(t('bt.scan.noCamera'), true); return; }
-      say(t('bt.scan.looking'));
-      loadJsQR().then(function () { return navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }); }).then(function (stream) {
-        scanStream = stream; video.srcObject = stream; video.hidden = false; video.play().catch(function () {});
-        startBtn.textContent = t('bt.scan.stop'); startBtn.setAttribute('data-on', '1'); tick();
-      }).catch(function () { say(t('bt.scan.denied'), true); });
-    });
-    fi.addEventListener('change', function () {
-      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
-      say(t('bt.scan.looking'));
-      loadJsQR().then(function () {
-        var url = URL.createObjectURL(f), img = new Image();
-        img.onload = function () {
-          var text = null;
-          [1000, 600, 1600].some(function (max) {   // try a few sizes; jsQR likes modules of a few pixels
-            var k = Math.min(1, max / Math.max(img.width, img.height)), w = Math.round(img.width * k), h = Math.round(img.height * k);
-            canvas.width = w; canvas.height = h;
-            var cx = canvas.getContext('2d', { willReadFrequently: true }); cx.drawImage(img, 0, 0, w, h);
-            text = decodeImageData(cx.getImageData(0, 0, w, h)); return !!text;
-          });
-          URL.revokeObjectURL(url);
-          if (!text) { say(t('bt.scan.notFound'), true); return; }
-          handleScanned(text, say);
-        };
-        img.onerror = function () { URL.revokeObjectURL(url); say(t('bt.scan.notFound'), true); };
-        img.src = url;
-      }).catch(function () { say(t('bt.scan.notFound'), true); });
-    });
-    document.getElementById('scan-again').addEventListener('click', function () { say(''); startBtn.click(); });
-  };
 
   /* Batch stats */
   function countBy(list, fn) {
@@ -2165,7 +1981,7 @@
       '<div class="ev-layout"><div>' + (up.length ? '<ul class="plain ev-list card">' + up.map(row).join('') + '</ul>' : '<div class="empty"><p>' + esc(t('bt.ev.none')) + '</p></div>') +
       (up.length ? '<p class="guess__acts"><button type="button" class="btn" id="ev-all">' + esc(t('bt.ev.allCal')) + '</button></p>' : '') + '<p class="form__status" id="ev-cal-status" role="status"></p>' +
       (past.length ? '<details class="fgroup"><summary><span>' + esc(t('bt.ev.past')) + '</span><span class="muted fgroup__n">' + past.length + '</span></summary><div class="fgroup__body"><ul class="plain ev-list">' + past.map(row).join('') + '</ul></div></details>' : '') +
-      '<p class="muted">' + esc(t('bt.ev.shareHint')) + ' <a href="#/share">' + esc(t('nav.share')) + '</a></p></div>' + evForm(editing) + '</div></div>';
+      '<p class="muted">' + esc(t('bt.ev.shareHint')) + ' <a href="#/sync">' + esc(t('nav.sync')) + '</a></p></div>' + evForm(editing) + '</div></div>';
   };
   AFTER.events = function () {
     var f = document.getElementById('ev-form'), st = document.getElementById('ev-status'), cst = document.getElementById('ev-cal-status');
@@ -2178,7 +1994,7 @@
     });
     var cancel = document.getElementById('ev-cancel'); if (cancel) cancel.addEventListener('click', function () { evEdit = ''; route({ keepScroll: true }); });
     main.querySelectorAll('[data-evedit]').forEach(function (b) { b.addEventListener('click', function () { evEdit = b.getAttribute('data-evedit'); route({ keepScroll: true }); var t1 = document.querySelector('#ev-form [name=title]'); if (t1) { t1.focus(); t1.scrollIntoView({ block: 'center' }); } }); });
-    main.querySelectorAll('[data-evdel]').forEach(function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-evdel'), e = storedEvents().filter(function (x) { return x.id === id; })[0]; if (!e || !window.confirm(tf('bt.ev.confirmDel', { title: e.title }))) return; store.set('events', storedEvents().filter(function (x) { return x.id !== id; })); route({ keepScroll: true }); }); });
+    main.querySelectorAll('[data-evdel]').forEach(function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-evdel'), e = storedEvents().filter(function (x) { return x.id === id; })[0]; if (!e || !window.confirm(tf('bt.ev.confirmDel', { title: e.title }))) return; store.set('events', storedEvents().filter(function (x) { return x.id !== id; })); cloudEvDel(e); route({ keepScroll: true }); }); });
     main.querySelectorAll('[data-evcal]').forEach(function (b) { b.addEventListener('click', function () { var e = getEvents().filter(function (x) { return x.id === b.getAttribute('data-evcal'); })[0]; if (e) icsEventsOut([e], 'event-' + slug(e.title) + '.ics', function (m) { cst.textContent = m; }); }); });
     var all = document.getElementById('ev-all'); if (all) all.addEventListener('click', function () { var today = new Date(); icsEventsOut(getEvents().filter(function (e) { return evDays(e, today) >= 0; }), 'batch-events.ics', function (m) { cst.textContent = m; }); });
   };
@@ -2861,7 +2677,7 @@
     var head = '<header class="page__head"><h1>' + icon('medic', 'page__ico em-ico') + esc(t('nav.emergency')) + '</h1><p>' + esc(t('bt.em.intro')) + '</p></header>' +
       '<div class="callout callout--caution em-911"><p>' + esc(t('bt.em.note')) + '</p><p style="margin:0"><a class="btn btn--solid em-911__btn" href="tel:911">' + icon('phone', 'btn__ico') + esc(t('bt.em.call911')) + '</a></p></div>';
     if (one) return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head + emCard(one) + '<p><a class="btn" href="#/emergency">' + icon('users', 'btn__ico') + esc(t('bt.em.all')) + '</a></p></div>';
-    if (!all.length) return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head + '<div class="empty"><p>' + esc(t('bt.em.none')) + '</p><p><a class="btn btn--solid" href="#/me/emergency">' + esc(t('nav.me')) + '</a> <a class="btn" href="#/share">' + esc(t('bt.share.importBtn')) + '</a></p></div></div>';
+    if (!all.length) return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head + '<div class="empty"><p>' + esc(t('bt.em.none')) + '</p><p><a class="btn btn--solid" href="#/me/emergency">' + esc(t('nav.me')) + '</a> <a class="btn" href="#/sync">' + esc(t('nav.sync')) + '</a></p></div></div>';
     var withInfo = all.filter(hasEm).sort(function (a, b) { return (isMe(b) ? 1 : 0) - (isMe(a) ? 1 : 0) || byName(a, b); });
     var without = all.filter(function (c) { return !hasEm(c) && !isMe(c); });
     return '<div class="wrap page em">' + crumb(t('nav.emergency')) + head +
@@ -2971,6 +2787,310 @@
     };
   })();
 
+  /* ===================== 1.18.0: CLOUD SYNC (Firebase) =====================
+     Cards travel through Firestore instead of files and QR codes. Google sign-in, a join code per batch and
+     approval by an admin (CLOUD_CONFIG.admins). The SDK (js/vendor/firebase.js + js/cloud.js) loads only for
+     members or on #/sync. No realtime listeners (free-plan read quota): sync on open (at most every 5 min),
+     on Sync now, and a push a few seconds after My card changes. Store key `cloud` holds the phone's sync state:
+     {code, name, state:'pending'|'member'|'removed', consent:{emergency,contact}, pushKey, lastPull, lastFull,
+     syncIds, evPush, evPull, evDel, lastSync, lastErr}. */
+  var CCFG = window.CLOUD_CONFIG || {}, PRIV = CCFG.privateGroups || ['emergency', 'contact'];
+  var SYNC_EVERY = 5 * 60 * 1000, SAFE_RERENDER = ['home', 'batch', 'birthdays', 'emergency', 'partners', 'stats', 'events', 'sync', 'picks', 'map'];
+  var cloudAgain = '', cloudApi = null, cloudLoading = null, cloudLoadErr = '', cloudBusy = false, pushTimer = null, syncAdmin = null, syncFlash = '';
+  ICONS.cloud = '<path d="M7 18.5a4.5 4.5 0 0 1-.7-8.95A6 6 0 0 1 17.8 9a4.75 4.75 0 0 1-.3 9.5z"/>';
+  (function () { for (var i = 0; i < NAV.length; i++) if (NAV[i].href === '#/me') { NAV.splice(i + 1, 0, { label: 'Cloud sync', tkey: 'nav.sync', href: '#/sync', icon: 'cloud', group: 'Screens' }); return; } })();
+  function cst() { var c = store.get('cloud', null); return c && typeof c === 'object' ? c : {}; }
+  function cset(mut) { var c = cst(); mut(c); store.set('cloud', c); return c; }
+  function isSynced() { var c = cst(); return c.state === 'member' && !!c.code; }
+  function normCode(v) { return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12); }
+  function fmtCode(c) { return c && c.length === 8 ? c.slice(0, 4) + '-' + c.slice(4) : (c || ''); }
+  function newCode() { var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = new Uint32Array(8), s = ''; window.crypto.getRandomValues(r); for (var i = 0; i < 8; i++) s += A[r[i] % A.length]; return s; }
+  function loadScript(src) { return new Promise(function (res, rej) { var sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = function () { rej({ code: 'network-load' }); }; document.head.appendChild(sc); }); }
+  function cloud() {   // promise of the adapter, signed-in state restored
+    if (cloudApi) return Promise.resolve(cloudApi);
+    if (!cloudLoading) cloudLoading = (window.BT_CLOUD ? Promise.resolve() : loadScript('js/vendor/firebase.js').then(function () { return loadScript('js/cloud.js'); }))
+      .then(function () { var api = window.BT_CLOUD(CCFG); return api.ready().then(function () { cloudApi = api; cloudLoadErr = ''; return api; }); })
+      .catch(function (e) { cloudLoading = null; cloudLoadErr = errText(e); throw e; });
+    return cloudLoading;
+  }
+  function cUser() { return cloudApi ? cloudApi.user() : null; }
+  function errText(e) {
+    var c = String((e && (e.code || e.message)) || '');
+    if (/permission/i.test(c)) return t('bt.sync.errPerm');
+    if (/network|unavailable|offline|fetch|load/i.test(c)) return t('bt.sync.errNet');
+    if (/popup-closed|cancelled-popup|user-cancelled/i.test(c)) return t('bt.sync.errClosed');
+    if (/signed-out/.test(c)) return t('bt.sync.errSignedOut');
+    return tf('bt.sync.errOther', { code: c.slice(0, 80) });
+  }
+  function cloudCard(me, con) {   // my card as uploaded: private groups emptied unless their owner said yes
+    var c = JSON.parse(JSON.stringify(me));
+    FIELDS.forEach(function (f) { if (PRIV.indexOf(f.group) >= 0 && !con[f.group]) c[f.key] = ''; });
+    return c;
+  }
+  function pushKey(me, con) { return me.id + '|' + me.updated + '|' + (con.emergency ? 1 : 0) + (con.contact ? 1 : 0); }
+  function pushMe(api, c) {
+    var me = getMe(), con = c.consent || {}; if (!me) return Promise.resolve(false);
+    var k = pushKey(me, con); if (k === c.pushKey) return Promise.resolve(false);
+    return api.putCard(c.code, cloudCard(me, con), con).then(function () { cset(function (x) { x.pushKey = k; }); return true; });
+  }
+  function pullCards(api, c, full) {
+    var u = api.user(), me = getMe();
+    return api.cardsSince(c.code, full ? -1 : (c.lastPull || 0)).then(function (docs) {
+      var maxU = c.lastPull || 0, byId = {}, incoming = [], removed = 0;
+      getOthers().forEach(function (x) { byId[x.id] = x; });
+      docs.forEach(function (d) {
+        if (d.updated > maxU) maxU = d.updated;
+        if (!d.card || (u && d.owner === u.uid) || (me && d.id === me.id)) return;
+        var card = d.card, old = byId[d.id], sh = d.shared || {};
+        // a group its owner keeps off the cloud arrives empty: keep what this phone already had from them
+        if (old) PRIV.forEach(function (g) { if (!sh[g]) FIELDS.forEach(function (f) { if (f.group === g && old[f.key] && !card[f.key]) card[f.key] = old[f.key]; }); });
+        incoming.push(card);
+      });
+      var res = incoming.length ? mergeCards(incoming) : { added: 0, updated: 0 };
+      var ids = docs.map(function (d) { return d.id; });
+      if (full) {   // cards deleted from the cloud (member left or was removed) leave this phone too — only ones that came from the cloud
+        var was = c.syncIds || [], keep = getOthers().filter(function (x) { var gone = was.indexOf(x.id) >= 0 && ids.indexOf(x.id) < 0; if (gone) removed++; return !gone; });
+        if (removed) saveOthers(keep);
+      }
+      cset(function (x) { x.lastPull = maxU; x.syncIds = full ? ids : (x.syncIds || []).concat(ids).filter(function (v, i, a) { return a.indexOf(v) === i; }); if (full) x.lastFull = dayNum(new Date()); });
+      return { added: res.added, updated: res.updated, removed: removed };
+    });
+  }
+  function syncEvents(api, c) {
+    var since = c.evPush || '', mine = storedEvents().filter(function (e) { return e.updated > since; }), dels = c.evDel || [];
+    return Promise.all(mine.map(function (e) { return api.putEvent(c.code, e); }).concat(dels.map(function (e) { return api.putEvent(c.code, Object.assign({}, e, { deleted: true })); })))
+      .then(function () {
+        var top = mine.reduce(function (m, e) { return e.updated > m ? e.updated : m; }, since);
+        cset(function (x) { x.evPush = top; x.evDel = []; });
+        return api.eventsSince(c.code, c.evPull || 0);
+      }).then(function (list) {
+        var maxU = c.evPull || 0, add = [], gone = {}, n = 0;
+        list.forEach(function (e) {
+          if (e.updated > maxU) maxU = e.updated;
+          var iso = new Date(e.updated).toISOString();
+          if (e.deleted) gone[e.id] = iso; else add.push({ id: e.id, title: e.title, date: e.date, time: e.time, place: e.place, note: e.note, updated: iso });
+        });
+        if (add.length) n += mergeEvents(add);
+        if (Object.keys(gone).length) { var before = storedEvents(), after = before.filter(function (e) { return !(gone[e.id] && e.updated <= gone[e.id]); }); n += before.length - after.length; store.set('events', after); }
+        var pulledTop = maxU ? new Date(maxU).toISOString() : '';
+        cset(function (x) { x.evPull = maxU; if (pulledTop > (x.evPush || '')) x.evPush = pulledTop; });   // do not send pulled events straight back
+        return n;
+      });
+  }
+  function cloudEvDel(e) {   // called when an event is removed on this phone: the deletion travels as a tombstone
+    if (!isSynced() || !e || e.builtin) return;
+    cset(function (x) { x.evDel = (x.evDel || []).concat([{ id: e.id, title: e.title, date: e.date, time: e.time || '', place: e.place || '', note: e.note || '', updated: new Date().toISOString() }]); });
+    schedulePush();
+  }
+  function cloudSync(opts) {
+    opts = opts || {};
+    var c = cst();
+    if (c.state !== 'member' || !c.code) return Promise.resolve(null);
+    if (cloudBusy) { if (opts.force || opts.pushOnly) cloudAgain = cloudAgain || (opts.force ? 'force' : 'push'); return Promise.resolve(null); }
+    if (!opts.force && !opts.pushOnly && c.lastSync && Date.now() - Date.parse(c.lastSync) < SYNC_EVERY) return Promise.resolve(null);
+    cloudBusy = true; paintSyncStatus();
+    return cloud().then(function (api) {
+      if (!api.user()) throw { code: 'signed-out' };
+      return pushMe(api, c).then(function () {
+        if (opts.pushOnly) return (c.evDel || []).length ? syncEvents(api, cst()).then(function () { return null; }) : null;
+        var full = cst().lastFull !== dayNum(new Date());
+        return pullCards(api, cst(), full).then(function (r) { return syncEvents(api, cst()).then(function (n) { r.events = n; return r; }); });
+      });
+    }).then(function (r) {
+      cloudBusy = false; again();
+      cset(function (x) { if (!opts.pushOnly) x.lastSync = new Date().toISOString(); x.lastErr = ''; });
+      var changed = r && (r.added || r.updated || r.removed || r.events);
+      if (r && opts.force) syncFlash = changed ? tf('bt.sync.result', { added: r.added, updated: r.updated, removed: r.removed }) : t('bt.sync.upToDate');
+      if (changed) { rebuildIndex(); if (SAFE_RERENDER.indexOf(currentKey()) >= 0) route({ keepScroll: true }); else toast(tf('bt.sync.result', { added: r.added, updated: r.updated, removed: r.removed })); }
+      else if (currentKey() === 'sync') route({ keepScroll: true });
+      return r;
+    }).catch(function (e) {
+      cloudBusy = false; again();
+      cset(function (x) { x.lastErr = errText(e); });
+      if (e && /permission/i.test(String(e.code || ''))) {   // perhaps removed from the batch: find out
+        return cloud().then(function (api) { return api.status(c.code); }).then(function (st) {
+          if (st !== 'member') cset(function (x) { x.state = st === 'pending' ? 'pending' : 'removed'; });
+        }).catch(function () {}).then(function () { if (currentKey() === 'sync') route({ keepScroll: true }); });
+      }
+      if (currentKey() === 'sync') route({ keepScroll: true });
+    });
+  }
+  function again() { var a = cloudAgain; cloudAgain = ''; if (a) setTimeout(function () { cloudSync(a === 'force' ? { force: true } : { pushOnly: true }); }, 50); }
+  function schedulePush() { clearTimeout(pushTimer); pushTimer = setTimeout(function () { cloudSync({ pushOnly: true }); }, 3000); }
+  var syncStarted = false;
+  function cloudAfterRoute() {
+    var c0 = cst();
+    if (c0.state === 'pending' && c0.code && !syncStarted) {   // waiting for approval: look once per app start
+      syncStarted = true;
+      cloud().then(function (api) { if (!api.user()) return; return api.status(c0.code).then(function (s) { if (s !== 'member') return; cset(function (x) { x.state = 'member'; }); toast(t('bt.sync.approved')); cloudSync({ force: true }); }); }).catch(function () {});
+      return;
+    }
+    if (!isSynced()) return;
+    if (!syncStarted) { syncStarted = true; setTimeout(function () { cloudSync(); }, 600); return; }
+    var me = getMe(), c = cst();
+    if ((me && pushKey(me, c.consent || {}) !== c.pushKey) || (c.evDel || []).length) schedulePush();
+    else if (storedEvents().some(function (e) { return e.updated > (c.evPush || ''); })) schedulePush();
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') cloudSync(); });
+  function paintSyncStatus() {
+    var el = document.getElementById('sy-last'); if (!el) return;
+    el.textContent = syncLastText();
+  }
+  function syncLastText() {
+    var c = cst();
+    if (cloudBusy) return t('bt.sync.busy');
+    return c.lastSync ? tf('bt.sync.last', { when: fmtWhen(c.lastSync) }) : t('bt.sync.never');
+  }
+  function fmtWhen(iso) { var d = new Date(iso); if (isNaN(d.getTime())) return ''; return d.toLocaleDateString(locale(), { month: 'short', day: 'numeric' }) + ', ' + d.toLocaleTimeString(locale(), { hour: 'numeric', minute: '2-digit' }); }
+
+  /* ---- #/sync screen ---- */
+  VIEWS.sync = function () {
+    var c = cst(), head = pageHead('sync', 'nav.sync', 'bt.sync.intro'), u = cUser();
+    if (!cloudApi) return head + '<div class="card sync__box">' + (cloudLoadErr ? '<p class="is-error">' + esc(cloudLoadErr) + '</p><p><button type="button" class="btn btn--solid" id="sy-retry">' + esc(t('bt.sync.retry')) + '</button></p>' : '<p class="muted">' + esc(t('bt.sync.loading')) + '</p>') + '</div></div>';
+    var flash = syncFlash ? '<p class="form__status" role="status">' + esc(syncFlash) + '</p>' : ''; syncFlash = '';
+    var who = u ? '<p class="sync__who">' + icon('cloud', 'sync__ico') + '<span>' + esc(tf('bt.sync.signedInAs', { email: u.email })) + '</span> <button type="button" class="link-btn" id="sy-out">' + esc(t('bt.sync.signOut')) + '</button></p>' : '';
+    var status = '<p class="form__status" id="sy-status" role="status" aria-live="polite"></p>';
+    if (!u) return head + '<div class="card sync__box"><h2>' + esc(t('bt.sync.step1')) + '</h2><p>' + esc(t('bt.sync.signInText')) + '</p><p><button type="button" class="btn btn--solid" id="sy-in">' + esc(t('bt.sync.signIn')) + '</button></p>' + status + '</div>' + privacyNote() + '</div>';
+    if (c.state === 'pending' && c.code) return head + who + '<div class="card sync__box"><h2>' + esc(t('bt.sync.pendingH')) + '</h2><p>' + esc(tf('bt.sync.pendingText', { name: c.name || fmtCode(c.code) })) + '</p><p class="form__acts"><button type="button" class="btn btn--solid" id="sy-check">' + esc(t('bt.sync.checkAgain')) + '</button> <button type="button" class="btn" id="sy-cancel">' + esc(t('bt.sync.cancelReq')) + '</button></p>' + status + '</div></div>';
+    if (c.state !== 'member' || !c.code) {
+      return head + who + (c.state === 'removed' ? '<div class="callout callout--caution"><p>' + esc(t('bt.sync.removed')) + '</p></div>' : '') +
+        '<form class="card sync__box" id="sy-join"><h2>' + esc(t('bt.sync.joinH')) + '</h2><p>' + esc(t('bt.sync.joinText')) + '</p>' +
+        '<label class="field"><span class="field__l">' + esc(t('bt.sync.code')) + '</span><input type="text" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" placeholder="ABCD-2345" inputmode="text"></label>' +
+        '<p class="form__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.sync.join')) + '</button></p>' + status + '</form>' +
+        (u.admin ? '<form class="card sync__box" id="sy-create"><h2>' + esc(t('bt.sync.createH')) + '</h2><p>' + esc(t('bt.sync.createText')) + '</p><label class="field"><span class="field__l">' + esc(t('bt.batchName')) + '</span><input type="text" name="bname" maxlength="60" value="' + esc(batchName()) + '" placeholder="Batch 2027"></label><p class="form__acts"><button type="submit" class="btn">' + esc(t('bt.sync.create')) + '</button></p><div id="sy-mine"></div></form>' : '') +
+        privacyNote() + '</div>';
+    }
+    var con = c.consent || {}, me = getMe();
+    var html = head + who + flash +
+      '<section class="card sync__box"><h2>' + esc(c.name || t('bt.sync.batch')) + '</h2>' +
+        '<p>' + esc(t('bt.sync.memberText')) + '</p>' +
+        '<p class="sync__code">' + esc(t('bt.sync.inviteCode')) + ' <strong>' + esc(fmtCode(c.code)) + '</strong> <button type="button" class="link-btn" id="sy-copy">' + esc(t('bt.sync.copy')) + '</button></p>' +
+        '<p class="form__acts"><button type="button" class="btn btn--solid" id="sy-now">' + esc(t('bt.sync.now')) + '</button> <span class="muted" id="sy-last">' + esc(syncLastText()) + '</span></p>' +
+        (c.lastErr ? '<p class="is-error">' + esc(c.lastErr) + '</p>' : '') +
+        (!me ? '<p class="callout"><a href="#/me">' + esc(t('bt.sync.needCard')) + '</a></p>' : '') + status +
+      '</section>' +
+      '<section class="card sync__box"><h2>' + esc(t('bt.sync.consentH')) + '</h2><p>' + esc(t('bt.sync.consentText')) + '</p>' +
+        PRIV.map(function (g) { return '<label class="sync__tick"><input type="checkbox" name="consent" value="' + esc(g) + '"' + (con[g] ? ' checked' : '') + '> <span><strong>' + esc(groupLabel(g)) + '</strong><span class="field__h">' + esc(t('bt.sync.consent.' + g)) + '</span></span></label>'; }).join('') +
+      '</section>' +
+      (u.admin ? '<section class="card sync__box" id="sy-admin"><h2>' + esc(t('bt.sync.adminH')) + '</h2>' + adminHTML() + '</section>' : '') +
+      '<section class="card sync__box"><h2>' + esc(t('bt.sync.leaveH')) + '</h2><p>' + esc(t('bt.sync.leaveText')) + '</p><p><button type="button" class="btn" id="sy-leave">' + esc(t('bt.sync.leave')) + '</button></p></section>' +
+      privacyNote() + '</div>';
+    return html;
+  };
+  function privacyNote() { return '<div class="callout sync__privacy"><p><strong>' + esc(t('bt.sync.privacyH')) + '</strong></p><ul>' + [1, 2, 3, 4].map(function (i) { return '<li>' + esc(t('bt.sync.privacy' + i)) + '</li>'; }).join('') + '</ul></div>'; }
+  function adminHTML() {
+    if (!syncAdmin) return '<p class="muted">' + esc(t('bt.sync.loading')) + '</p>';
+    if (syncAdmin.err) return '<p class="is-error">' + esc(syncAdmin.err) + '</p>';
+    var u = cUser() || {};
+    return '<h3>' + esc(t('bt.sync.requests')) + ' (' + syncAdmin.requests.length + ')</h3>' +
+      (syncAdmin.requests.length ? '<ul class="sync__list">' + syncAdmin.requests.map(function (r) { return '<li><span><strong>' + esc(r.name || '—') + '</strong><span class="muted">' + esc(r.email) + '</span></span><span class="form__acts"><button type="button" class="btn btn--solid btn--sm" data-approve="' + esc(r.uid) + '">' + esc(t('bt.sync.approve')) + '</button><button type="button" class="btn btn--sm" data-decline="' + esc(r.uid) + '">' + esc(t('bt.sync.decline')) + '</button></span></li>'; }).join('') + '</ul>' : '<p class="muted">' + esc(t('bt.sync.noRequests')) + '</p>') +
+      '<h3>' + esc(t('bt.sync.members')) + ' (' + syncAdmin.members.length + ')</h3><ul class="sync__list">' + syncAdmin.members.map(function (m) { return '<li><span><strong>' + esc(m.name || '—') + '</strong><span class="muted">' + esc(m.email) + '</span></span>' + (m.uid === u.uid ? '<span class="muted">' + esc(t('bt.sync.you')) + '</span>' : '<button type="button" class="btn btn--sm" data-unmember="' + esc(m.uid) + '">' + esc(t('bt.sync.remove')) + '</button>') + '</li>'; }).join('') + '</ul>' +
+      '<p><button type="button" class="link-btn" id="sy-adm-reload">' + esc(t('bt.sync.reload')) + '</button></p>';
+  }
+  function loadAdmin(api, code) {
+    return Promise.all([api.requests(code), api.members(code)]).then(function (r) {
+      syncAdmin = { requests: r[0].sort(function (a, b) { return a.created - b.created; }), members: r[1].sort(function (a, b) { return a.name.localeCompare(b.name); }) };
+    }).catch(function (e) { syncAdmin = { err: errText(e), requests: [], members: [] }; }).then(function () { if (currentKey() === 'sync') route({ keepScroll: true }); });
+  }
+  function myName() { var me = getMe(), u = cUser(); return (me && me.name) || (u && u.name) || ''; }
+  AFTER.sync = function () {
+    var c = cst(), st = document.getElementById('sy-status');
+    function say(m, err) { if (!st) return; st.textContent = m; st.classList.toggle('is-error', !!err); }
+    function busy(btn, on) { if (btn) btn.disabled = !!on; }
+    function on(id, fn) { var el = document.getElementById(id); if (el) el.addEventListener('click', function () { fn(el); }); }
+    if (!cloudApi) {
+      if (!cloudLoadErr) cloud().then(function () { if (currentKey() === 'sync') route({ keepScroll: true }); }, function () { if (currentKey() === 'sync') route({ keepScroll: true }); });
+      on('sy-retry', function () { cloudLoadErr = ''; route({ keepScroll: true }); });
+      return;
+    }
+    var api = cloudApi, u = api.user();
+    on('sy-in', function (b) { busy(b, true); say(t('bt.sync.signingIn')); api.signIn().then(function () { route({ keepScroll: true }); }, function (e) { busy(b, false); say(errText(e), true); }); });
+    on('sy-out', function () { if (!window.confirm(t('bt.sync.confirmOut'))) return; api.signOut().then(function () { cset(function (x) { var keep = x.consent; Object.keys(x).forEach(function (k) { delete x[k]; }); if (keep) x.consent = keep; }); syncAdmin = null; route({ keepScroll: true }); }); });
+    var jf = document.getElementById('sy-join');
+    if (jf) jf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code = normCode(jf.code.value), btn = jf.querySelector('button[type=submit]');
+      if (code.length < 6) { say(t('bt.sync.badCode'), true); return; }
+      busy(btn, true); say(t('bt.sync.checking'));
+      api.getBatch(code).then(function (b) {
+        if (!b) throw { code: 'no-batch' };
+        return api.status(code).then(function (s) {
+          if (s === 'none') return api.request(code, { name: myName() }).then(function () { return 'pending'; });
+          return s;
+        }).then(function (s) {
+          cset(function (x) { x.code = code; x.name = b.name || ''; x.state = s; x.lastPull = 0; x.lastFull = -1; x.evPull = 0; x.lastSync = ''; x.pushKey = ''; });
+          if (s === 'member') { if (!batchName() && b.name) store.set('batchName', b.name); cloudSync({ force: true }); }
+          route({ keepScroll: true });
+        });
+      }).catch(function (e2) { busy(btn, false); say(e2 && e2.code === 'no-batch' ? t('bt.sync.noBatch') : errText(e2), true); });
+    });
+    var cf = document.getElementById('sy-create');
+    if (cf) {
+      cf.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = cleanText(cf.bname.value, 60) || 'Batch', code = newCode(), btn = cf.querySelector('button[type=submit]');
+        busy(btn, true);
+        api.createBatch(code, name, { name: myName() }).then(function () {
+          cset(function (x) { x.code = code; x.name = name; x.state = 'member'; x.lastPull = 0; x.lastFull = -1; x.evPull = 0; x.lastSync = ''; x.pushKey = ''; });
+          if (!batchName()) store.set('batchName', name);
+          syncAdmin = null; cloudSync({ force: true }); route({ keepScroll: true });
+        }).catch(function (e2) { busy(btn, false); say(errText(e2), true); });
+      });
+      var mine = document.getElementById('sy-mine');
+      if (mine && u && u.admin) api.myBatches().then(function (list) {
+        if (!list.length || !document.getElementById('sy-mine')) return;
+        mine.innerHTML = '<p class="field__h">' + esc(t('bt.sync.existing')) + '</p><p class="form__acts">' + list.map(function (b) { return '<button type="button" class="btn btn--sm" data-open="' + esc(b.code) + '">' + esc((b.name || 'Batch') + ' · ' + fmtCode(b.code)) + '</button>'; }).join('') + '</p>';
+        mine.querySelectorAll('[data-open]').forEach(function (b) { b.addEventListener('click', function () { var jc = document.querySelector('#sy-join [name=code]'); if (jc) { jc.value = fmtCode(b.getAttribute('data-open')); jf.requestSubmit ? jf.requestSubmit() : jf.dispatchEvent(new Event('submit', { cancelable: true })); } }); });
+      }).catch(function () {});
+    }
+    on('sy-check', function (b) {
+      busy(b, true);
+      api.status(c.code).then(function (s) {
+        cset(function (x) { x.state = s === 'none' ? 'removed' : s; });
+        if (s === 'member') { syncFlash = t('bt.sync.approved'); cloudSync({ force: true }); }
+        else if (s === 'pending') syncFlash = '';
+        route({ keepScroll: true });
+        if (s === 'pending') { var st2 = document.getElementById('sy-status'); if (st2) st2.textContent = t('bt.sync.stillPending'); }
+      }).catch(function (e) { busy(b, false); say(errText(e), true); });
+    });
+    on('sy-cancel', function () { api.cancelRequest(c.code).catch(function () {}).then(function () { cset(function (x) { x.state = ''; x.code = ''; }); route({ keepScroll: true }); }); });
+    on('sy-now', function (b) { busy(b, true); cset(function (x) { x.lastErr = ''; }); cloudSync({ force: true }).then(function () { var nb = document.getElementById('sy-now'); if (nb) nb.disabled = false; }); });
+    on('sy-copy', function () { var txt = fmtCode(c.code); if (navigator.clipboard) navigator.clipboard.writeText(txt).then(function () { toast(t('bt.sync.copied')); }, function () {}); });
+    main.querySelectorAll('input[name="consent"]').forEach(function (box) {
+      box.addEventListener('change', function () {
+        var g = box.value, v = box.checked;
+        if (v && !window.confirm(t('bt.sync.consentConfirm.' + g))) { box.checked = false; return; }
+        cset(function (x) { x.consent = x.consent || {}; x.consent[g] = v; });
+        if (getMe()) saveMe(function () {});   // bumps `updated` so batchmates pull the change
+        say(v ? t('bt.sync.consentOn') : t('bt.sync.consentOff'));
+        cloudSync({ pushOnly: true });
+      });
+    });
+    on('sy-leave', function (b) {
+      if (!window.confirm(t('bt.sync.confirmLeave'))) return;
+      busy(b, true);
+      api.leave(c.code).then(function () { cset(function (x) { ['code', 'name', 'state', 'pushKey', 'lastPull', 'lastFull', 'syncIds', 'evPush', 'evPull', 'evDel', 'lastSync', 'lastErr'].forEach(function (k) { delete x[k]; }); }); syncAdmin = null; toast(t('bt.sync.left')); route({ keepScroll: true }); })
+        .catch(function (e) { busy(b, false); say(errText(e), true); });
+    });
+    if (u && u.admin && c.state === 'member' && c.code) {
+      if (!syncAdmin) { loadAdmin(api, c.code); return; }
+      on('sy-adm-reload', function () { syncAdmin = null; route({ keepScroll: true }); });
+      main.querySelectorAll('[data-approve]').forEach(function (b) { b.addEventListener('click', function () { var uid = b.getAttribute('data-approve'), r = syncAdmin.requests.filter(function (x) { return x.uid === uid; })[0]; if (!r) return; b.disabled = true; api.approve(c.code, r).then(function () { toast(tf('bt.sync.approvedX', { name: r.name || r.email })); loadAdmin(api, c.code); }, function (e) { b.disabled = false; say(errText(e), true); }); }); });
+      main.querySelectorAll('[data-decline]').forEach(function (b) { b.addEventListener('click', function () { var uid = b.getAttribute('data-decline'), r = syncAdmin.requests.filter(function (x) { return x.uid === uid; })[0]; if (!r || !window.confirm(tf('bt.sync.confirmDecline', { name: r.name || r.email }))) return; b.disabled = true; api.decline(c.code, uid).then(function () { loadAdmin(api, c.code); }, function (e) { b.disabled = false; say(errText(e), true); }); }); });
+      main.querySelectorAll('[data-unmember]').forEach(function (b) { b.addEventListener('click', function () { var uid = b.getAttribute('data-unmember'), m = syncAdmin.members.filter(function (x) { return x.uid === uid; })[0]; if (!m || !window.confirm(tf('bt.sync.confirmRemove', { name: m.name || m.email }))) return; b.disabled = true; api.removeMember(c.code, uid).then(function () { loadAdmin(api, c.code); }, function (e) { b.disabled = false; say(errText(e), true); }); }); });
+    }
+  };
+  TITLES.sync = function () { return t('nav.sync'); };
+  (function () {   // Home: nudge to join while this phone is not syncing
+    var home0 = VIEWS.home;
+    VIEWS.home = function () {
+      var html = home0.apply(null, arguments), c = cst();
+      if (isSynced()) return html;
+      var strip = '<a class="card sync-strip" href="#/sync">' + icon('cloud', 'sync-strip__ico') + '<span class="em-strip__t"><strong>' + esc(t(c.state === 'pending' ? 'bt.sync.homePendingH' : 'bt.sync.homeH')) + '</strong><span>' + esc(t(c.state === 'pending' ? 'bt.sync.homePending' : 'bt.sync.home')) + '</span></span></a>';
+      return html.indexOf('<div class="home__stats">') >= 0 ? html.replace('<div class="home__stats">', strip + '<div class="home__stats">') : html.replace(/(<\/header>)/, '$1' + strip);
+    };
+  })();
+
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();
 
@@ -3010,6 +3130,7 @@
     setView(key, html, title);
     if (AFTER[key]) AFTER[key].apply(null, args);
     if (typeof checkBadges === 'function') { try { checkBadges(); } catch (e) {} }
+    try { cloudAfterRoute(); } catch (e) {}
     if (opts.focus) main.focus({ preventScroll: true });
     if (opts.keepScroll) return;
     if (restoreY !== null) { window.requestAnimationFrame(function () { window.scrollTo(0, restoreY); }); return; }

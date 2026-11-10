@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.18.0', date: '2026-11-10', title: 'Cloud sync',
+    items: [
+      { type: 'feature', text: 'New Cloud sync screen. Sign in with Google, type the batch’s join code and wait for the admin to approve you. After that, everyone’s cards arrive on your phone on their own, and yours reaches them whenever you save it.', href: '#/sync' },
+      { type: 'feature', text: 'You choose what leaves your phone: Emergency & medical and Contact details are sent only if you tick them on Cloud sync. Leaving the batch deletes your card from the cloud.' },
+      { type: 'update', text: 'Batch events sync with the batch too, including ones you remove.' },
+      { type: 'update', text: 'Share cards and Scan a card (card files and QR codes) are gone. Your own device backup in the footer still works.' }
+    ]
+  },
+  {
     version: '1.17.0', date: '2026-11-10', title: 'Jowa / asawa cards',
     items: [
       { type: 'feature', text: 'Partners of residents can now have full cards with all the same sections. On My card, choose “I’m the partner (jowa/asawa) of a resident” and pick your resident (or type their name).', href: '#/me' },

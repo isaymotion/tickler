@@ -1,0 +1,66 @@
+rules_version = '2';
+// Batch Tickler — Firestore security rules (1.18.0).
+// Paste this whole file into Firebase console › Databases & Storage › Firestore › Rules, then Publish.
+// Only signed-in batch members can read cards; each person can only write their own card;
+// only the admin(s) below can create batches, approve join requests and remove members.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && request.auth.token.email_verified == true
+        && request.auth.token.email in ['isaymotion@gmail.com'];
+    }
+    function isMember(b) {
+      return signedIn() && exists(/databases/$(database)/documents/batches/$(b)/members/$(request.auth.uid));
+    }
+    function shortText(v, n) { return v is string && v.size() <= n; }
+
+    match /batches/{b} {
+      allow get: if signedIn();              // the join code is the document id
+      allow list, create, update, delete: if isAdmin();
+
+      match /requests/{uid} {
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['name', 'email', 'created'])
+          && shortText(request.resource.data.name, 80)
+          && request.resource.data.email == request.auth.token.email;
+        allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+        allow list: if isAdmin();
+        allow delete: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      }
+
+      match /members/{uid} {
+        allow get: if signedIn() && (request.auth.uid == uid || isMember(b) || isAdmin());
+        allow list: if isMember(b) || isAdmin();
+        allow create, update: if isAdmin();
+        allow delete: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      }
+
+      match /cards/{cardId} {
+        allow read: if isMember(b) || isAdmin();
+        allow create: if isMember(b)
+          && request.resource.data.owner == request.auth.uid
+          && request.resource.data.updated is number
+          && request.resource.data.card is map
+          && request.resource.data.card.id == cardId;
+        allow update: if isMember(b)
+          && resource.data.owner == request.auth.uid
+          && request.resource.data.owner == request.auth.uid
+          && request.resource.data.updated is number
+          && request.resource.data.card is map
+          && request.resource.data.card.id == cardId;
+        allow delete: if isAdmin() || (signedIn() && resource.data.owner == request.auth.uid);
+      }
+
+      match /events/{id} {
+        allow read: if isMember(b) || isAdmin();
+        allow create, update: if (isMember(b) || isAdmin())
+          && request.resource.data.by == request.auth.uid
+          && request.resource.data.updated is number
+          && shortText(request.resource.data.title, 80);
+        allow delete: if isAdmin();
+      }
+    }
+  }
+}

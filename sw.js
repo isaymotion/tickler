@@ -1,8 +1,8 @@
 /* Offline support: network first, cached copy when offline. Bump VERSION on every publish.
    Cache names MUST start with this app's PREFIX: all isaymotion apps share one origin and one cache storage. */
 const PREFIX = 'batchtickler-';
-const VERSION = PREFIX + '1.17.0';
-const CORE = ['./', './index.html', './css/app.css', './js/app.js', './js/vendor/qrcode.js', './js/vendor/jsQR.js', './data/app-meta.js', './data/changelog.js', './data/hospital.js', './data/strings.js', './data/fields.js', './data/icebreakers.js', './data/places.js', './data/fun.js', './img/banner.jpg', './img/banner-small.jpg', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
+const VERSION = PREFIX + '1.18.0';
+const CORE = ['./', './index.html', './css/app.css', './js/app.js', './js/cloud.js', './js/vendor/firebase.js', './data/app-meta.js', './data/changelog.js', './data/hospital.js', './data/strings.js', './data/fields.js', './data/icebreakers.js', './data/places.js', './data/fun.js', './data/cloud.js', './img/banner.jpg', './img/banner-small.jpg', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 self.addEventListener('install', (event) => {
   // add() one by one so a not-yet-uploaded icon cannot make the whole install fail
   event.waitUntil(caches.open(VERSION).then((c) => Promise.all(CORE.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
@@ -18,6 +18,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  // Leave Firebase / Google sign-in traffic alone (never cache it); only same-origin files and Google Fonts are cached.
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin && !/^fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)) return;
   event.respondWith(
     fetch(req)
       .then((res) => {
