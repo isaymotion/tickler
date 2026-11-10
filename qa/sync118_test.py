@@ -139,6 +139,8 @@ with sync_playwright() as p:
     # --- admin creates the batch
     go(A, '#/sync'); A.wait_for_timeout(300)
     ok(A.locator('#sy-in').count() == 1, 'signed out: Sign in button')
+    def sbc(pg): return pg.get_attribute('#sync-btn', 'class') or ''
+    ok('is-off' in sbc(A), '1.20.0 top-bar sync button: dim when not set up (%s)' % sbc(A))
     click(A, '#sy-in'); ok(A.locator('#sy-join').count() == 1 and A.locator('#sy-create').count() == 1, 'admin signed in: join + create forms')
     A.fill('#sy-create [name=bname]', 'Batch 2027'); click(A, '#sy-create button[type=submit]'); A.wait_for_timeout(600)
     sA = st(A); code = sA.get('code', '')
@@ -160,6 +162,7 @@ with sync_playwright() as p:
     ok('Waiting for approval' in txt(Bp), 'pending screen')
     click(Bp, '#sy-check'); ok('Not approved yet' in txt(Bp), 'check again while pending')
     go(Bp, '#/'); ok('Waiting for approval' in Bp.inner_text('.sync-strip'), 'Home shows pending')
+    ok('is-pending' in sbc(Bp), 'top-bar button: amber while pending')
     r = handle('putCard', json.dumps({'user': {'uid': 'uB', 'email': 'bea@example.com'}, 'args': [code, {'id': 'pB', 'updated': '2026-11-02T00:00:00Z'}, {}]}))
     ok(r == {'__err': 'permission-denied'}, 'mock rules: non-member cannot upload')
 
@@ -219,6 +222,18 @@ with sync_playwright() as p:
     go(Bp, '#/events'); ok('Welcome dinner\n' not in txt(Bp) and pg_ev(Bp) == 0, 'event removed on the resident phone')
     pushes = calls.count('putEvent'); go(Bp, '#/sync'); click(Bp, '#sy-now'); Bp.wait_for_timeout(400)
     ok(calls.count('putEvent') == pushes, 'pulled events are not sent back')
+
+    # --- 1.20.0 top-bar sync button
+    def tap(pg):
+        bb = pg.locator('#sync-btn').bounding_box(); pg.mouse.click(bb['x'] + bb['width'] / 2, bb['y'] + bb['height'] / 2); pg.wait_for_timeout(700)
+    go(A, '#/'); ok('is-ok' in sbc(A) and 'Synced' in (A.get_attribute('#sync-btn', 'aria-label') or ''), 'top-bar button: green + "Synced …" label when member')
+    n0 = calls.count('cardsSince'); tap(A)
+    ok(calls.count('cardsSince') > n0, 'tap syncs now (throttle bypassed)')
+    ok(A.locator('.toast').count() > 0 and ('up to date' in A.inner_text('body') or 'Synced:' in A.inner_text('body')), 'tap shows a result toast')
+    A.evaluate("()=>{window.__realDB=window.cloudDB;window.cloudDB=function(){return Promise.resolve(JSON.stringify({__err:'unavailable'}))}}")
+    tap(A); ok('is-err' in sbc(A), 'top-bar button: red after a failed sync')
+    A.evaluate("()=>{window.cloudDB=window.__realDB}"); tap(A); ok('is-ok' in sbc(A), 'top-bar button: back to green after a good sync')
+    A.screenshot(path=out + '/topbar-phone.png', clip={'x': 0, 'y': 0, 'width': 390, 'height': 70})
 
     # --- 1.19.2: same Google account on a second device (laptop) gets its own card + sharing ticks
     def me_of(pg): return pg.evaluate("JSON.parse(localStorage.getItem('bt:v1:me')||'null')")
