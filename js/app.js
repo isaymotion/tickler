@@ -336,6 +336,10 @@
       return !me || slug !== me;
     });
   }
+  var DUTY_URL = 'https://isaymotion.github.io/DutySched/';   // the residents' duty scheduler (separate app); menu link + "Upcoming duties" link
+  function extLink(href, label) {
+    return '<li><a class="nav-item" href="' + esc(href) + '" target="_blank" rel="noopener">' + icon('external') + '<span>' + esc(label) + '</span><span class="sr-only"> ' + esc(t('nav.newTab')) + '</span></a></li>';
+  }
   function currentKey() { var p = parts(); return p.length ? p[0] : 'home'; }
   function buildNav() {
     var cur = location.hash || '#/';
@@ -351,7 +355,7 @@
         var active = n.href === cur;
         return '<li><a class="nav-item' + (active ? ' is-active' : '') + '" href="' + esc(n.href) + '"' + (active ? ' aria-current="page"' : '') + '>' + icon(n.icon) + '<span>' + esc(navLabel(n)) + '</span>' +
           (n.badge ? '<span class="badge" data-badge="' + esc(n.badge) + '" hidden></span>' : '') + '</a></li>';
-      }).join('') + '</ul></div>';
+      }).join('') + (g.label === 'App' ? extLink(DUTY_URL, t('nav.duty')) : '') + '</ul></div>';
     }).join('');
     var others = otherApps();
     if (others.length) {
@@ -3352,7 +3356,7 @@
     try {
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && k.indexOf(PREFIX) === 0) data[k.slice(PREFIX.length)] = localStorage.getItem(k);
+        if (k && k.indexOf(PREFIX) === 0 && k !== PREFIX + 'dutysched') data[k.slice(PREFIX.length)] = localStorage.getItem(k);   // the DutySched cache is not part of a backup
       }
     } catch (e) {}
     return data;
@@ -3481,6 +3485,85 @@
     if (panel && !panel.hidden) { panel.hidden = true; var tb = document.getElementById('textSizeBtn'); if (tb) tb.setAttribute('aria-expanded', 'false'); }
     route({ keepScroll: true });   // re-render the current view and the menu in the new language
   }
+
+  /* ===== Upcoming duties (read-only, from the DutySched app's published schedule.json) =====
+     Fetched once per load, last good copy cached under bt:v1:dutysched. Never part of share/print/backup output. ===== */
+  (function () {
+    var DUTY_MAX = 6, DUTY_TITLES = { md: 1, dr: 1, doc: 1, mr: 1, ms: 1, mrs: 1, miss: 1, engr: 1, atty: 1, rn: 1, phd: 1 }, DUTY_SUFFIX = { jr: 1, sr: 1, ii: 1, iii: 1, iv: 1 };
+    function dutyValid(d) {
+      return !!(d && typeof d === 'object' && d.app === 'dutysched' && d.format === 1 && Array.isArray(d.residents) && Array.isArray(d.duties)) ? d : null;
+    }
+    var duty = null;
+    (function () { var c = store.get('dutysched', null); duty = c && dutyValid(c.data); })();
+    function dutyTokens(name) {
+      var n = String(name == null ? '' : name).toLowerCase();
+      try { if (n.normalize) n = n.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
+      n = n.replace(/\([^)]*\)|"[^"]*"|“[^”]*”/g, ' ').replace(/[^a-z0-9\s]/g, ' ');
+      return n.split(/\s+/).filter(function (w) { return w && !DUTY_TITLES[w]; });
+    }
+    function dutyLast(tk) { var i = tk.length - 1; while (i > 0 && DUTY_SUFFIX[tk[i]]) i--; return tk[i]; }
+    function dutyNoMa(tk) { return tk.length > 2 && (tk[0] === 'ma' || tk[0] === 'maria') ? tk.slice(1) : tk; }   // "Ma. Isabella P. Navarro" also matches "Isabella Navarro"
+    function dutySame(a, b) {
+      if (dutySame1(a, b)) return true;
+      var a2 = dutyNoMa(a), b2 = dutyNoMa(b);
+      return (a2 !== a || b2 !== b) && dutySame1(a2, b2);
+    }
+    function dutySame1(a, b) {
+      if (!a.length || !b.length) return false;
+      if (a.join(' ') === b.join(' ')) return true;
+      return a.length > 1 && b.length > 1 && a[0] === b[0] && dutyLast(a) === dutyLast(b);
+    }
+    function dutyMatch(c) {   // -> { r: resident } | 'none' | 'ambiguous'
+      var tk = dutyTokens(c.name), hits = duty.residents.filter(function (r) { return r && typeof r.name === 'string' && dutySame(tk, dutyTokens(r.name)); });
+      return hits.length === 1 ? { r: hits[0] } : hits.length ? 'ambiguous' : 'none';
+    }
+    function dutyToday() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+    function dutyDay(iso) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+      return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(locale(), { weekday: 'short', month: 'short', day: 'numeric' }) : iso;
+    }
+    function dutyHTML(c, onMe) {
+      if (!duty || !c || isPartner(c)) return '';
+      var m = dutyMatch(c);
+      if (m === 'none' && onMe && c.name) return '<p class="muted">' + esc(t('bt.duty.noMatch')) + '</p>';
+      if (!m.r) return '';
+      var today = dutyToday(), list = duty.duties.filter(function (x) {
+        return x && x.residentId === m.r.id && typeof x.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.date) && x.date >= today;
+      }).sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; }).slice(0, DUTY_MAX);
+      if (!list.length) return '';
+      var pub = typeof duty.published === 'string' && /^\d{4}-\d{2}-\d{2}/.test(duty.published) ? duty.published.slice(0, 10) : '';
+      return '<h2>' + esc(t('bt.duty.title')) + '</h2><div class="card facts">' + list.map(function (x) {
+        var label = x.label || [x.post, x.shift].filter(Boolean).join(' · ');
+        return factRow('calendar', dutyDay(x.date), label || '—');
+      }).join('') + '</div><p class="muted">' + esc(pub ? tf('bt.duty.fromPub', { date: fmtDate(pub) }) : t('bt.duty.from')) + ' · <a href="' + esc(DUTY_URL) + '" target="_blank" rel="noopener">' + esc(t('bt.duty.open')) + '<span class="sr-only"> ' + esc(t('nav.newTab')) + '</span></a></p>';
+    }
+    function slot(html, c, onMe) { var i = html.indexOf('</header>'); return i < 0 ? html : html.slice(0, i + 9) + '<div id="duty-slot" data-me="' + (onMe ? '1' : '') + '">' + dutyHTML(c, onMe) + '</div>' + html.slice(i + 9); }
+    var person0 = VIEWS.person;
+    VIEWS.person = function (id) {
+      var html = person0.apply(null, arguments), c = findPerson(String(id || ''));
+      return c ? slot(html, c, false) : html;
+    };
+    var me1 = VIEWS.me;
+    VIEWS.me = function () { return slot(me1.apply(null, arguments), getMe(), true); };
+    function refill() {   // fill the slot in place (never re-renders the My card form, so nothing being typed is lost)
+      var el = document.getElementById('duty-slot'); if (!el) return;
+      var p = parts(), c = p[0] === 'person' ? findPerson(String(p[1] || '')) : p[0] === 'me' ? getMe() : null;
+      el.innerHTML = c ? dutyHTML(c, p[0] === 'me') : '';
+    }
+    function fetchDuty() {
+      if (!window.fetch) return;
+      var ctl = window.AbortController ? new AbortController() : null, timer = setTimeout(function () { if (ctl) ctl.abort(); }, 6000);
+      fetch(new URL('../DutySched/data/schedule.json', location.href).href, ctl ? { signal: ctl.signal } : {})
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (d) {
+          clearTimeout(timer);
+          if (!dutyValid(d)) return;
+          duty = d; store.set('dutysched', { saved: new Date().toISOString(), data: d });
+          refill();
+        }).catch(function () { clearTimeout(timer); });
+    }
+    fetchDuty();
+  })();
 
   /* ===== Start ===== */
   applyStatic();

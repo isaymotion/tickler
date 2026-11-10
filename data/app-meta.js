@@ -3,7 +3,7 @@ window.APP_META = {
   name: 'Batch Tickler',
   short: 'Batch',
   tagline: 'Get to know your batch',
-  version: '1.19.0',
+  version: '1.20.0',
   repo: 'tickler',
   attribution: 'App created by Isabella Navarro, MD. Latest version November 2026. isaymotion@gmail.com'
 };
@@ -21,7 +21,9 @@ window.APP_LINKS = [
   { name: 'DSM-5-TR Study Companion', href: 'https://isaymotion.github.io/DSMVapp/' },
   { name: 'Stahl Study Companion', href: 'https://isaymotion.github.io/Stahl/' },
   { name: 'Kaplan Study', href: 'https://isaymotion.github.io/KaplanStudy/' },
-  { name: 'Shea Trainer', href: 'https://isaymotion.github.io/sheatrainer/' }
+  { name: 'Shea Trainer', href: 'https://isaymotion.github.io/sheatrainer/' },
+  { name: 'DutySched (duty scheduler)', href: 'https://isaymotion.github.io/DutySched/' },
+  { name: 'Batch Tickler', href: 'https://isaymotion.github.io/tickler/' }
 ];
 
 /* Key migration: for a restyled app whose storage prefix changed, so saved progress survives.

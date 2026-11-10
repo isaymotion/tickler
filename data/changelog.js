@@ -4,6 +4,13 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.20.0', date: '2026-11-10', title: 'Linked to DutySched',
+    items: [
+      { type: 'feature', text: 'New Duty schedule link in the menu (App group). It opens the residents’ duty scheduler, DutySched, in a new tab.' },
+      { type: 'feature', text: 'Upcoming duties: your next few duties now show on your page and on My card, and on each resident’s page, read from the schedule the chief resident publishes in DutySched. They match by name, so if nothing shows, check that your name is written the same way in both apps. The last schedule is kept for offline use. Duties never appear in printed sheets or backups.' }
+    ]
+  },
+  {
     version: '1.19.0', date: '2026-11-10', title: 'Pets, a Spotify player and show info',
     items: [
       { type: 'feature', text: 'New Pets screen: add your pets one at a time, each with a photo, kind, breed and a few words about them. They show on your card and in a gallery of the whole batch’s pets.', href: '#/pets' },
