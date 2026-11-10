@@ -104,7 +104,7 @@ with sync_playwright() as p:
     nooverflow(pg, 'wrapped')
     # About setting
     go(pg, '#/about'); ok(pg.input_value('input[name=startDate]') == start, '9 about date shows')
-    pg.fill('input[name=startDate]', ''); pg.dispatch_event('input[name=startDate]', 'change'); go(pg, '#/'); ok('Set your start date' in pg.inner_text('main'), '9 cleared -> prompt')
+    pg.fill('input[name=startDate]', ''); pg.dispatch_event('input[name=startDate]', 'change'); go(pg, '#/'); ok(pg.evaluate("localStorage.getItem('bt:v1:startDate')") is None, '9 cleared -> default'); go(pg, '#/about'); ok(pg.input_value('input[name=startDate]') == '2027-01-01', '9 default 2027-01-01'); go(pg, '#/'); ok(('Starts in' in pg.inner_text('main')) or ('Day ' in pg.inner_text('main')), '9 default counter on Home')
     ctx.close()
     # Dark + Tagalog + desktop sweeps
     for name, vp, sch, lg in [('dark', (390, 844), 'dark', 'en'), ('tl', (390, 844), 'light', 'tl'), ('desk', (1280, 900), 'light', 'en')]:
