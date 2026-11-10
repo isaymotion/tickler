@@ -89,7 +89,7 @@ Playwright is preinstalled; block non-127.0.0.1 requests in tests. Press sticky-
 | Usap Tayo | 3.0.0 | middle path | 23718e8 |
 | PsychInterview | cache v23 | sw fix only | 04dbaa1 |
 | Case Rehearsal | rehearse-2026-11-06-1 | sw fix only | c74373d |
-| **Batch Tickler** | **1.21.3** (2026-11-10) | full | see git log main; 1.21.2 3798112 |
+| **Batch Tickler** | **1.21.3** (2026-11-10) | full | b1d05af (Pages run success); 1.21.2 3798112 |
 
 Baseline after every release: regression flow 38 PASS + only the known random-clue `8c` FAIL; all other suites full PASS; console `ERR_FAILED` lines are the blocked external fonts (expected).
 
