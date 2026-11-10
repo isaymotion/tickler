@@ -7,7 +7,7 @@ Written 2026-11-09, updated 2026-11-10 after the 1.14.0 release. Previous chats:
 ## 1. Project and audience
 - Owner: Dr. Ma. Isabella P. Navarro, incoming psychiatry resident, Mariveles Mental Wellness and General Hospital. Works from iPhone/iPad; short step-by-step replies; one question at a time.
 - Apps: plain HTML/CSS/JS on GitHub Pages, all under **one origin** `https://isaymotion.github.io/`. Repos (org `isaymotion`): `sheatrainer`, `KaplanStudy`, `Stahl`, `DSMVapp`, `MSEtrainer`, `Tagalog` (Usap Tayo), `case-psychinterview` (PsychInterview), `102526` (Case Rehearsal), **`tickler` (Batch Tickler)**. Default branch `main`; pushing to `main` publishes.
-- **This Project is "Batch Tickler"**: a directory for incoming residents to get to know each other. Repo **isaymotion/tickler**, `main` = published app, `dev-tools` = QA harness + HANDOFF.md (never merged). Live at `https://isaymotion.github.io/tickler/` (Pages is on, deploying `main`). She installs it on her iPhone and is actively testing.
+- **This Project is "Batch Tickler"**: a directory for incoming residents to get to know each other. Repo **isaymotion/tickler**, `main` = published app, `dev-tools` = QA harness (`qa/`), map generator (`tools/map/`) + HANDOFF.md mirror (never merged). Live at `https://isaymotion.github.io/tickler/` (Pages is on, deploying `main`). She installs it on her iPhone and is actively testing.
 - Skills in her account (always load both for app work): `isaymotion-app-design` (shell, tokens, starter, scripts) and `isaymotion-study-app` (features, content rules, delivery). Others defer to those two.
 
 ## 2. Fixed rules (never change)
@@ -76,7 +76,7 @@ Playwright is preinstalled; block non-127.0.0.1 requests in tests. Press sticky-
 | Usap Tayo | 3.0.0 | middle path | 23718e8 |
 | PsychInterview | cache v23 | sw fix only | 04dbaa1 |
 | Case Rehearsal | rehearse-2026-11-06-1 | sw fix only | c74373d |
-| **Batch Tickler** | **1.14.0** (2026-11-10, Pages run success) | full | ed1f134 (1.13.0 98a10c6); dev-tools be5aba6 |
+| **Batch Tickler** | **1.14.0** (2026-11-10, Pages run success) | full | ed1f134 (1.13.0 98a10c6); dev-tools d317968 |
 
 Baseline before 1.10.0 and after every release since (1.10.0–1.14.0): regression 40 PASS, only the known random-clue `8c` FAIL; console `ERR_FAILED` lines are the blocked external fonts (expected).
 
@@ -96,4 +96,4 @@ Baseline before 1.10.0 and after every release since (1.10.0–1.14.0): regressi
 - `make_icons.py` needs `cairosvg` for SVG sources (`pip install --break-system-packages cairosvg`); PNG sources work without it. For a photo/pixel icon with white corners, flood-fill the corners to transparent first.
 
 ## 9. Files to re-attach
-None. QA harness: `git clone -b dev-tools https://github.com/isaymotion/tickler tickler-devtools` then `python3 tickler-devtools/qa/flow_test.py ./tickler` (README on that branch; needs Playwright + Pillow; expect all PASS except the random-clue `8c`) and `python3 tickler-devtools/qa/today_test.py ./tickler /tmp/qa` + `qa/fun_test.py`, `qa/nf_test.py`, `qa/lists_test.py`, `qa/f114_test.py` the same way. If the design skill is missing from the session, ask her to re-save `isaymotion-app-design.skill` and `isaymotion-study-app.skill`. Batch Tickler source is in the `tickler` repo; her banner and icon originals are committed there (`img/banner.jpg`, `icons/icon-source.png`).
+None. QA harness: `git clone -b dev-tools https://github.com/isaymotion/tickler tickler-devtools` then `python3 tickler-devtools/qa/flow_test.py ./tickler` (README on that branch; needs Playwright + Pillow; expect all PASS except the random-clue `8c`) and `python3 tickler-devtools/qa/today_test.py ./tickler /tmp/qa` + `qa/fun_test.py`, `qa/nf_test.py`, `qa/lists_test.py`, `qa/f114_test.py` the same way. The hometown-map generator (Natural Earth outline + `places_src.js` place table → `data/places.js`) is in `tools/map/` on dev-tools; see its README. If the design skill is missing from the session, ask her to re-save `isaymotion-app-design.skill` and `isaymotion-study-app.skill`. Batch Tickler source is in the `tickler` repo; her banner and icon originals are committed there (`img/banner.jpg`, `icons/icon-source.png`).
