@@ -112,11 +112,20 @@
     { label: 'Hometown map', tkey: 'nav.map', href: '#/map', icon: 'pin', group: 'Screens' },
     { label: 'Batch picks', tkey: 'nav.picks', href: '#/picks', icon: 'list', group: 'Screens' },
     { label: 'Batch events', tkey: 'nav.events', href: '#/events', icon: 'calendar', group: 'Screens' },
+    { label: 'Question of the week', tkey: 'nav.qotw', href: '#/qotw', icon: 'chat', group: 'Screens' },
+    { label: 'Batch anthem', tkey: 'nav.anthem', href: '#/anthem', icon: 'music', group: 'Screens' },
+    { label: 'Time capsule', tkey: 'nav.capsule', href: '#/capsule', icon: 'mail', group: 'Screens' },
     { label: 'Guess who', tkey: 'nav.guess', href: '#/guess', icon: 'quiz', group: 'Play' },
     { label: 'Who said it?', tkey: 'nav.whosaid', href: '#/whosaid', icon: 'chat', group: 'Play' },
     { label: 'Batch Bingo', tkey: 'nav.bingo', href: '#/bingo', icon: 'game', group: 'Play' },
     { label: 'Icebreakers', tkey: 'nav.icebreakers', href: '#/icebreakers', icon: 'spark', group: 'Play' },
     { label: 'Batch Wrapped', tkey: 'nav.wrapped', href: '#/wrapped', icon: 'star', group: 'Play' },
+    { label: 'Two truths and a lie', tkey: 'nav.truths', href: '#/truths', icon: 'quiz', group: 'Play' },
+    { label: 'How well do you know…?', tkey: 'nav.quiz', href: '#/quiz', icon: 'star', group: 'Play' },
+    { label: 'Baby photo guess', tkey: 'nav.baby', href: '#/baby', icon: 'heart', group: 'Play' },
+    { label: 'This or that', tkey: 'nav.tot', href: '#/thisorthat', icon: 'chart', group: 'Play' },
+    { label: 'Batch superlatives', tkey: 'nav.sup', href: '#/superlatives', icon: 'star', group: 'Play' },
+    { label: 'Where should we eat?', tkey: 'nav.eat', href: '#/eat', icon: 'food', group: 'Play' },
     { label: 'Kris Kringle', tkey: 'nav.monito', href: '#/monito', icon: 'gift', group: 'Play' },
     { label: 'Badges', tkey: 'nav.badges', href: '#/badges', icon: 'spark', group: 'Play' },
     { label: 'Share cards', tkey: 'nav.share', href: '#/share', icon: 'share', group: 'Screens' },
@@ -608,6 +617,7 @@
     out.netflix = cleanList(LIST_BY.netflix, c.netflix);
     out.shoutouts = (Array.isArray(c.shoutouts) ? c.shoutouts : []).map(function (x) { return x && typeof x === 'object' ? { to: cleanText(x.to, 40), name: cleanText(x.name, 80), text: cleanText(x.text, 280), date: cleanText(x.date, 30) } : null; }).filter(function (x) { return x && x.text && (x.to || x.name); }).slice(-30);
     out.badges = (Array.isArray(c.badges) ? c.badges : []).filter(function (b, i, a) { return typeof b === 'string' && /^[a-z0-9]{2,20}$/.test(b) && a.indexOf(b) === i; }).slice(0, 40);
+    sanitizeFun(c, out);
     out.lists = {};
     LISTS.forEach(function (L) { if (L.key === 'netflix') return; var v = cleanList(L, c.lists && typeof c.lists === 'object' ? c.lists[L.key] : null); if (v.length) out.lists[L.key] = v; });
     out.custom = (Array.isArray(c.custom) ? c.custom : []).map(function (x) {
@@ -688,7 +698,7 @@
       var text = FIELDS.filter(function (f) { return f.print; }).map(function (f) { return c[f.key]; }).concat(c.custom.map(function (x) { return x.label + ' ' + x.value; }), c.playlists.map(function (x) { return x.label; }), [].concat.apply([], LISTS.map(function (L) { return listOf(c, L.key).map(function (x) { return x.title; }); }))).filter(Boolean).join(' · ');
       SEARCH_INDEX.push({ title: c.name + (c.nickname ? ' (' + c.nickname + ')' : ''), text: text || bdayText(c), href: '#/person/' + encodeURIComponent(c.id), kind: t('nav.batch') });
     });
-    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro']].forEach(function (s) {
+    [['nav.me', '#/me', 'bt.me.intro'], ['nav.birthdays', '#/birthdays', 'bt.bd.intro'], ['nav.share', '#/share', 'bt.share.intro'], ['nav.print', '#/print', 'bt.print.intro'], ['nav.guess', '#/guess', 'bt.guess.intro'], ['nav.scan', '#/scan', 'bt.scan.intro'], ['nav.stats', '#/stats', 'bt.stats.intro'], ['nav.map', '#/map', 'bt.map.intro'], ['nav.picks', '#/picks', 'bt.picks.intro'], ['nav.events', '#/events', 'bt.ev.intro'], ['nav.monito', '#/monito', 'bt.mm.intro'], ['nav.badges', '#/badges', 'bt.badge.note'], ['nav.whosaid', '#/whosaid', 'bt.ws.intro'], ['nav.bingo', '#/bingo', 'bt.bingo.intro'], ['nav.icebreakers', '#/icebreakers', 'bt.ice.intro'], ['nav.wrapped', '#/wrapped', 'bt.wrap.intro'], ['nav.truths', '#/truths', 'bt.tt.intro'], ['nav.quiz', '#/quiz', 'bt.quiz.intro'], ['nav.baby', '#/baby', 'bt.baby.intro'], ['nav.tot', '#/thisorthat', 'bt.tot.intro'], ['nav.sup', '#/superlatives', 'bt.sup.intro'], ['nav.qotw', '#/qotw', 'bt.qotw.intro'], ['nav.capsule', '#/capsule', 'bt.cap.intro'], ['nav.eat', '#/eat', 'bt.eat.intro'], ['nav.anthem', '#/anthem', 'bt.an.intro'], ['bt.tc.title', '#/tcard', 'bt.tc.intro']].forEach(function (s) {
       SEARCH_INDEX.push({ title: t(s[0]), text: t(s[2]), href: s[1], kind: t('nav.screens') });
     });
   }
@@ -729,6 +739,8 @@
       var lb = listOf(b, L.key).map(function (x) { return x.title.toLowerCase(); }), hit = listOf(a, L.key).filter(function (x) { return lb.indexOf(x.title.toLowerCase()) >= 0; }).map(function (x) { return x.title; });
       if (hit.length) out.push(tf('bt.common.shared', { field: t('bt.l.' + L.key + '.short'), value: hit.join(', ') }));
     });
+    var tot = (window.THIS_OR_THAT || []).filter(function (q) { return a.tot && b.tot && a.tot[q.id] && a.tot[q.id] === b.tot[q.id]; }).map(function (q) { var o = q[a.tot[q.id]]; return o[lang] || o.en; });
+    if (tot.length) out.push(tf('bt.common.tot', { value: tot.join(', ') }));
     return out;
   }
   function fmtMonth(v) { var m = /^(\d{4})-(\d{2})$/.exec(String(v)); return m ? monthName(+m[2]) + ' ' + m[1] : String(v); }
@@ -791,7 +803,7 @@
         who.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '<span><strong>' + esc(c.preferredName || c.nickname || c.name) + '</strong><span class="today__a">' + esc(clip(c[tp.fk], 140)) + '</span></span></a></li>'; }).join('') +
         '</ul><p class="today__acts">' + (all.length > 1 ? '<a class="btn btn--solid" href="#/whosaid/' + encodeURIComponent(tp.fk) + '">' + esc(t('nav.whosaid')) + '</a>' : '') + (tp.factN > 1 ? '<button type="button" class="btn" data-another="fact">' + esc(t('bt.today.another')) + '</button>' : '') + '</p></section>';
     }
-    out = shoutHomeHTML() + out + wordHTML(all, today) + spotlightHTML(all, today);
+    out = shoutHomeHTML() + capsuleHomeHTML(today) + qotwHomeHTML(all, today) + out + wordHTML(all, today) + anthemHomeHTML(all, today) + spotlightHTML(all, today);
     return out ? '<h2 class="home__h">' + esc(t('bt.today.h')) + '</h2><div class="today-grid">' + out + '</div>' : '';
   }
   AFTER.home = function () {
@@ -891,8 +903,8 @@
         (c.nickname ? '<p class="person__nick">“' + esc(c.nickname) + '”</p>' : '') + (c.askMe ? '<p>' + askChips(c) + '</p>' : '') +
         (c.bmonth ? '<p class="person__bday">' + icon('cake', 'fact__ico') + esc(t('bt.person.birthday')) + ': ' + esc(bdayText(c, true)) + (d === 0 ? ' · <strong>' + esc(t('bt.home.today')) + '</strong>' : d !== null && d <= 30 ? ' · ' + esc(d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + (c.byear && d !== null && d <= 30 ? ' (' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear() + (d && today.getMonth() + 1 > c.bmonth ? 1 : 0)) })) + ')' : '') + ' <button type="button" class="link-btn" id="cal-one">' + esc(t('bt.cal.one')) + '</button></p><p class="muted person__zodiac">' + esc(t('bt.zodiac')) + ': ' + esc(zodiac(c)) + (chineseZodiac(c) ? ' · ' + esc(t('bt.zodiac.cn')) + ': ' + esc(chineseZodiac(c)) : '') + '</p><p class="form__status" id="cal-status" role="status"></p>' : '') +
         (c.preferredName ? '<p class="muted">' + esc(fieldLabel('preferredName')) + ': ' + esc(c.preferredName) + (c.pronouns ? ' · ' + esc(c.pronouns) : '') + '</p>' : (c.pronouns ? '<p class="muted">' + esc(c.pronouns) + '</p>' : '')) +
-        (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a> <span class="muted">' + esc(tf('bt.me.complete', comp)) + '</span></p>' : '') +
-      '</div></header>' + common + (c.badges && c.badges.length ? '<h2>' + esc(t('nav.badges')) + '</h2>' + badgeChips(c.badges) : '') + shoutSection(c) + sections + contact +
+        (me ? '<p><a class="btn btn--solid" href="#/me">' + esc(t('bt.person.edit')) + '</a> <span class="muted">' + esc(tf('bt.me.complete', comp)) + '</span></p>' : '') + personActs(c) +
+      '</div></header>' + common + (c.badges && c.badges.length ? '<h2>' + esc(t('nav.badges')) + '</h2>' + badgeChips(c.badges) : '') + shoutSection(c) + wallSection(c) + sections + contact +
       '<p class="person__foot muted">' + esc(tf('bt.person.updated', { date: bkDate(c.updated) || '—' })) + (me ? '' : ' · <button type="button" class="link-btn" id="rm-person" data-id="' + esc(c.id) + '">' + esc(t('bt.person.remove')) + '</button>') + '</p></div>';
   };
   AFTER.person = function (id) {
@@ -969,7 +981,7 @@
         '</div><p><button type="button" class="btn" id="custom-add">' + esc(t('bt.custom.add')) + '</button></p></div></details>' +
         '<p class="form__status" id="me-status" role="status" aria-live="polite"></p>' +
         '<div class="form__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.me.save')) + '</button>' + (me.id ? '<a class="btn" href="#/person/' + encodeURIComponent(me.id) + '">' + esc(t('nav.me')) + ' →</a><button type="button" class="link-btn" id="me-clear">' + esc(t('bt.me.clear')) + '</button>' : '') + '</div>' +
-      '</form></div>';
+      '</form>' + (me.id ? funLinksHTML() : '') + '</div>';
   };
   function shrinkPhoto(file, cb) {
     var url = URL.createObjectURL(file), img = new Image();
@@ -1063,6 +1075,7 @@
       c.bmonth = m; c.bday = d; c.byear = m && d ? y : 0;
       c.photo = pendingPhoto === null ? (old.photo || '') : pendingPhoto;
       c.shoutouts = old.shoutouts || []; c.badges = earnedIds();
+      FUN_KEYS.forEach(function (k) { if (old[k] !== undefined) c[k] = old[k]; });
       c.updated = new Date().toISOString();
       var clean = sanitizeCard(c);
       if (!clean) { say(t('bt.me.needName'), true); return; }
@@ -1250,7 +1263,7 @@
 
   /* ---- Guess who: three modes, rounds of 10, leaderboard on this phone ---- */
   var ROUND = 10, GUESS_MODES = ['clue', 'photo', 'month'];
-  var guess = { mode: 'clue', right: 0, total: 0, q: null, done: false };
+  var guess = { mode: 'clue', right: 0, total: 0, q: null, done: false, marks: [] };
   function modeLabel(m) { return t('bt.guess.mode' + m.charAt(0).toUpperCase() + m.slice(1)); }
   function makeQuestion(mode) {
     var all = people(), pick, others, opts;
@@ -1282,14 +1295,14 @@
     b.sort(function (x, y) { return (y.right / y.n) - (x.right / x.n) || new Date(y.date) - new Date(x.date); });
     store.set('guessBoard', b.slice(0, 10));
   }
-  function resetRound(mode) { guess = { mode: mode || guess.mode, right: 0, total: 0, q: null, done: false }; }
+  function resetRound(mode) { guess = { mode: mode || guess.mode, right: 0, total: 0, q: null, done: false, marks: [] }; }
   VIEWS.guess = function () {
     if (!guess.q && !guess.done) guess.q = makeQuestion(guess.mode);
     var q = guess.q, b = board();
     var modes = '<div class="filters" role="group">' + GUESS_MODES.map(function (m) { return '<button type="button" class="filter" data-gmode="' + m + '" aria-pressed="' + (guess.mode === m) + '">' + esc(modeLabel(m)) + '</button>'; }).join('') + '</div>';
     var boardHtml = '<h2>' + esc(t('bt.guess.board')) + '</h2><div class="card">' + (b.length ? '<ol class="plain plain--num">' + b.map(function (r) { return '<li><strong>' + esc(r.who) + '</strong> <span class="muted">' + esc(tf('bt.guess.boardRow', { right: r.right, n: r.n, mode: modeLabel(r.mode), date: bkDate(r.date) })) + '</span></li>'; }).join('') + '</ol>' : '<p class="muted">' + esc(t('bt.guess.boardEmpty')) + '</p>') + '</div>';
     var body;
-    if (guess.done) body = '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: guess.right, n: guess.total })) + '</h2><p><button type="button" class="btn btn--solid" id="g-again">' + esc(t('bt.guess.playAgain')) + '</button></p></div>';
+    if (guess.done) body = '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: guess.right, n: guess.total })) + '</h2>' + (setResult(t('nav.guess') + ' (' + modeLabel(guess.mode) + ')', guess.right, guess.total, guess.marks || []) ? resultBlock() : '') + '<p><button type="button" class="btn btn--solid" id="g-again">' + esc(t('bt.guess.playAgain')) + '</button></p></div>';
     else if (!q) body = '<div class="empty"><p>' + esc(t(guess.mode === 'photo' ? 'bt.guess.needPhotos' : guess.mode === 'month' ? 'bt.guess.needDates' : 'bt.guess.notEnough')) + '</p></div>';
     else {
       var ask = q.mode === 'photo' ? '<p class="guess__ask">' + esc(t('bt.guess.whosePhoto')) + '</p><div class="guess__photo">' + avatar(q.c, 'avatar--xl') + '</div>'
@@ -1309,7 +1322,7 @@
     var opts = document.querySelectorAll('.guess__opt'), st = document.getElementById('g-status'), acts = document.getElementById('g-acts');
     for (var i = 0; i < opts.length; i++) opts[i].addEventListener('click', function (e) {
       if (q.answered) return; q.answered = true; guess.total++;
-      var ok = e.currentTarget.getAttribute('data-id') === q.answer; if (ok) guess.right++;
+      var ok = e.currentTarget.getAttribute('data-id') === q.answer; if (ok) guess.right++; (guess.marks = guess.marks || []).push(ok);
       var stk = ok ? counter('guessStreak', counter('guessStreak') + 1) : counter('guessStreak', 0); if (stk >= 10) award('streak10');
       if (guess.total >= ROUND && guess.right === guess.total) award('perfectguess');
       for (var j = 0; j < opts.length; j++) { opts[j].disabled = true; if (opts[j].getAttribute('data-id') === q.answer) opts[j].classList.add('is-right'); }
@@ -1569,10 +1582,10 @@
     return '<section class="card bday-today" aria-labelledby="bdt-h"><div class="confetti" aria-hidden="true">' + bits + '</div>' +
       '<p class="today__k">' + icon('cake', 'today__ico') + esc(t('bt.bdt.kicker')) + '</p>' +
       '<h2 id="bdt-h">' + esc(meToday && !rest.length ? t('bt.bdt.you') : tf('bt.bdt.title', { names: rest.map(short).join(' & ') })) + '</h2>' +
-      (meToday && rest.length ? '<p>' + esc(t('bt.bdt.youToo')) + '</p>' : '') +
+      (meToday && rest.length ? '<p>' + esc(t('bt.bdt.youToo')) + '</p>' : '') + (meToday ? wallBits(meToday, today) : '') +
       '<div class="bday-today__people">' + rest.map(function (c) {
         return '<div class="bday-today__p"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c) + '</a><div><strong>' + esc(c.name) + '</strong>' + (c.byear ? '<span class="muted">' + esc(tf('bt.person.turns', { n: ageOn(c, today.getFullYear()) })) + '</span>' : '') +
-          '<p class="today__acts"><button type="button" class="btn btn--solid" data-greet="' + esc(c.id) + '">' + esc(t('bt.bdt.greet')) + '</button></p>' + wishBits(c) + '</div></div>';
+          '<p class="today__acts"><button type="button" class="btn btn--solid" data-greet="' + esc(c.id) + '">' + esc(t('bt.bdt.greet')) + '</button></p>' + wishBits(c) + wallBits(c, today) + '</div></div>';
       }).join('') + '</div><p class="form__status" id="greet-status" role="status"></p></section>';
   }
   function wishBits(c) {
@@ -1603,7 +1616,7 @@
   function wsFields(all) { var need = Math.min(2, all.length); return (window.GUESS_FIELDS || []).filter(function (k) { return all.filter(function (c) { return filled(c, k); }).length >= need; }); }
   function wsStart(k) {
     var all = people();
-    ws = { k: k, order: shuffled(all.filter(function (c) { return filled(c, k); })).map(function (c) { return c.id; }), i: 0, right: 0, answered: false, pick: '', opts: null };
+    ws = { k: k, order: shuffled(all.filter(function (c) { return filled(c, k); })).map(function (c) { return c.id; }), i: 0, right: 0, answered: false, pick: '', opts: null, marks: [] };
   }
   function wsOpts(c, all) { return shuffled([c].concat(shuffled(all.filter(function (x) { return x.id !== c.id; })).slice(0, 3))); }
   VIEWS.whosaid = function (k) {
@@ -1615,7 +1628,8 @@
     var sel = '<label class="field field--inline"><span class="field__l">' + esc(t('bt.ws.topic')) + '</span><select id="ws-k">' + fields.map(function (f) { return '<option value="' + esc(f) + '"' + (f === k ? ' selected' : '') + '>' + esc(fieldLabel(f)) + '</option>'; }).join('') + '</select></label>';
     var body;
     if (ws.i >= ws.order.length) {
-      body = '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: ws.right, n: ws.order.length })) + '</h2><p class="guess__acts"><button type="button" class="btn btn--solid" id="ws-again">' + esc(t('bt.guess.playAgain')) + '</button><button type="button" class="btn" id="ws-other">' + esc(t('bt.ws.other')) + '</button></p></div>';
+      setResult(t('nav.whosaid') + ' · ' + fieldLabel(k), ws.right, ws.order.length, ws.marks || []);
+      body = '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: ws.right, n: ws.order.length })) + '</h2>' + resultBlock() + '<p class="guess__acts"><button type="button" class="btn btn--solid" id="ws-again">' + esc(t('bt.guess.playAgain')) + '</button><button type="button" class="btn" id="ws-other">' + esc(t('bt.ws.other')) + '</button></p></div>';
     } else {
       var c = findPerson(ws.order[ws.i]);
       if (!c) { ws.i++; return VIEWS.whosaid(k); }
@@ -1638,7 +1652,7 @@
     var opts = document.querySelectorAll('[data-wsid]'), answer = ws.order[ws.i];
     for (var i = 0; i < opts.length; i++) opts[i].addEventListener('click', function (e) {
       if (ws.answered) return; ws.answered = true;
-      var ok = e.currentTarget.getAttribute('data-wsid') === answer; if (ok) ws.right++;
+      var ok = e.currentTarget.getAttribute('data-wsid') === answer; if (ok) ws.right++; (ws.marks = ws.marks || []).push(ok);
       if (ws.i === ws.order.length - 1 && ws.right === ws.order.length && ws.order.length >= 4) award('whosaid');
       for (var j = 0; j < opts.length; j++) { opts[j].disabled = true; if (opts[j].getAttribute('data-wsid') === answer) opts[j].classList.add('is-right'); }
       if (!ok) e.currentTarget.classList.add('is-wrong');
@@ -1706,7 +1720,7 @@
     if (!b) return head + '<div class="empty"><p>' + esc(t('bt.bingo.notEnough')) + '</p></div></div>';
     var list = people(), won = bingoLines(b), inWin = {}; won.forEach(function (l) { l.forEach(function (x) { inWin[x] = 1; }); });
     if (won.length) setTimeout(function () { award('bingo'); }, 0);
-    return head + (won.length ? '<p class="bingo__win" role="status">' + esc(won.length === 1 ? t('bt.bingo.win') : tf('bt.bingo.winN', { n: won.length })) + '</p>' : '') +
+    return head + (won.length ? '<p class="bingo__win" role="status">' + esc(won.length === 1 ? t('bt.bingo.win') : tf('bt.bingo.winN', { n: won.length })) + '</p>' + (bingoShare(b) ? resultBlock().replace('res__line', 'res__line res__line--hide') : '') : '') +
       '<div class="bingo__grid bingo__grid--' + b.size + '" role="grid">' + b.squares.map(function (s, i) {
         var on = b.marks.indexOf(i) >= 0;
         if (s.free) return '<div class="bingo__sq is-free is-on' + (inWin[i] ? ' is-win' : '') + '" role="gridcell"><span class="bingo__v">' + esc(t('bt.bingo.free')) + '</span></div>';
@@ -2212,6 +2226,590 @@
     var rd = document.getElementById('mm-redraw'); if (rd) rd.addEventListener('click', function () { if (!window.confirm(t('bt.mm.redrawConfirm'))) return; store.del('monito'); monitoPeek = {}; route({ keepScroll: false }); });
     var cl = document.getElementById('mm-clear'); if (cl) cl.addEventListener('click', function () { if (!window.confirm(t('bt.mm.clearConfirm'))) return; store.del('monito'); monitoPeek = {}; route({ keepScroll: false }); });
   };
+
+  /* ===================== 1.15.0 =====================
+     Two truths and a lie, How well do you know…?, Baby photo guess, shareable emoji results, This or that,
+     Batch superlatives, Question of the week, Birthday wall, Time capsule, Trading-card image,
+     Where should we eat?, Batch anthem. Content (questions, polls, awards) lives in data/fun.js.
+     New card keys (sanitizeFun; kept on My card save): truths {s:[3], lie}, baby (photo), tot {qid:'a'|'b'},
+     votes {awardId: personId}, qotw {week: answer}, bwall [{to,name,text,date}] (on the sender's card),
+     capsule [{id,text,open,date}] (letters to the batch), anthem {title,url}.
+     This phone only: capsuleMine [{id,text,open,date}], quizBest {personId: [right,n]}, counters.lies. */
+  var FUN_KEYS = ['truths', 'baby', 'tot', 'votes', 'qotw', 'bwall', 'capsule', 'anthem'];
+  var ANTHEM_L = { hosts: ['open.spotify.com', 'spotify.link', 'youtube.com', 'youtu.be', 'music.youtube.com', 'music.apple.com'] };
+  function TOT() { return window.THIS_OR_THAT || []; }
+  function SUPS() { return window.SUPERLATIVES || []; }
+  function QOTWS() { return window.QOTW || []; }
+  function loc(o) { return o ? (o[lang] || o.en || '') : ''; }
+  function isoDay(v) { v = cleanText(v, 10); return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
+  function strHash(s) { var h = 2166136261; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function cleanMsgs(arr, max) { return (Array.isArray(arr) ? arr : []).map(function (x) { return x && typeof x === 'object' ? { to: cleanText(x.to, 40), name: cleanText(x.name, 80), text: cleanText(x.text, 280), date: cleanText(x.date, 30) } : null; }).filter(function (x) { return x && x.text && (x.to || x.name); }).slice(-(max || 30)); }
+  function cleanLetters(arr, max) { return (Array.isArray(arr) ? arr : []).map(function (x, i) { return x && typeof x === 'object' ? { id: cleanText(x.id, 40).replace(/[^\w-]/g, '') || 'c' + i, text: cleanText(x.text, 1000), open: isoDay(x.open), date: cleanText(x.date, 30) } : null; }).filter(function (x) { return x && x.text && x.open; }).slice(0, max || 5); }
+  function sanitizeFun(c, out) {
+    var tr = c.truths;
+    if (tr && typeof tr === 'object' && Array.isArray(tr.s)) { var s = tr.s.slice(0, 3).map(function (x) { return cleanText(x, 140); }); if (s.length === 3 && s.every(Boolean)) out.truths = { s: s, lie: +tr.lie === 1 || +tr.lie === 2 ? +tr.lie : 0 }; }
+    if (okPhoto(c.baby)) out.baby = c.baby;
+    out.tot = {}; var ct = c.tot && typeof c.tot === 'object' ? c.tot : {};
+    TOT().forEach(function (q) { if (ct[q.id] === 'a' || ct[q.id] === 'b') out.tot[q.id] = ct[q.id]; });
+    out.votes = {}; var cv = c.votes && typeof c.votes === 'object' ? c.votes : {};
+    SUPS().forEach(function (a) { var v = cv[a.id]; if (typeof v === 'string' && /^[\w-]{1,40}$/.test(v)) out.votes[a.id] = v; });
+    out.qotw = {}; var cq = c.qotw && typeof c.qotw === 'object' ? c.qotw : {};
+    Object.keys(cq).filter(function (k) { return /^\d{1,6}$/.test(k) && cleanText(cq[k], 200); }).sort(function (a, b) { return b - a; }).slice(0, 26).forEach(function (k) { out.qotw[k] = cleanText(cq[k], 200); });
+    out.bwall = cleanMsgs(c.bwall, 30);
+    out.capsule = cleanLetters(c.capsule, 5);
+    var an = c.anthem;
+    if (an && typeof an === 'object' && cleanText(an.title, 80)) out.anthem = { title: cleanText(an.title, 80), url: listUrl(ANTHEM_L, an.url) };
+  }
+  function saveMe(mut) {
+    var me = getMe(); if (!me) return null;
+    mut(me); me.updated = new Date().toISOString();
+    var cl = sanitizeCard(me); if (cl) { store.set('me', cl); rebuildIndex(); }
+    return cl;
+  }
+  function needCard() { return '<div class="card fun-need"><p>' + esc(t('bt.fun.needCard')) + '</p><p><a class="btn btn--solid" href="#/me">' + esc(t('nav.me')) + '</a></p></div>'; }
+  function pageHead(cls, navKey, introKey) { return '<div class="wrap page ' + cls + '">' + crumb(t(navKey)) + '<header class="page__head"><h1>' + esc(t(navKey)) + '</h1><p>' + esc(t(introKey)) + '</p></header>'; }
+  function tabs(base, cur, list) { return '<div class="filters" role="group">' + list.map(function (x) { return '<a class="filter" href="' + base + x[0] + '" aria-pressed="' + (cur === x[0]) + '">' + esc(t(x[1])) + '</a>'; }).join('') + '</div>'; }
+
+  /* ---- 4. Shareable results (emoji line, Wordle style) ---- */
+  var lastResult = '';
+  function emojiLine(marks) { return marks.map(function (m) { return m ? '🟩' : '🟥'; }).join(''); }
+  function setResult(game, right, n, marks) { lastResult = tf('bt.res.text', { game: game, right: right, n: n, batch: batchName() || APP_NAME }) + '\n' + emojiLine(marks); return lastResult; }
+  function resultBlock() { return '<div class="res"><p class="res__line" aria-hidden="true">' + esc(lastResult.split('\n').pop()) + '</p><p class="guess__acts"><button type="button" class="btn" data-res>' + icon('share', 'btn__ico') + esc(t('bt.res.share')) + '</button></p><p class="form__status" id="res-status" role="status"></p></div>'; }
+  function shareOut(text, st, okMsg) {
+    function say(m) { if (st) st.textContent = m; }
+    if (navigator.share) { navigator.share({ text: text }).then(function () { say(okMsg || t('bt.share.shared')); }).catch(function () {}); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { say(t('bt.res.copied')); }, function () { say(text); });
+    else say(text);
+  }
+  main.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('[data-res]') : null;
+    if (b && lastResult) shareOut(lastResult, document.getElementById('res-status'));
+  });
+  function bingoShare(b) {
+    var n = b.size, rows = [];
+    for (var r = 0; r < n; r++) { var line = ''; for (var c = 0; c < n; c++) { var i = r * n + c; line += b.squares[i].free ? '⭐' : b.marks.indexOf(i) >= 0 ? '🟩' : '⬜'; } rows.push(line); }
+    lastResult = tf('bt.res.bingo', { batch: batchName() || APP_NAME, n: b.marks.length }) + '\n' + rows.join('\n');
+    return lastResult;
+  }
+
+  /* ---- generic one-at-a-time game card (used by Two truths, Quiz, Baby photos) ---- */
+  function gameCard(st, ask, opts, extra) {
+    return '<div class="card guess__card"><p class="muted guess__score">' + esc(tf('bt.guess.roundOf', { i: st.i + 1, n: st.n })) + ' · ' + esc(tf('bt.guess.score', { right: st.right, total: st.i })) + '</p>' + ask +
+      '<div class="guess__opts' + (opts.length === 2 ? ' guess__opts--2' : '') + '">' + opts.map(function (o) { return '<button type="button" class="btn guess__opt" data-gopt="' + esc(o.id) + '">' + esc(o.label) + '</button>'; }).join('') + '</div>' +
+      '<p class="form__status" id="gm-status" role="status" aria-live="polite"></p><p class="guess__acts" id="gm-acts" hidden><button type="button" class="btn btn--solid" id="gm-next">' + esc(t('bt.guess.next')) + '</button>' + (extra || '') + '</p></div>';
+  }
+  function wireGame(st, answer, onAnswer, reveal) {
+    var opts = main.querySelectorAll('[data-gopt]');
+    opts.forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (st.answered) return; st.answered = true;
+        var ok = b.getAttribute('data-gopt') === String(answer); if (ok) st.right++; st.marks.push(ok);
+        opts.forEach(function (o) { o.disabled = true; if (o.getAttribute('data-gopt') === String(answer)) o.classList.add('is-right'); });
+        if (!ok) b.classList.add('is-wrong');
+        document.getElementById('gm-status').textContent = ok ? t('bt.guess.right') : tf('bt.guess.wrong', { name: reveal });
+        document.getElementById('gm-acts').hidden = false;
+        if (onAnswer) onAnswer(ok);
+        document.getElementById('gm-next').focus({ preventScroll: true });
+      });
+    });
+    var nx = document.getElementById('gm-next'); if (nx) nx.addEventListener('click', function () { st.i++; st.answered = false; route({ keepScroll: true }); });
+  }
+  function doneCard(st, game, againId, more) {
+    setResult(game, st.right, st.n, st.marks);
+    return '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: st.right, n: st.n })) + '</h2>' + resultBlock() + '<p class="guess__acts"><button type="button" class="btn btn--solid" id="' + againId + '">' + esc(t('bt.guess.playAgain')) + '</button>' + (more || '') + '</p></div>';
+  }
+
+  /* ---- 1. Two truths and a lie ---- */
+  var tt = { order: [], i: 0, n: 0, right: 0, marks: [], answered: false, key: '' };
+  function ttPool() { return others().filter(function (c) { return c.truths; }); }
+  function ttStart() { var p = ttPool(); tt = { order: shuffled(p).map(function (c) { return c.id; }), i: 0, n: p.length, right: 0, marks: [], answered: false, key: p.map(function (c) { return c.id + c.updated; }).sort().join() }; }
+  function ttOrder(c) { return shuffled([0, 1, 2], mulberry(strHash(c.id + c.truths.s.join('|')))); }
+  function truthsForm(me) {
+    var tr = me.truths || { s: ['', '', ''], lie: -1 };
+    return '<details class="fgroup card-ish"' + (me.truths ? '' : ' open') + '><summary><span>' + esc(t('bt.tt.mine')) + '</span><span class="muted fgroup__n">' + (me.truths ? '✓' : '') + '</span></summary><div class="fgroup__body"><form id="tt-form" class="tt-form"><p class="field__h">' + esc(t('bt.tt.mineHint')) + '</p>' +
+      [0, 1, 2].map(function (i) { return '<div class="tt-row"><label class="field"><span class="field__l">' + esc(tf('bt.tt.stmt', { n: i + 1 })) + '</span><input name="s' + i + '" maxlength="140" value="' + esc(tr.s[i]) + '"></label><label class="tt-lie"><input type="radio" name="lie" value="' + i + '"' + (tr.lie === i ? ' checked' : '') + '> ' + esc(t('bt.tt.isLie')) + '</label></div>'; }).join('') +
+      '<p class="guess__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.me.save')) + '</button>' + (me.truths ? '<button type="button" class="link-btn" id="tt-clear">' + esc(t('bt.custom.remove')) + '</button>' : '') + '</p><p class="form__status" id="tt-status" role="status"></p></form></div></details>';
+  }
+  VIEWS.truths = function () {
+    var me = getMe(), head = pageHead('guess truths', 'nav.truths', 'bt.tt.intro') + (me ? truthsForm(me) : needCard());
+    var pool = ttPool();
+    if (!pool.length) return head + '<div class="empty"><p>' + esc(t('bt.tt.none')) + '</p></div></div>';
+    var key = pool.map(function (c) { return c.id + c.updated; }).sort().join();
+    if (!tt.order.length || tt.key !== key) ttStart();
+    if (tt.i >= tt.order.length) return head + doneCard(tt, t('nav.truths'), 'tt-again') + '</div>';
+    var c = findPerson(tt.order[tt.i]); if (!c || !c.truths) { tt.i++; return VIEWS.truths(); }
+    var ask = '<div class="tt-who">' + avatar(c, 'avatar--lg') + '<div><strong>' + esc(c.name) + '</strong><p class="guess__ask">' + esc(t('bt.tt.ask')) + '</p></div></div>';
+    return head + gameCard(tt, ask, ttOrder(c).map(function (i) { return { id: i, label: c.truths.s[i] }; }), ' <a class="btn" href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.guess.open')) + '</a>') + '</div>';
+  };
+  AFTER.truths = function () {
+    var f = document.getElementById('tt-form');
+    if (f) f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var s = [f.s0.value, f.s1.value, f.s2.value].map(function (x) { return cleanText(x, 140); }), lie = f.querySelector('[name=lie]:checked'), st = document.getElementById('tt-status');
+      if (!s.every(Boolean)) { st.textContent = t('bt.tt.need3'); st.classList.add('is-error'); return; }
+      if (!lie) { st.textContent = t('bt.tt.needLie'); st.classList.add('is-error'); return; }
+      saveMe(function (me) { me.truths = { s: s, lie: +lie.value }; }); route({ keepScroll: true }); toast(t('bt.tt.saved'));
+    });
+    var clr = document.getElementById('tt-clear'); if (clr) clr.addEventListener('click', function () { saveMe(function (me) { delete me.truths; }); route({ keepScroll: true }); });
+    var again = document.getElementById('tt-again'); if (again) again.addEventListener('click', function () { ttStart(); route({ keepScroll: true }); });
+    if (tt.i < tt.order.length) {
+      var c = findPerson(tt.order[tt.i]);
+      if (c && c.truths) wireGame(tt, c.truths.lie, function (ok) { if (ok && counter('lies', counter('lies') + 1) >= 5) award('liedetector'); }, '“' + clip(c.truths.s[c.truths.lie], 80) + '”');
+    }
+  };
+
+  /* ---- 2. How well do you know ___? ---- */
+  var qz = { id: '', qs: [], i: 0, n: 0, right: 0, marks: [], answered: false };
+  function quizQs(c) {
+    var all = people().filter(function (x) { return x.id !== c.id; }), qs = [];
+    GUESS_FIELDS.forEach(function (k) {
+      if (!filled(c, k)) return;
+      var mine = clip(c[k], 90), seen = {}; seen[mine.toLowerCase()] = 1;
+      var wrong = shuffled(all.filter(function (x) { return filled(x, k); }).map(function (x) { return clip(x[k], 90); })).filter(function (v) { var l = v.toLowerCase(); if (seen[l]) return false; seen[l] = 1; return true; }).slice(0, 3);
+      if (wrong.length < 2) return;
+      qs.push({ ask: tf('bt.quiz.qField', { field: fieldLabel(k), name: short(c) }), opts: shuffled([mine].concat(wrong)), answer: mine });
+    });
+    if (c.bmonth) { var ms = [c.bmonth]; while (ms.length < 4) { var m = 1 + Math.floor(Math.random() * 12); if (ms.indexOf(m) < 0) ms.push(m); } qs.push({ ask: tf('bt.quiz.qMonth', { name: short(c) }), opts: shuffled(ms).map(monthName), answer: monthName(c.bmonth) }); }
+    TOT().forEach(function (q) { var v = c.tot && c.tot[q.id]; if (v) qs.push({ ask: tf('bt.quiz.qTot', { name: short(c) }), opts: [loc(q.a), loc(q.b)], answer: loc(v === 'a' ? q.a : q.b), two: true }); });
+    if (c.truths) qs.push({ ask: tf('bt.quiz.qLie', { name: short(c) }), opts: shuffled(c.truths.s.slice()), answer: c.truths.s[c.truths.lie] });
+    var tots = shuffled(qs.filter(function (q) { return q.two; })).slice(0, 3);   // at most 3 this-or-that questions per quiz
+    return shuffled(qs.filter(function (q) { return !q.two; }).concat(tots)).slice(0, 10);
+  }
+  function quizCount(c) { return quizQs(c).length; }
+  function quizBest() { var b = store.get('quizBest', {}); return b && typeof b === 'object' && !Array.isArray(b) ? b : {}; }
+  VIEWS.quiz = function (id) {
+    var head = pageHead('guess quiz', 'nav.quiz', 'bt.quiz.intro');
+    var c = id ? findPerson(String(id)) : null;
+    if (!c) {
+      var list = others().map(function (x) { return { c: x, n: quizCount(x) }; }).filter(function (x) { return x.n >= 4; }), best = quizBest();
+      if (!list.length) return head + '<div class="empty"><p>' + esc(t('bt.quiz.none')) + '</p></div></div>';
+      return head + '<ul class="plain quiz-list">' + list.map(function (x) { var b = best[x.c.id]; return '<li><a class="card quiz-pick" href="#/quiz/' + encodeURIComponent(x.c.id) + '">' + avatar(x.c, 'avatar--sm') + '<span><strong>' + esc(x.c.name) + '</strong><span class="muted">' + esc(tf('bt.quiz.nq', { n: x.n })) + (b ? ' · ' + esc(tf('bt.quiz.best', { right: b[0], n: b[1] })) : '') + '</span></span></a></li>'; }).join('') + '</ul></div>';
+    }
+    if (qz.id !== c.id || !qz.qs.length) { var qs = quizQs(c); qz = { id: c.id, qs: qs, i: 0, n: qs.length, right: 0, marks: [], answered: false }; }
+    var title = '<h2 class="quiz-h">' + avatar(c, 'avatar--sm') + esc(tf('bt.quiz.title', { name: short(c) })) + '</h2>';
+    if (qz.n < 4) return head + title + '<div class="empty"><p>' + esc(t('bt.quiz.few')) + '</p></div></div>';
+    if (qz.i >= qz.n) {
+      var pct = qz.right / qz.n, verdict = t(pct === 1 ? 'bt.quiz.v3' : pct >= 0.7 ? 'bt.quiz.v2' : pct >= 0.4 ? 'bt.quiz.v1' : 'bt.quiz.v0');
+      setResult(tf('bt.quiz.title', { name: short(c) }), qz.right, qz.n, qz.marks);
+      return head + title + '<div class="card guess__card"><h2 style="margin-top:0">' + esc(tf('bt.guess.roundDone', { right: qz.right, n: qz.n })) + '</h2><p class="quiz-verdict">' + esc(verdict) + '</p>' + resultBlock() +
+        '<p class="guess__acts"><button type="button" class="btn btn--solid" id="qz-again">' + esc(t('bt.guess.playAgain')) + '</button><a class="btn" href="#/quiz">' + esc(t('bt.quiz.other')) + '</a><a class="btn" href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.guess.open')) + '</a></p></div></div>';
+    }
+    var q = qz.qs[qz.i];
+    return head + title + gameCard(qz, '<p class="guess__ask">' + esc(q.ask) + '</p>', q.opts.map(function (o) { return { id: o, label: o }; })) + '</div>';
+  };
+  AFTER.quiz = function () {
+    var again = document.getElementById('qz-again'); if (again) again.addEventListener('click', function () { qz.qs = []; route({ keepScroll: true }); });
+    if (qz.i >= qz.n && qz.n >= 4 && !qz.saved) {
+      qz.saved = true; var b = quizBest(), old = b[qz.id];
+      if (!old || qz.right / qz.n > old[0] / old[1]) { b[qz.id] = [qz.right, qz.n]; store.set('quizBest', b); }
+      if (qz.right === qz.n && qz.n >= 5) award('quizmaster');
+    }
+    if (qz.i < qz.n) { var q = qz.qs[qz.i]; qz.saved = false; wireGame(qz, q.answer, null, q.answer); }
+  };
+
+  /* ---- 3. Baby photo guess ---- */
+  var bb = { order: [], i: 0, n: 0, right: 0, marks: [], answered: false, opts: null, key: '' };
+  function bbPool() { return others().filter(function (c) { return c.baby; }); }
+  function bbStart() { var p = bbPool(); bb = { order: shuffled(p).map(function (c) { return c.id; }), i: 0, n: p.length, right: 0, marks: [], answered: false, opts: null, key: p.map(function (c) { return c.id; }).sort().join() }; }
+  VIEWS.baby = function () {
+    var me = getMe(), head = pageHead('guess baby', 'nav.baby', 'bt.baby.intro');
+    var mine = me ? '<details class="fgroup card-ish"' + (me.baby ? '' : ' open') + '><summary><span>' + esc(t('bt.baby.mine')) + '</span><span class="muted fgroup__n">' + (me.baby ? '✓' : '') + '</span></summary><div class="fgroup__body"><div class="form__photo"><div>' + (me.baby ? '<img class="avatar avatar--lg" src="' + esc(me.baby) + '" alt="">' : '<span class="avatar avatar--lg avatar--txt" aria-hidden="true">👶</span>') + '</div><div><p class="field__h">' + esc(t('bt.baby.hint')) + '</p>' +
+      '<input type="file" id="baby-photo" class="sr-only" accept="image/*"><label class="btn" for="baby-photo">' + esc(t('bt.me.choosePhoto')) + '</label> ' + (me.baby ? '<button type="button" class="link-btn" id="baby-rm">' + esc(t('bt.me.removePhoto')) + '</button>' : '') + '<p class="form__status" id="baby-status" role="status"></p></div></div></div></details>' : needCard();
+    head += mine;
+    var pool = bbPool();
+    if (pool.length < 2 || people().length < 4) return head + '<div class="empty"><p>' + esc(t('bt.baby.none')) + '</p></div></div>';
+    if (!bb.order.length || bb.key !== pool.map(function (c) { return c.id; }).sort().join()) bbStart();
+    if (bb.i >= bb.n) return head + doneCard(bb, t('nav.baby'), 'bb-again') + '</div>';
+    var c = findPerson(bb.order[bb.i]); if (!c || !c.baby) { bb.i++; return VIEWS.baby(); }
+    if (!bb.opts || bb.opts.id !== c.id) bb.opts = { id: c.id, list: shuffled([c].concat(shuffled(people().filter(function (x) { return x.id !== c.id && !isMe(x); })).slice(0, 3))) };
+    return head + gameCard(bb, '<p class="guess__ask">' + esc(t('bt.baby.ask')) + '</p><div class="guess__photo"><img class="avatar avatar--xl" src="' + esc(c.baby) + '" alt=""></div>', bb.opts.list.map(function (x) { return { id: x.id, label: x.name }; })) + '</div>';
+  };
+  AFTER.baby = function () {
+    var fi = document.getElementById('baby-photo');
+    if (fi) fi.addEventListener('change', function () {
+      var f = fi.files && fi.files[0]; fi.value = ''; if (!f) return;
+      shrinkPhoto(f, function (data) { if (!data) { document.getElementById('baby-status').textContent = t('bt.me.photoTooBig'); return; } saveMe(function (me) { me.baby = data; }); route({ keepScroll: true }); toast(t('bt.baby.saved')); });
+    });
+    var rm = document.getElementById('baby-rm'); if (rm) rm.addEventListener('click', function () { saveMe(function (me) { delete me.baby; }); route({ keepScroll: true }); });
+    var again = document.getElementById('bb-again'); if (again) again.addEventListener('click', function () { bbStart(); route({ keepScroll: true }); });
+    if (bb.i < bb.n) { var c = findPerson(bb.order[bb.i]); if (c) wireGame(bb, c.id, function () { if (bb.i === bb.n - 1 && bb.right === bb.n && bb.n >= 3) award('babyface'); }, c.name); }
+  };
+
+  /* ---- 5. This or that ---- */
+  function totPicks(c, q) { var v = c.tot && c.tot[q.id]; return v ? loc(v === 'a' ? q.a : q.b) : ''; }
+  VIEWS.thisorthat = function (mode) {
+    var me = getMe(), qs = TOT(), all = people();
+    mode = mode === 'split' || !me ? 'split' : 'mine';
+    var head = pageHead('tot-page', 'nav.tot', 'bt.tot.intro') + tabs('#/thisorthat/', mode, [['mine', 'bt.tot.mine'], ['split', 'bt.tot.split']]);
+    if (mode === 'mine') {
+      var n = qs.filter(function (q) { return me.tot && me.tot[q.id]; }).length;
+      return head + '<p class="muted">' + esc(tf('bt.tot.progress', { n: n, total: qs.length })) + '</p><div class="card tot-list">' + qs.map(function (q) {
+        var v = me.tot && me.tot[q.id];
+        return '<div class="tot-row" role="group" aria-label="' + esc(loc(q.a) + ' / ' + loc(q.b)) + '">' + ['a', 'b'].map(function (k, i) { return (i ? '<span class="tot-or" aria-hidden="true">' + esc(t('bt.tot.or')) + '</span>' : '') + '<button type="button" class="tot-b" data-tot="' + esc(q.id) + '" data-v="' + k + '" aria-pressed="' + (v === k) + '">' + esc(loc(q[k])) + '</button>'; }).join('') + '</div>';
+      }).join('') + '</div><p class="guess__acts"><a class="btn btn--solid" href="#/thisorthat/split">' + esc(t('bt.tot.split')) + '</a></p></div>';
+    }
+    if (!me) head += needCard();
+    var rows = qs.map(function (q) {
+      var A = all.filter(function (c) { return c.tot && c.tot[q.id] === 'a'; }), B = all.filter(function (c) { return c.tot && c.tot[q.id] === 'b'; }), n = A.length + B.length;
+      if (!n) return '';
+      var pa = Math.round(100 * A.length / n);
+      return '<div class="split"><div class="split__labels"><span>' + esc(loc(q.a)) + ' <b>' + A.length + '</b></span><span><b>' + B.length + '</b> ' + esc(loc(q.b)) + '</span></div>' +
+        '<div class="split__bar" aria-hidden="true"><span style="width:' + pa + '%"></span></div>' +
+        '<div class="split__who muted"><span>' + esc(A.map(short).join(', ')) + '</span><span>' + esc(B.map(short).join(', ')) + '</span></div></div>';
+    }).join('');
+    var twins = '';
+    if (me) {
+      var sc = others().map(function (c) { var same = 0, both = 0; qs.forEach(function (q) { var a = me.tot && me.tot[q.id], b = c.tot && c.tot[q.id]; if (a && b) { both++; if (a === b) same++; } }); return { c: c, same: same, both: both }; }).filter(function (x) { return x.both >= 3; }).sort(function (x, y) { return y.same / y.both - x.same / x.both || y.both - x.both; }).slice(0, 3);
+      if (sc.length) twins = '<h2>' + esc(t('bt.tot.twins')) + '</h2><ul class="plain card tot-twins">' + sc.map(function (x) { return '<li><a href="#/person/' + encodeURIComponent(x.c.id) + '">' + avatar(x.c, 'avatar--sm') + '<span><strong>' + esc(x.c.name) + '</strong><span class="muted">' + esc(tf('bt.tot.same', { same: x.same, both: x.both })) + '</span></span></a></li>'; }).join('') + '</ul>';
+    }
+    return head + twins + '<h2>' + esc(t('bt.tot.split')) + '</h2>' + (rows ? '<div class="card splits">' + rows + '</div>' : '<div class="empty"><p>' + esc(t('bt.tot.none')) + '</p></div>') + '</div>';
+  };
+  AFTER.thisorthat = function () {
+    main.querySelectorAll('[data-tot]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-tot'), v = b.getAttribute('data-v');
+        saveMe(function (me) { me.tot = me.tot || {}; if (me.tot[id] === v) delete me.tot[id]; else me.tot[id] = v; });
+        route({ keepScroll: true }); var nb = main.querySelector('[data-tot="' + id + '"][data-v="' + v + '"]'); if (nb) nb.focus({ preventScroll: true });
+      });
+    });
+  };
+
+  /* ---- 6. Batch superlatives ---- */
+  function supTally(a) {
+    var votes = {}, ids = {}; people().forEach(function (c) { ids[c.id] = c; });
+    people().forEach(function (v) { var to = v.votes && v.votes[a.id]; if (to && ids[to] && to !== v.id) votes[to] = (votes[to] || 0) + 1; });
+    return Object.keys(votes).map(function (id) { return { c: ids[id], n: votes[id] }; }).sort(function (x, y) { return y.n - x.n || byName(x.c, y.c); });
+  }
+  VIEWS.superlatives = function (mode) {
+    var me = getMe(), sups = SUPS(), opts = others();
+    mode = mode === 'results' || !me ? 'results' : 'vote';
+    var head = pageHead('sup-page', 'nav.sup', 'bt.sup.intro') + tabs('#/superlatives/', mode, [['vote', 'bt.sup.vote'], ['results', 'bt.sup.results']]);
+    if (mode === 'vote') {
+      if (!opts.length) return head + '<div class="empty"><p>' + esc(t('bt.sup.noOthers')) + '</p></div></div>';
+      var n = sups.filter(function (a) { return me.votes && me.votes[a.id]; }).length;
+      return head + '<p class="muted">' + esc(tf('bt.sup.progress', { n: n, total: sups.length })) + '</p><div class="card sup-list">' + sups.map(function (a) {
+        var v = me.votes && me.votes[a.id];
+        return '<label class="field sup-row"><span class="field__l">🏆 ' + esc(loc(a)) + '</span><select data-sup="' + esc(a.id) + '"><option value="">' + esc(t('bt.sup.pick')) + '</option>' + opts.map(function (c) { return '<option value="' + esc(c.id) + '"' + (v === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') + '</select></label>';
+      }).join('') + '</div><p class="muted">' + esc(t('bt.sup.note')) + '</p></div>';
+    }
+    if (!me) head += needCard();
+    var res = sups.map(function (a) {
+      var tl = supTally(a); if (!tl.length) return '';
+      var top = tl[0].n, lead = tl.filter(function (x) { return x.n === top; }), rest = tl.filter(function (x) { return x.n < top; }).slice(0, 3);
+      return '<div class="card sup-res"><p class="sup-res__k">🏆 ' + esc(loc(a)) + '</p><div class="sup-res__lead">' + lead.map(function (x) { return '<a href="#/person/' + encodeURIComponent(x.c.id) + '">' + avatar(x.c) + '<span><strong>' + esc(x.c.name) + '</strong><span class="muted">' + esc(tf(x.n === 1 ? 'bt.sup.votes1' : 'bt.sup.votesN', { n: x.n })) + '</span></span></a>'; }).join('') + '</div>' +
+        (rest.length ? '<p class="muted sup-res__rest">' + esc(t('bt.sup.also')) + ' ' + esc(rest.map(function (x) { return short(x.c) + ' (' + x.n + ')'; }).join(', ')) + '</p>' : '') + '</div>';
+    }).join('');
+    return head + (res ? '<div class="sup-grid">' + res + '</div>' : '<div class="empty"><p>' + esc(t('bt.sup.none')) + '</p></div>') + '<p class="muted">' + esc(t('bt.sup.note')) + '</p></div>';
+  };
+  AFTER.superlatives = function () {
+    main.querySelectorAll('[data-sup]').forEach(function (s) {
+      s.addEventListener('change', function () { var id = s.getAttribute('data-sup'), v = s.value; saveMe(function (me) { me.votes = me.votes || {}; if (v) me.votes[id] = v; else delete me.votes[id]; }); route({ keepScroll: true }); var ns = main.querySelector('[data-sup="' + id + '"]'); if (ns) ns.focus({ preventScroll: true }); });
+    });
+  };
+
+  /* ---- 7. Question of the week ---- */
+  function qotwQ(wk) { var q = QOTWS(); return q.length ? loc(q[((wk % q.length) + q.length) % q.length]) : ''; }
+  function qotwAnswers(wk) { return people().filter(function (c) { return c.qotw && c.qotw[wk]; }).map(function (c) { return { c: c, a: c.qotw[wk] }; }); }
+  var qotwEdit = false;
+  function qotwBlock(wk, compact) {
+    var me = getMe(), mine = me && me.qotw && me.qotw[wk], ans = qotwAnswers(wk).filter(function (x) { return !me || x.c.id !== me.id; });
+    var form = me && (!mine || qotwEdit) ? '<form class="qotw-form" id="qotw-form" data-wk="' + wk + '"><label class="field"><span class="sr-only">' + esc(t('bt.qotw.yours')) + '</span><input name="a" maxlength="200" value="' + esc(mine || '') + '" placeholder="' + esc(t('bt.qotw.ph')) + '"></label><button type="submit" class="btn btn--solid">' + esc(t('bt.qotw.post')) + '</button></form>'
+      : mine ? '<p class="qotw-mine"><span class="today__fk">' + esc(t('bt.qotw.yours')) + '</span> ' + esc(mine) + ' <button type="button" class="link-btn" id="qotw-edit">' + esc(t('bt.ev.editBtn')) + '</button></p>' : '';
+    var list = ans.length ? '<ul class="today__list">' + (compact ? ans.slice(0, 4) : ans).map(function (x) { return '<li><a href="#/person/' + encodeURIComponent(x.c.id) + '">' + avatar(x.c, 'avatar--sm') + '<span><strong>' + esc(short(x.c)) + '</strong><span class="today__a">' + esc(clip(x.a, 140)) + '</span></span></a></li>'; }).join('') + '</ul>' : '<p class="muted">' + esc(t(me ? 'bt.qotw.first' : 'bt.qotw.noneYet')) + '</p>';
+    return '<h3 class="qotw-q">' + esc(qotwQ(wk)) + '</h3>' + form + list + (compact && ans.length > 4 ? '<p class="muted">' + esc(tf('bt.qotw.more', { n: ans.length - 4 })) + '</p>' : '');
+  }
+  function qotwHomeHTML(all, today) {
+    if (!all.length || !QOTWS().length) return '';
+    return '<section class="card today" aria-labelledby="today-q-h"><p class="today__k">' + icon('chat', 'today__ico') + '<span id="today-q-h">' + esc(t('nav.qotw')) + '</span></p>' + qotwBlock(weekNum(today), true) +
+      '<p class="today__acts"><a class="btn" href="#/qotw">' + esc(t('bt.qotw.all')) + '</a></p></section>';
+  }
+  VIEWS.qotw = function () {
+    var wk = weekNum(new Date()), weeks = {};
+    people().forEach(function (c) { Object.keys(c.qotw || {}).forEach(function (k) { if (+k < wk) weeks[k] = 1; }); });
+    var past = Object.keys(weeks).sort(function (a, b) { return b - a; });
+    return pageHead('qotw-page', 'nav.qotw', 'bt.qotw.intro') + (getMe() ? '' : needCard()) + '<div class="card qotw-now"><p class="today__k">' + esc(t('bt.qotw.thisWeek')) + '</p>' + qotwBlock(wk, false) + '</div>' +
+      (past.length ? '<h2>' + esc(t('bt.qotw.past')) + '</h2>' + past.map(function (k) { var a = qotwAnswers(k); return '<details class="fgroup"><summary><span>' + esc(qotwQ(+k)) + '</span><span class="muted fgroup__n">' + a.length + '</span></summary><div class="fgroup__body"><ul class="today__list">' + a.map(function (x) { return '<li><a href="#/person/' + encodeURIComponent(x.c.id) + '">' + avatar(x.c, 'avatar--sm') + '<span><strong>' + esc(short(x.c)) + '</strong><span class="today__a">' + esc(x.a) + '</span></span></a></li>'; }).join('') + '</ul></div></details>'; }).join('') : '') + '</div>';
+  };
+  function wireQotw() {
+    var f = document.getElementById('qotw-form');
+    if (f) f.addEventListener('submit', function (e) { e.preventDefault(); var a = cleanText(f.a.value, 200), wk = f.getAttribute('data-wk'); saveMe(function (me) { me.qotw = me.qotw || {}; if (a) me.qotw[wk] = a; else delete me.qotw[wk]; }); qotwEdit = false; route({ keepScroll: true }); if (a) toast(t('bt.qotw.posted')); });
+    var ed = document.getElementById('qotw-edit'); if (ed) ed.addEventListener('click', function () { qotwEdit = true; route({ keepScroll: true }); var i = document.querySelector('#qotw-form input'); if (i) i.focus(); });
+  }
+  AFTER.qotw = wireQotw;
+
+  /* ---- 8. Birthday wall (card.bwall on the sender's card; the birthday person sees them on the day) ---- */
+  function lastBirthday(c, today) {   // most recent occurrence on or before today (Date at local midnight)
+    var d = daysUntil(c, today); if (d === null) return null;
+    var t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (d === 0) return t0;
+    var y = today.getFullYear(), day = function (yy) { return new Date(yy, c.bmonth - 1, c.bmonth === 2 && c.bday === 29 && !isLeap(yy) ? 28 : c.bday); };
+    var cand = day(y); return cand <= t0 ? cand : day(y - 1);
+  }
+  function wallFor(c) {
+    var out = [];
+    people().forEach(function (from) { (from.bwall || []).forEach(function (s, i) { if (s.to === c.id || (s.name && s.name.toLowerCase() === c.name.toLowerCase())) out.push({ from: from, s: s, i: i }); }); });
+    return out.sort(function (a, b) { return String(a.s.date).localeCompare(String(b.s.date)); });
+  }
+  function wallOpen(c, x, today) { var lb = lastBirthday(c, today); return !!lb && new Date(x.s.date) < new Date(lb.getTime() + 864e5); }
+  function wallList(list, me) {
+    return '<ul class="plain shouts__list">' + list.map(function (x) {
+      var own = me && x.from.id === me.id;
+      return '<li><div class="shouts__t">' + esc(x.s.text).replace(/\n/g, '<br>') + '</div><div class="muted shouts__by">— ' + (own ? esc(t('bt.shout.you')) : personLink(x.from)) + (own ? ' · <button type="button" class="link-btn" data-unwall="' + x.i + '">' + esc(t('bt.custom.remove')) + '</button>' : '') + '</div></li>';
+    }).join('') + '</ul>';
+  }
+  function wallSection(c) {
+    if (!c.bmonth) return '';
+    var me = getMe(), mine = me && me.id === c.id, today = new Date(), list = wallFor(c), d = daysUntil(c, today);
+    var h = '<h2 id="bwall">🎂 ' + esc(t('bt.bw.h')) + '</h2><div class="card shouts bwall">';
+    if (mine) {
+      var open = list.filter(function (x) { return wallOpen(c, x, today); }), waiting = list.length - open.length;
+      h += (open.length ? wallList(open, null) : '') + (waiting ? '<p class="bwall__wait">🎁 ' + esc(tf(waiting === 1 ? 'bt.bw.wait1' : 'bt.bw.waitN', { n: waiting })) + '</p>' : '') + (!list.length ? '<p class="muted">' + esc(t('bt.bw.noneYou')) + '</p>' : '');
+      return h + '</div>';
+    }
+    h += '<p class="muted">' + esc(tf('bt.bw.about', { name: short(c), date: bdayText(c) })) + (d !== null ? ' · ' + esc(d === 0 ? t('bt.home.today') : d === 1 ? t('bt.home.inDays1') : tf('bt.home.inDaysN', { n: d })) : '') + '</p>';
+    h += list.length ? wallList(list, me) : '<p class="muted">' + esc(t('bt.bw.none')) + '</p>';
+    h += me ? '<form id="bw-form" class="shouts__form"><label class="field"><span class="field__l">' + esc(tf('bt.bw.label', { name: short(c) })) + '</span><textarea name="msg" rows="3" maxlength="280" placeholder="' + esc(t('bt.bw.ph')) + '"></textarea><span class="field__h">' + esc(tf('bt.bw.hint', { name: short(c) })) + '</span></label><p><button type="submit" class="btn btn--solid">' + esc(t('bt.bw.post')) + '</button></p><p class="form__status" id="bw-status" role="status"></p></form>' : '';
+    return h + '</div>';
+  }
+  function wireWall(c) {
+    var f = document.getElementById('bw-form');
+    if (f) f.addEventListener('submit', function (e) { e.preventDefault(); var txt = cleanText(f.msg.value, 280); if (!txt) return; saveMe(function (me) { me.bwall = (me.bwall || []).concat([{ to: c.id, name: c.name, text: txt, date: new Date().toISOString() }]).slice(-30); }); route({ keepScroll: true }); toast(t('bt.bw.posted')); });
+    main.querySelectorAll('[data-unwall]').forEach(function (b) { b.addEventListener('click', function () { var i = +b.getAttribute('data-unwall'); saveMe(function (me) { me.bwall = (me.bwall || []).filter(function (x, k) { return k !== i; }); }); route({ keepScroll: true }); }); });
+  }
+  function wallBits(c, today) {   // on the Home birthday banner
+    var list = wallFor(c).filter(function (x) { return wallOpen(c, x, today); }); if (!list.length) return '';
+    return '<div class="bday-today__wish bwall-home"><span class="today__fk">🎂 ' + esc(tf(list.length === 1 ? 'bt.bw.home1' : 'bt.bw.homeN', { n: list.length })) + '</span><blockquote class="shouts__q">' + esc(clip(list[list.length - 1].s.text, 160)) + '<span class="muted"> — ' + esc(short(list[list.length - 1].from)) + '</span></blockquote><a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.bw.read')) + '</a></div>';
+  }
+
+  /* ---- 9. Time capsule ---- */
+  function capsMine() { return cleanLetters(store.get('capsuleMine', []), 20); }
+  function capsAll() {
+    var out = capsMine().map(function (x) { return { x: x, mine: true, self: true }; }), me = getMe();
+    people().forEach(function (c) { (c.capsule || []).forEach(function (x) { out.push({ x: x, from: c, mine: !!(me && c.id === me.id) }); }); });
+    return out.sort(function (a, b) { return a.x.open.localeCompare(b.x.open); });
+  }
+  function isOpen(x, today) { return evDays({ date: x.open }, today) <= 0; }
+  var capsPeek = {};
+  function defaultOpen() { var s = startDate(), base = s ? s.split('-') : null, d = base ? new Date(+base[0] + 1, +base[1] - 1, +base[2]) : new Date(); if (!base) d.setFullYear(d.getFullYear() + 1); if (d < new Date()) { d = new Date(); d.setFullYear(d.getFullYear() + 1); } return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  VIEWS.capsule = function () {
+    var me = getMe(), today = new Date(), all = capsAll();
+    function row(e) {
+      var x = e.x, open = isOpen(x, today), show = open || (e.self && capsPeek[x.id]);
+      var who = e.self ? t('bt.cap.toSelf') : e.mine ? t('bt.cap.fromYou') : tf('bt.cap.from', { name: e.from.name });
+      return '<li class="cap' + (open ? ' is-open' : '') + '"><span class="cap__ico" aria-hidden="true">' + (open ? '💌' : '🔒') + '</span><div class="cap__b"><span class="muted">' + esc(who) + ' · ' + esc(tf(open ? 'bt.cap.opened' : 'bt.cap.opens', { date: evDate({ date: x.open, time: '' }) })) + (open ? '' : ' · ' + esc(evWhen({ date: x.open }, today))) + '</span>' +
+        (show ? '<div class="cap__t">' + esc(x.text).replace(/\n/g, '<br>') + '</div>' : '') +
+        ((e.self || e.mine) ? '<span class="ev__acts">' + (e.self && !open ? '<button type="button" class="link-btn" data-cpeek="' + esc(x.id) + '">' + esc(t(capsPeek[x.id] ? 'bt.mm.hide' : 'bt.cap.peek')) + '</button>' : '') + '<button type="button" class="link-btn" data-cdel="' + esc(x.id) + '" data-cself="' + (e.self ? 1 : 0) + '">' + esc(t('bt.custom.remove')) + '</button></span>' : '') + '</div></li>';
+    }
+    var form = '<form id="cap-form" class="card ev-form"><h2 style="margin-top:0">' + esc(t('bt.cap.write')) + '</h2>' +
+      '<fieldset class="field fieldset"><legend class="field__l">' + esc(t('bt.cap.to')) + '</legend><label class="mm-ev"><input type="radio" name="to" value="self" checked> ' + esc(t('bt.cap.toSelfL')) + '</label>' + (me ? '<label class="mm-ev"><input type="radio" name="to" value="batch"> ' + esc(t('bt.cap.toBatchL')) + '</label>' : '') + '</fieldset>' +
+      '<label class="field"><span class="field__l">' + esc(t('bt.cap.letter')) + '</span><textarea name="text" rows="6" maxlength="1000" placeholder="' + esc(t('bt.cap.ph')) + '"></textarea></label>' +
+      '<label class="field"><span class="field__l">' + esc(t('bt.cap.openOn')) + '</span><input type="date" name="open" required value="' + esc(defaultOpen()) + '"></label>' +
+      '<p><button type="submit" class="btn btn--solid">' + esc(t('bt.cap.seal')) + '</button></p><p class="form__status" id="cap-status" role="status"></p><p class="muted">' + esc(t('bt.cap.note')) + '</p></form>';
+    return pageHead('events capsule', 'nav.capsule', 'bt.cap.intro') + '<div class="ev-layout"><div>' + (all.length ? '<ul class="plain ev-list card cap-list">' + all.map(row).join('') + '</ul>' : '<div class="empty"><p>' + esc(t('bt.cap.none')) + '</p></div>') + '</div>' + form + '</div></div>';
+  };
+  AFTER.capsule = function () {
+    var f = document.getElementById('cap-form');
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var st = document.getElementById('cap-status'), txt = cleanText(f.text.value, 1000), open = isoDay(f.open.value), to = (f.querySelector('[name=to]:checked') || {}).value;
+      if (!txt) { st.textContent = t('bt.cap.needText'); st.classList.add('is-error'); return; }
+      if (!open || evDays({ date: open }, new Date()) < 1) { st.textContent = t('bt.cap.needDate'); st.classList.add('is-error'); return; }
+      var x = { id: newId(), text: txt, open: open, date: new Date().toISOString() };
+      if (to === 'batch') { var me = getMe(); if ((me.capsule || []).length >= 5) { st.textContent = t('bt.cap.max'); st.classList.add('is-error'); return; } saveMe(function (m) { m.capsule = (m.capsule || []).concat([x]); }); }
+      else store.set('capsuleMine', capsMine().concat([x]));
+      award('timekeeper'); route({ keepScroll: true }); toast(t('bt.cap.sealed'));
+    });
+    main.querySelectorAll('[data-cpeek]').forEach(function (b) { b.addEventListener('click', function () { var id = b.getAttribute('data-cpeek'); if (!capsPeek[id] && !window.confirm(t('bt.cap.peekConfirm'))) return; capsPeek[id] = !capsPeek[id]; route({ keepScroll: true }); }); });
+    main.querySelectorAll('[data-cdel]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!window.confirm(t('bt.cap.delConfirm'))) return;
+        var id = b.getAttribute('data-cdel');
+        if (b.getAttribute('data-cself') === '1') store.set('capsuleMine', capsMine().filter(function (x) { return x.id !== id; }));
+        else saveMe(function (m) { m.capsule = (m.capsule || []).filter(function (x) { return x.id !== id; }); });
+        route({ keepScroll: true });
+      });
+    });
+  };
+  function capsuleHomeHTML(today) {
+    var fresh = capsAll().filter(function (e) { var d = evDays({ date: e.x.open }, today); return d <= 0 && d > -7; }); if (!fresh.length) return '';
+    var e = fresh[fresh.length - 1];
+    return '<section class="card today" aria-labelledby="today-cap-h"><p class="today__k">' + icon('mail', 'today__ico') + '<span id="today-cap-h">' + esc(t('bt.cap.homeH')) + '</span></p><blockquote class="shouts__q">' + esc(clip(e.x.text, 220)) + '</blockquote><p class="muted">' + esc(e.self ? t('bt.cap.toSelf') : tf('bt.cap.from', { name: e.from.name })) + '</p><p class="today__acts"><a class="btn" href="#/capsule">' + esc(t('nav.capsule')) + '</a></p></section>';
+  }
+
+  /* ---- 10. Trading-card image (canvas → PNG) ---- */
+  function wrapLines(x, text, maxW, maxLines) {
+    var words = String(text).split(/\s+/), lines = [], cur = '';
+    words.forEach(function (w) { var tr = cur ? cur + ' ' + w : w; if (x.measureText(tr).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tr; });
+    if (cur) lines.push(cur);
+    if (lines.length > maxLines) { lines = lines.slice(0, maxLines); var l = lines[maxLines - 1]; while (l && x.measureText(l + '…').width > maxW) l = l.slice(0, -1); lines[maxLines - 1] = l + '…'; }
+    return lines;
+  }
+  function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+  function tcFacts(c) {
+    var out = [];
+    if (c.hometown) out.push([fieldLabel('hometown'), c.hometown]);
+    if (c.medSchool) out.push([fieldLabel('medSchool'), c.medSchool]);
+    if (c.askMe) out.push([t('bt.ask.k'), items(c.askMe).slice(0, 3).join(' · ')]);
+    ['food', 'music', 'shows', 'hobbies', 'hiddenTalent', 'funFact'].forEach(function (k) { if (out.length < 4 && filled(c, k)) out.push([fieldLabel(k), c[k]]); });
+    if (c.anthem && out.length < 5) out.push([t('bt.an.k'), c.anthem.title]);
+    return out.slice(0, 5);
+  }
+  function drawTCard(c, cv, done) {
+    var W = 1080, H = 1500, x = cv.getContext('2d'); cv.width = W; cv.height = H;
+    var serif = '"Fraunces", Georgia, serif', sans = '"Figtree", "Helvetica Neue", Arial, sans-serif';
+    function paint(img) {
+      var g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0E4A50'); g.addColorStop(1, '#16304F');
+      x.fillStyle = g; rr(x, 0, 0, W, H, 56); x.fill();
+      x.fillStyle = '#F2C14E'; rr(x, 28, 28, W - 56, H - 56, 40); x.fill();
+      x.fillStyle = '#FFFDF7'; rr(x, 44, 44, W - 88, H - 88, 30); x.fill();
+      x.fillStyle = '#0E4A50'; rr(x, 44, 44, W - 88, 110, 30); x.fill(); x.fillRect(44, 110, W - 88, 44);
+      x.fillStyle = '#FFFDF7'; x.font = '700 34px ' + sans; x.textAlign = 'left'; x.textBaseline = 'middle';
+      x.fillText((batchName() || APP_NAME).toUpperCase().slice(0, 40), 84, 110);
+      x.textAlign = 'right'; x.font = '700 34px ' + sans; x.fillStyle = '#F2C14E'; x.fillText('★ ' + ((c.badges || []).length), W - 84, 110);
+      var P = 520, px = (W - P) / 2, py = 190;
+      x.save(); rr(x, px, py, P, P, 36); x.clip();
+      if (img) x.drawImage(img, px, py, P, P);
+      else { x.fillStyle = '#127C84'; x.fillRect(px, py, P, P); x.fillStyle = '#FFFDF7'; x.font = '700 200px ' + serif; x.textAlign = 'center'; x.fillText(initials(c.name), W / 2, py + P / 2 + 10); }
+      x.restore(); x.lineWidth = 8; x.strokeStyle = '#0E4A50'; rr(x, px, py, P, P, 36); x.stroke();
+      x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = '#1B2426'; x.font = '700 72px ' + serif;
+      var y = py + P + 100; wrapLines(x, c.name, W - 180, 2).forEach(function (l) { x.fillText(l, W / 2, y); y += 80; });
+      x.font = 'italic 400 40px ' + serif; x.fillStyle = '#127C84';
+      var sub = [c.nickname ? '“' + c.nickname + '”' : '', c.pronouns || ''].filter(Boolean).join(' · ');
+      if (sub) { x.fillText(clip(sub, 50), W / 2, y - 10); y += 50; }
+      var z = [zodiac(c), chineseZodiac(c)].filter(Boolean).join(' · '), bd = c.bmonth ? '🎂 ' + bdayText(c) + (z ? ' · ' + z : '') : '';
+      if (bd) { x.font = '600 34px ' + sans; x.fillStyle = '#5B6B6E'; x.fillText(bd, W / 2, y); y += 40; }
+      y += 20; x.strokeStyle = '#E4DCCB'; x.lineWidth = 3; x.beginPath(); x.moveTo(110, y); x.lineTo(W - 110, y); x.stroke(); y += 56;
+      x.textAlign = 'left';
+      tcFacts(c).forEach(function (f) {
+        if (y > H - 170) return;
+        x.font = '700 26px ' + sans; x.fillStyle = '#127C84'; x.fillText(String(f[0]).toUpperCase(), 110, y); y += 40;
+        x.font = '500 36px ' + sans; x.fillStyle = '#1B2426'; wrapLines(x, f[1], W - 220, 1).forEach(function (l) { x.fillText(l, 110, y); }); y += 62;
+      });
+      x.textAlign = 'center'; x.font = '600 28px ' + sans; x.fillStyle = '#5B6B6E';
+      x.fillText(APP_NAME + ' · isaymotion.github.io/tickler', W / 2, H - 84);
+      done();
+    }
+    var go = function () { if (c.photo) { var im = new Image(); im.onload = function () { paint(im); }; im.onerror = function () { paint(null); }; im.src = c.photo; } else paint(null); };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go, go); else go();
+  }
+  VIEWS.tcard = function (id) {
+    var c = id ? findPerson(String(id)) : getMe();
+    var head = '<div class="wrap page tcard-page">' + crumb(t('bt.tc.title')) + '<header class="page__head"><h1>' + esc(t('bt.tc.title')) + '</h1><p>' + esc(t('bt.tc.intro')) + '</p></header>';
+    if (!c) return head + needCard() + '</div>';
+    return head + '<div class="tcard"><canvas id="tc-canvas" hidden></canvas><img id="tc-img" class="tcard__img" alt="' + esc(tf('bt.tc.alt', { name: c.name })) + '"></div>' +
+      '<p class="guess__acts"><button type="button" class="btn btn--solid" id="tc-share" disabled>' + esc(t('bt.tc.share')) + '</button><a class="btn" href="#/person/' + encodeURIComponent(c.id) + '">' + esc(t('bt.guess.open')) + '</a></p><p class="form__status" id="tc-status" role="status"></p></div>';
+  };
+  AFTER.tcard = function (id) {
+    var c = id ? findPerson(String(id)) : getMe(); if (!c) return;
+    var cv = document.getElementById('tc-canvas'), img = document.getElementById('tc-img'), btn = document.getElementById('tc-share'), st = document.getElementById('tc-status');
+    drawTCard(c, cv, function () {
+      try { img.src = cv.toDataURL('image/png'); } catch (e) {}
+      btn.disabled = false;
+      btn.addEventListener('click', function () {
+        var name = 'trading-card-' + slug(c.name) + '.png';
+        cv.toBlob(function (blob) {
+          if (!blob) return; var file = null; try { file = new File([blob], name, { type: 'image/png' }); } catch (e) {}
+          if (file && navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file], title: c.name }).then(function () { st.textContent = t('bt.share.shared'); }).catch(function () {}); return; }
+          var url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+          st.textContent = tf('bt.tc.saved', { name: name });
+        }, 'image/png');
+      });
+    });
+  };
+
+  /* ---- 11. Where should we eat? ---- */
+  var eatWho = null, eatPick = '';
+  function eatPool(ids) {
+    var map = {}, out = [];
+    people().forEach(function (c) { if (ids && !ids[c.id]) return; listOf(c, 'foodSpots').forEach(function (x) { var k = x.title.toLowerCase(); if (!map[k]) { map[k] = { title: x.title, url: x.url, fans: [] }; out.push(map[k]); } if (!map[k].url && x.url) map[k].url = x.url; map[k].fans.push(c); }); });
+    return out.sort(function (a, b) { return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1; });
+  }
+  VIEWS.eat = function () {
+    var all = people().filter(function (c) { return listOf(c, 'foodSpots').length; });
+    eatWho = eatWho || {}; all.forEach(function (c) { if (!(c.id in eatWho)) eatWho[c.id] = 1; });
+    var pool = eatPool(eatWho), head = pageHead('eat-page', 'nav.eat', 'bt.eat.intro');
+    if (!eatPool(null).length) return head + '<div class="empty"><p>' + esc(t('bt.eat.none')) + '</p><p><a class="btn" href="#/me">' + esc(listLabel('foodSpots')) + '</a></p></div></div>';
+    var pick = pool.filter(function (x) { return x.title.toLowerCase() === eatPick; })[0];
+    return head + '<div class="card eat"><p class="eat__wheel" id="eat-wheel" aria-live="polite">' + esc(pick ? pick.title : '🍽️') + '</p>' +
+      (pick ? '<p class="muted eat__from">' + esc(tf('bt.eat.from', { names: pick.fans.map(short).join(', ') })) + '</p><p class="guess__acts eat__acts"><a class="btn" href="' + esc(listHref(LIST_BY.foodSpots, pick)) + '" target="_blank" rel="noopener">' + esc(t('bt.eat.maps')) + '</a><button type="button" class="btn" id="eat-share">' + esc(t('bt.eat.share')) + '</button></p>' : '<p class="muted eat__from">' + esc(tf('bt.eat.count', { n: pool.length })) + '</p>') +
+      '<p><button type="button" class="btn btn--solid eat__spin" id="eat-spin"' + (pool.length ? '' : ' disabled') + '>' + esc(t(pick ? 'bt.eat.again' : 'bt.eat.spin')) + '</button></p><p class="form__status" id="eat-status" role="status"></p></div>' +
+      '<details class="fgroup"><summary><span>' + esc(t('bt.eat.who')) + '</span><span class="muted fgroup__n">' + Object.keys(eatWho).filter(function (k) { return eatWho[k]; }).length + '/' + all.length + '</span></summary><div class="fgroup__body"><div class="mm-people">' + all.map(function (c) { return '<label class="mm-p"><input type="checkbox" data-eatwho="' + esc(c.id) + '"' + (eatWho[c.id] ? ' checked' : '') + '>' + avatar(c, 'avatar--sm') + '<span>' + esc(c.name) + '</span></label>'; }).join('') + '</div></div></details>' +
+      '<h2>' + esc(t('bt.eat.list')) + '</h2><div class="card"><ul class="plain eat-list">' + pool.map(function (x) { return '<li><a href="' + esc(listHref(LIST_BY.foodSpots, x)) + '" target="_blank" rel="noopener">' + esc(x.title) + '</a> <span class="muted">' + esc(x.fans.map(short).join(', ')) + '</span></li>'; }).join('') + '</ul></div></div>';
+  };
+  AFTER.eat = function () {
+    main.querySelectorAll('[data-eatwho]').forEach(function (b) { b.addEventListener('change', function () { eatWho[b.getAttribute('data-eatwho')] = b.checked ? 1 : 0; eatPick = ''; route({ keepScroll: true }); }); });
+    var sp = document.getElementById('eat-spin');
+    if (sp) sp.addEventListener('click', function () {
+      var pool = eatPool(eatWho); if (!pool.length) return;
+      var final = pool[Math.floor(Math.random() * pool.length)], wheel = document.getElementById('eat-wheel');
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function land() { eatPick = final.title.toLowerCase(); award('foodie'); route({ keepScroll: true }); }
+      if (reduce || pool.length < 2) { land(); return; }
+      sp.disabled = true; wheel.classList.add('is-spin'); var n = 0, timer = setInterval(function () { wheel.textContent = pool[n++ % pool.length].title; if (n > 16) { clearInterval(timer); land(); } }, 80);
+    });
+    var sh = document.getElementById('eat-share');
+    if (sh) sh.addEventListener('click', function () { var p = eatPool(eatWho).filter(function (x) { return x.title.toLowerCase() === eatPick; })[0]; if (p) shareOut(tf('bt.eat.msg', { place: p.title }) + (listHref(LIST_BY.foodSpots, p) ? '\n' + listHref(LIST_BY.foodSpots, p) : ''), document.getElementById('eat-status')); });
+  };
+
+  /* ---- 12. Batch anthem ---- */
+  function anthemHref(a) { return a.url || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a.title); }
+  VIEWS.anthem = function () {
+    var me = getMe(), all = people().filter(function (c) { return c.anthem; }), a = me && me.anthem || { title: '', url: '' };
+    var form = me ? '<form id="an-form" class="card ev-form"><h2 style="margin-top:0">' + esc(t('bt.an.mine')) + '</h2><label class="field"><span class="field__l">' + esc(t('bt.an.song')) + '</span><input name="title" maxlength="80" value="' + esc(a.title) + '" placeholder="' + esc(t('bt.an.songPh')) + '"></label>' +
+      '<label class="field"><span class="field__l">' + esc(t('bt.an.url')) + '</span><input name="url" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" value="' + esc(a.url) + '" placeholder="https://open.spotify.com/track/…"><span class="field__h">' + esc(t('bt.an.hint')) + '</span></label>' +
+      '<p class="guess__acts"><button type="submit" class="btn btn--solid">' + esc(t('bt.me.save')) + '</button>' + (me.anthem ? '<button type="button" class="link-btn" id="an-clear">' + esc(t('bt.custom.remove')) + '</button>' : '') + '</p><p class="form__status" id="an-status" role="status"></p></form>' : needCard();
+    var list = all.length ? '<ol class="plain card an-list">' + all.map(function (c) { return '<li><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div class="an-list__b"><strong>' + esc(c.anthem.title) + '</strong><span class="muted">' + esc(c.name) + '</span></div><a class="btn" href="' + esc(anthemHref(c.anthem)) + '" target="_blank" rel="noopener">' + esc(t(c.anthem.url ? 'bt.an.play' : 'bt.an.find')) + '</a></li>'; }).join('') + '</ol>' : '<div class="empty"><p>' + esc(t('bt.an.none')) + '</p></div>';
+    return pageHead('events anthem', 'nav.anthem', 'bt.an.intro') + '<div class="ev-layout"><div>' + list + '</div>' + form + '</div></div>';
+  };
+  AFTER.anthem = function () {
+    var f = document.getElementById('an-form'); if (!f) return;
+    f.addEventListener('submit', function (e) {
+      e.preventDefault(); var st = document.getElementById('an-status'), ti = cleanText(f.title.value, 80), u = f.url.value.trim();
+      if (!ti) { st.textContent = t('bt.an.needTitle'); st.classList.add('is-error'); return; }
+      if (u && !listUrl(ANTHEM_L, u)) { st.textContent = t('bt.an.badUrl'); st.classList.add('is-error'); return; }
+      saveMe(function (me) { me.anthem = { title: ti, url: u }; }); award('dj'); route({ keepScroll: true }); toast(t('bt.an.saved'));
+    });
+    var cl = document.getElementById('an-clear'); if (cl) cl.addEventListener('click', function () { saveMe(function (me) { delete me.anthem; }); route({ keepScroll: true }); });
+  };
+  function anthemHomeHTML(all, today) {
+    var pool = all.filter(function (c) { return c.anthem; }); if (!pool.length) return '';
+    var c = pool[dayHash(weekNum(today), 7) % pool.length];
+    return '<section class="card today" aria-labelledby="today-an-h"><p class="today__k">' + icon('music', 'today__ico') + '<span id="today-an-h">' + esc(t('bt.an.homeH')) + '</span></p>' +
+      '<div class="today__pl"><a href="#/person/' + encodeURIComponent(c.id) + '">' + avatar(c, 'avatar--sm') + '</a><div><h3>' + esc(c.anthem.title) + '</h3><p class="muted">' + esc(tf('bt.today.by', { name: short(c) })) + '</p></div></div>' +
+      '<p class="today__acts"><a class="btn btn--solid" href="' + esc(anthemHref(c.anthem)) + '" target="_blank" rel="noopener">' + esc(t(c.anthem.url ? 'bt.an.play' : 'bt.an.find')) + '</a><a class="btn" href="#/anthem">' + esc(t('nav.anthem')) + '</a></p></section>';
+  }
+
+  /* ---- hooks into existing screens ---- */
+  function funLinksHTML() {
+    var L = [['#/truths', 'nav.truths', 'quiz'], ['#/baby', 'nav.baby', 'heart'], ['#/thisorthat', 'nav.tot', 'chart'], ['#/superlatives', 'nav.sup', 'star'], ['#/qotw', 'nav.qotw', 'chat'], ['#/anthem', 'nav.anthem', 'music'], ['#/capsule', 'nav.capsule', 'mail'], ['#/tcard', 'bt.tc.title', 'card']];
+    return '<h2>' + esc(t('bt.fun.more')) + '</h2><p class="muted">' + esc(t('bt.fun.moreHint')) + '</p><div class="cards fun-links">' + L.map(function (x) { return '<a class="card tile" href="' + x[0] + '">' + icon(x[2], 'tile__ico') + '<h3>' + esc(t(x[1])) + '</h3></a>'; }).join('') + '</div>';
+  }
+  function personActs(c) {
+    var me = isMe(c), q = !me && quizCount(c) >= 4;
+    return '<p class="person__acts"><a class="btn" href="#/tcard/' + encodeURIComponent(c.id) + '">' + icon('card', 'btn__ico') + esc(t('bt.tc.title')) + '</a>' + (q ? '<a class="btn" href="#/quiz/' + encodeURIComponent(c.id) + '">' + icon('quiz', 'btn__ico') + esc(tf('bt.quiz.title', { name: short(c) })) + '</a>' : '') + '</p>' +
+      (c.anthem ? '<p class="muted person__anthem">' + icon('music', 'fact__ico') + esc(t('bt.an.k')) + ': <a href="' + esc(anthemHref(c.anthem)) + '" target="_blank" rel="noopener">' + esc(c.anthem.title) + '</a></p>' : '');
+  }
+  (function () {
+    var afterHome = AFTER.home; AFTER.home = function () { afterHome.apply(null, arguments); wireQotw(); };
+    var afterPerson = AFTER.person; AFTER.person = function (id) { afterPerson.apply(null, arguments); var c = findPerson(String(id || '')); if (c) wireWall(c); };
+    var nb = BADGES.length;
+    [['liedetector', 'quiz'], ['quizmaster', 'star'], ['babyface', 'heart'], ['pollster', 'chart'], ['voter', 'users'], ['qotw', 'chat'], ['timekeeper', 'mail'], ['dj', 'music'], ['foodie', 'food']].forEach(function (b) { if (BADGE_IDS.indexOf(b[0]) < 0) { BADGES.push(b); BADGE_IDS.push(b[0]); } });
+    var check0 = checkBadges;
+    checkBadges = function () {
+      check0();
+      var me = getMe(); if (!me) return;
+      if (TOT().length && TOT().every(function (q) { return me.tot && me.tot[q.id]; })) award('pollster');
+      if (SUPS().length && others().length && SUPS().every(function (a) { return me.votes && me.votes[a.id]; })) award('voter');
+      if (Object.keys(me.qotw || {}).length) award('qotw');
+      if ((me.capsule || []).length || capsMine().length) award('timekeeper');
+      if (me.anthem) award('dj');
+    };
+    return nb;
+  })();
+  ICONS.mail = ICONS.mail || '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/>';
+  ICONS.chart = ICONS.chart || ICONS.list;
+  TITLES.quiz = function () { return t('nav.quiz'); };
+  TITLES.tcard = function () { return t('bt.tc.title'); };
 
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();

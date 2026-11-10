@@ -769,7 +769,172 @@ window.STRINGS = {
     'backup.imported': 'Backup imported. Reloading…',
     'backup.confirmUndo': 'Restore the data this device had before the last import ({summary})?',
     'backup.undoFailed': 'Undo failed.',
-    'backup.restored': 'Previous data restored. Reloading…'
+    'backup.restored': 'Previous data restored. Reloading…',
+    // 1.15.0
+    'nav.truths': 'Two truths and a lie',
+    'nav.quiz': 'How well do you know…?',
+    'nav.baby': 'Baby photo guess',
+    'nav.tot': 'This or that',
+    'nav.sup': 'Batch superlatives',
+    'nav.qotw': 'Question of the week',
+    'nav.capsule': 'Time capsule',
+    'nav.eat': 'Where should we eat?',
+    'nav.anthem': 'Batch anthem',
+    'bt.fun.needCard': 'Make your card first so your answers can travel with it.',
+    'bt.fun.more': 'More on your card',
+    'bt.fun.moreHint': 'These live on their own screens and travel with your card file.',
+    'bt.common.tot': 'Same This-or-that picks: {value}',
+    'bt.res.text': '{game} — {right}/{n} · {batch}',
+    'bt.res.bingo': 'Batch Bingo! · {batch} · {n} squares',
+    'bt.res.share': 'Share result',
+    'bt.res.copied': 'Result copied — paste it in the group chat.',
+    'bt.tt.intro': 'Everyone writes two true things and one lie. Can you spot the lie?',
+    'bt.tt.mine': 'Your two truths and a lie',
+    'bt.tt.mineHint': 'Write three short statements about yourself — two true, one false — then mark the lie. They travel with your card.',
+    'bt.tt.stmt': 'Statement {n}',
+    'bt.tt.isLie': 'This is the lie',
+    'bt.tt.need3': 'Fill in all three statements.',
+    'bt.tt.needLie': 'Mark which one is the lie.',
+    'bt.tt.saved': 'Saved. Share your card so the batch can play.',
+    'bt.tt.none': 'Nobody else has added theirs yet. Once batchmates add theirs and share their cards, you can play here.',
+    'bt.tt.ask': 'Which one is the lie?',
+    'bt.quiz.intro': 'A quick quiz made from one batchmate’s card. Then send them your score.',
+    'bt.quiz.title': 'How well do you know {name}?',
+    'bt.quiz.none': 'Needs batchmates with fuller cards — import a few cards first.',
+    'bt.quiz.few': 'Their card doesn’t have enough answers for a quiz yet.',
+    'bt.quiz.nq': '{n} questions',
+    'bt.quiz.best': 'your best: {right}/{n}',
+    'bt.quiz.qField': '{field} — which is {name}’s answer?',
+    'bt.quiz.qMonth': 'Which month is {name}’s birthday?',
+    'bt.quiz.qTot': 'This or that: what did {name} pick?',
+    'bt.quiz.qLie': 'Which one is {name}’s lie?',
+    'bt.quiz.v0': 'Time for a kwentuhan session!',
+    'bt.quiz.v1': 'Not bad — you’re getting there.',
+    'bt.quiz.v2': 'You know them well!',
+    'bt.quiz.v3': 'Perfect! Certified best friend.',
+    'bt.quiz.other': 'Another batchmate',
+    'bt.baby.intro': 'Match each baby photo to the batchmate.',
+    'bt.baby.mine': 'Your baby photo',
+    'bt.baby.hint': 'Optional. A childhood photo of you. It travels with your card file (not the QR code).',
+    'bt.baby.saved': 'Baby photo saved.',
+    'bt.baby.none': 'Needs at least 2 batchmates with baby photos (and 4 cards). Ask the batch to add theirs!',
+    'bt.baby.ask': 'Who is this baby?',
+    'bt.tot.intro': 'Quick picks — then see how the batch splits.',
+    'bt.tot.mine': 'My picks',
+    'bt.tot.split': 'Batch split',
+    'bt.tot.or': 'or',
+    'bt.tot.progress': '{n} of {total} answered. Tap again to clear a pick.',
+    'bt.tot.twins': 'Most like you',
+    'bt.tot.same': 'same pick on {same} of {both}',
+    'bt.tot.none': 'No picks yet. Answer yours and share your card.',
+    'bt.sup.intro': 'Yearbook-style awards. Vote for a batchmate in each; results count the votes on every card on this phone.',
+    'bt.sup.vote': 'My votes',
+    'bt.sup.results': 'Results',
+    'bt.sup.pick': '— choose —',
+    'bt.sup.progress': '{n} of {total} voted.',
+    'bt.sup.noOthers': 'Import your batchmates’ cards first so you have someone to vote for.',
+    'bt.sup.note': 'Your votes travel with your card file, so batchmates see the totals after they import it.',
+    'bt.sup.votes1': '1 vote',
+    'bt.sup.votesN': '{n} votes',
+    'bt.sup.also': 'Also voted:',
+    'bt.sup.none': 'No votes yet.',
+    'bt.qotw.intro': 'One new question every Monday. Answer it, share your card, and read everyone’s answers.',
+    'bt.qotw.thisWeek': 'This week',
+    'bt.qotw.yours': 'You:',
+    'bt.qotw.ph': 'Your answer',
+    'bt.qotw.post': 'Post',
+    'bt.qotw.posted': 'Answer saved. It travels with your card.',
+    'bt.qotw.first': 'No answers from the batch yet — be the first.',
+    'bt.qotw.noneYet': 'No answers yet.',
+    'bt.qotw.more': '+{n} more',
+    'bt.qotw.all': 'All weeks',
+    'bt.qotw.past': 'Past weeks',
+    'bt.bw.h': 'Birthday wall',
+    'bt.bw.about': 'Messages for {name}’s birthday ({date}). They see them on the day.',
+    'bt.bw.none': 'No messages yet — write the first one.',
+    'bt.bw.noneYou': 'No birthday messages yet.',
+    'bt.bw.wait1': '1 message is waiting for your birthday.',
+    'bt.bw.waitN': '{n} messages are waiting for your birthday.',
+    'bt.bw.label': 'A birthday message for {name}',
+    'bt.bw.ph': 'Happy birthday! …',
+    'bt.bw.hint': 'It travels with your card. {name} sees it on their birthday after importing your card.',
+    'bt.bw.post': 'Add to the wall',
+    'bt.bw.posted': 'Added to the birthday wall.',
+    'bt.bw.home1': '1 message on the birthday wall',
+    'bt.bw.homeN': '{n} messages on the birthday wall',
+    'bt.bw.read': 'Read the wall',
+    'bt.cap.intro': 'Write a letter that stays sealed until a date you pick — to future you, or to the whole batch.',
+    'bt.cap.write': 'Write a letter',
+    'bt.cap.to': 'To',
+    'bt.cap.toSelfL': 'Future me (stays on this phone)',
+    'bt.cap.toBatchL': 'The batch (travels with your card, up to 5)',
+    'bt.cap.letter': 'Letter',
+    'bt.cap.ph': 'Dear future me…',
+    'bt.cap.openOn': 'Open on',
+    'bt.cap.seal': 'Seal it',
+    'bt.cap.sealed': 'Sealed. 🔒',
+    'bt.cap.note': 'Sealed means hidden in this app, not encrypted — anyone who opens your card file could still read a letter to the batch.',
+    'bt.cap.needText': 'Write something first.',
+    'bt.cap.needDate': 'Pick an opening date after today.',
+    'bt.cap.max': 'Up to 5 letters to the batch. Remove one first.',
+    'bt.cap.none': 'No letters yet.',
+    'bt.cap.toSelf': 'To future you',
+    'bt.cap.fromYou': 'From you to the batch',
+    'bt.cap.from': 'From {name}',
+    'bt.cap.opens': 'opens {date}',
+    'bt.cap.opened': 'opened {date}',
+    'bt.cap.peek': 'Peek early',
+    'bt.cap.peekConfirm': 'Open this letter before its date?',
+    'bt.cap.delConfirm': 'Remove this letter?',
+    'bt.cap.homeH': 'A time capsule just opened',
+    'bt.tc.title': 'Trading card',
+    'bt.tc.intro': 'Your card as a picture — post it in the group chat or your story.',
+    'bt.tc.alt': 'Trading card for {name}',
+    'bt.tc.share': 'Share or save image',
+    'bt.tc.saved': 'Image saved: {name}',
+    'bt.eat.intro': 'Can’t decide? Spin through everyone’s favourite food spots.',
+    'bt.eat.none': 'Nobody has added favourite food spots yet (My card › Favourite food spots).',
+    'bt.eat.spin': 'Spin!',
+    'bt.eat.again': 'Spin again',
+    'bt.eat.count': '{n} places in the pool',
+    'bt.eat.from': 'From the favourites of {names}',
+    'bt.eat.maps': 'Open in Maps',
+    'bt.eat.share': 'Send to the group',
+    'bt.eat.msg': 'Tara, kain tayo sa {place}! 🍽️',
+    'bt.eat.who': 'Who’s coming?',
+    'bt.eat.list': 'All the spots',
+    'bt.an.intro': 'Everyone picks one song that sums them up. Together they’re the batch anthem.',
+    'bt.an.mine': 'Your song',
+    'bt.an.song': 'Song (title — artist)',
+    'bt.an.songPh': 'e.g. Tadhana — Up Dharma Down',
+    'bt.an.url': 'Link (optional)',
+    'bt.an.hint': 'A Spotify, YouTube or Apple Music link.',
+    'bt.an.needTitle': 'Add the song title.',
+    'bt.an.badUrl': 'That link isn’t from Spotify, YouTube or Apple Music.',
+    'bt.an.saved': 'Song saved.',
+    'bt.an.none': 'No songs yet.',
+    'bt.an.play': 'Play',
+    'bt.an.find': 'Find it',
+    'bt.an.k': 'Anthem',
+    'bt.an.homeH': 'Batch anthem of the week',
+    'bt.badge.liedetector': 'Lie detector',
+    'bt.badge.liedetector.how': 'Spot 5 lies in Two truths and a lie.',
+    'bt.badge.quizmaster': 'Best friend material',
+    'bt.badge.quizmaster.how': 'Get every question right in a How well do you know…? quiz.',
+    'bt.badge.babyface': 'Baby whisperer',
+    'bt.badge.babyface.how': 'Match every baby photo in a round (3 or more).',
+    'bt.badge.pollster': 'Decisive',
+    'bt.badge.pollster.how': 'Answer every This or that.',
+    'bt.badge.voter': 'Ballot caster',
+    'bt.badge.voter.how': 'Vote in every batch superlative.',
+    'bt.badge.qotw': 'Weekly regular',
+    'bt.badge.qotw.how': 'Answer a Question of the week.',
+    'bt.badge.timekeeper': 'Time traveller',
+    'bt.badge.timekeeper.how': 'Seal a time-capsule letter.',
+    'bt.badge.dj': 'Batch DJ',
+    'bt.badge.dj.how': 'Add your song to the batch anthem.',
+    'bt.badge.foodie': 'Food tripper',
+    'bt.badge.foodie.how': 'Spin Where should we eat?'
   },
 
   // Tagalog draft — Dr. Navarro reviews before release
@@ -1540,6 +1705,171 @@ window.STRINGS = {
     'backup.imported': 'Na-import na ang backup. Nagre-reload…',
     'backup.confirmUndo': 'Ibalik ang data na nasa device na ito bago ang huling import ({summary})?',
     'backup.undoFailed': 'Hindi nagtagumpay ang pag-undo.',
-    'backup.restored': 'Naibalik na ang dating data. Nagre-reload…'
+    'backup.restored': 'Naibalik na ang dating data. Nagre-reload…',
+    // 1.15.0
+    'nav.truths': 'Two truths and a lie',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.quiz': 'How well do you know…?',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.baby': 'Hulaan ang baby photo',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.tot': 'This or that',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.sup': 'Batch superlatives',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.qotw': 'Tanong ng linggo',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.capsule': 'Time capsule',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.eat': 'Saan tayo kakain?',  // Tagalog draft — Dr. Navarro reviews before release
+    'nav.anthem': 'Batch anthem',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.fun.needCard': 'Gawin muna ang card mo para sumama ang mga sagot mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.fun.more': 'Higit pa sa card mo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.fun.moreHint': 'May sarili silang screen at sumasama sa card file mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.common.tot': 'Parehong pick sa This or that: {value}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.res.text': '{game} — {right}/{n} · {batch}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.res.bingo': 'Batch Bingo! · {batch} · {n} squares',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.res.share': 'I-share ang result',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.res.copied': 'Na-copy ang result — i-paste sa group chat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.intro': 'Bawat isa ay magsusulat ng dalawang totoo at isang kasinungalingan. Kaya mo bang hulaan ang lie?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.mine': 'Ang two truths and a lie mo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.mineHint': 'Sumulat ng tatlong maikling statement tungkol sa sarili mo — dalawang totoo, isang hindi — tapos markahan ang lie. Sasama ito sa card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.stmt': 'Statement {n}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.isLie': 'Ito ang lie',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.need3': 'Punan ang lahat ng tatlong statement.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.needLie': 'Markahan kung alin ang lie.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.saved': 'Na-save na. I-share ang card mo para makapaglaro ang batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.none': 'Wala pang nagdagdag ng sa kanila. Kapag nagdagdag na ang batchmates mo at nag-share ng cards, makakapaglaro ka na dito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tt.ask': 'Alin ang lie?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.intro': 'Mabilis na quiz mula sa card ng isang batchmate. Tapos ipadala sa kanila ang score mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.title': 'Gaano mo kakilala si {name}?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.none': 'Kailangan ng batchmates na mas kumpleto ang card — mag-import muna ng ilang cards.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.few': 'Kulang pa ang sagot sa card nila para sa quiz.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.nq': '{n} tanong',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.best': 'best mo: {right}/{n}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.qField': '{field} — alin ang sagot ni {name}?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.qMonth': 'Anong buwan ang birthday ni {name}?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.qTot': 'This or that: ano ang pinili ni {name}?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.qLie': 'Alin ang lie ni {name}?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.v0': 'Oras na para sa kwentuhan!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.v1': 'Not bad — malapit ka na.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.v2': 'Kilalang-kilala mo sila!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.v3': 'Perfect! Certified best friend.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.quiz.other': 'Ibang batchmate',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.intro': 'Ipares ang bawat baby photo sa batchmate.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.mine': 'Baby photo mo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.hint': 'Optional. Childhood photo mo. Sumasama ito sa card file mo (hindi sa QR code).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.saved': 'Na-save ang baby photo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.none': 'Kailangan ng hindi bababa sa 2 batchmates na may baby photo (at 4 na cards). Sabihan ang batch na magdagdag!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.baby.ask': 'Sino ang baby na ito?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.intro': 'Mabilis na picks — tapos tingnan kung paano nahati ang batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.mine': 'Mga pick ko',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.split': 'Hati ng batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.or': 'o',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.progress': '{n} sa {total} ang nasagot. I-tap ulit para burahin ang pick.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.twins': 'Pinakakapareho mo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.same': 'parehong pick sa {same} sa {both}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tot.none': 'Wala pang picks. Sagutan ang sa iyo at i-share ang card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.intro': 'Awards na parang yearbook. Bumoto ng batchmate sa bawat isa; bibilangin ng results ang votes sa lahat ng cards sa phone na ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.vote': 'Mga boto ko',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.results': 'Results',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.pick': '— pumili —',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.progress': '{n} sa {total} ang nabotohan.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.noOthers': 'I-import muna ang cards ng batchmates mo para may mabotohan ka.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.note': 'Sumasama ang votes mo sa card file mo, kaya makikita ng batchmates ang totals pagkatapos nilang i-import ito.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.votes1': '1 boto',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.votesN': '{n} boto',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.also': 'Binoto rin:',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.sup.none': 'Wala pang boto.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.intro': 'Isang bagong tanong tuwing Lunes. Sagutin ito, i-share ang card mo, at basahin ang sagot ng lahat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.thisWeek': 'Ngayong linggo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.yours': 'Ikaw:',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.ph': 'Sagot mo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.post': 'I-post',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.posted': 'Na-save ang sagot. Sasama ito sa card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.first': 'Wala pang sagot mula sa batch — ikaw na ang mauna.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.noneYet': 'Wala pang sagot.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.more': '+{n} pa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.all': 'Lahat ng linggo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.qotw.past': 'Mga nakaraang linggo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.h': 'Birthday wall',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.about': 'Mga mensahe para sa birthday ni {name} ({date}). Makikita niya ito sa mismong araw.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.none': 'Wala pang mensahe — ikaw ang mauna.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.noneYou': 'Wala pang birthday messages.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.wait1': 'May 1 mensaheng naghihintay sa birthday mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.waitN': 'May {n} mensaheng naghihintay sa birthday mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.label': 'Birthday message para kay {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.ph': 'Happy birthday! …',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.hint': 'Sasama ito sa card mo. Makikita ito ni {name} sa birthday niya pagkatapos i-import ang card mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.post': 'Idagdag sa wall',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.posted': 'Naidagdag sa birthday wall.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.home1': '1 mensahe sa birthday wall',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.homeN': '{n} mensahe sa birthday wall',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.bw.read': 'Basahin ang wall',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.intro': 'Sumulat ng sulat na mananatiling sealed hanggang sa petsang pipiliin mo — para sa future you, o sa buong batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.write': 'Sumulat ng sulat',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.to': 'Para kay',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.toSelfL': 'Future me (mananatili sa phone na ito)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.toBatchL': 'Sa batch (sasama sa card mo, hanggang 5)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.letter': 'Sulat',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.ph': 'Dear future me…',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.openOn': 'Bubuksan sa',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.seal': 'I-seal',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.sealed': 'Naka-seal na. 🔒',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.note': 'Ang sealed ay nakatago lang sa app na ito, hindi encrypted — mababasa pa rin ng sinumang magbukas ng card file mo ang sulat para sa batch.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.needText': 'Sumulat muna ng kahit ano.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.needDate': 'Pumili ng petsa ng pagbubukas pagkatapos ng ngayon.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.max': 'Hanggang 5 sulat lang para sa batch. Magtanggal muna ng isa.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.none': 'Wala pang sulat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.toSelf': 'Para sa future you',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.fromYou': 'Mula sa iyo para sa batch',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.from': 'Mula kay {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.opens': 'bubukas sa {date}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.opened': 'nabuksan noong {date}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.peek': 'Silip muna',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.peekConfirm': 'Buksan ang sulat na ito bago ang petsa nito?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.delConfirm': 'Tanggalin ang sulat na ito?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.cap.homeH': 'May time capsule na kakabukas lang',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tc.title': 'Trading card',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tc.intro': 'Ang card mo bilang picture — i-post sa group chat o sa story mo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tc.alt': 'Trading card ni {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tc.share': 'I-share o i-save ang image',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.tc.saved': 'Na-save ang larawan: {name}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.intro': 'Hindi makapagdesisyon? I-spin ang mga paboritong kainan ng lahat.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.none': 'Wala pang nagdagdag ng paboritong kainan (My card › Favourite food spots).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.spin': 'Spin!',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.again': 'Spin ulit',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.count': '{n} lugar sa pool',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.from': 'Mula sa mga paborito nina {names}',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.maps': 'Buksan sa Maps',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.share': 'Ipadala sa group',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.msg': 'Tara, kain tayo sa {place}! 🍽️',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.who': 'Sinong sasama?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.eat.list': 'Lahat ng kainan',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.intro': 'Bawat isa ay pipili ng isang kantang nagpapakita kung sino sila. Pagsama-samahin, ito na ang batch anthem.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.mine': 'Kanta mo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.song': 'Kanta (title — artist)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.songPh': 'hal. Tadhana — Up Dharma Down',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.url': 'Link (optional)',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.hint': 'Link mula sa Spotify, YouTube o Apple Music.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.needTitle': 'Ilagay ang title ng kanta.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.badUrl': 'Hindi galing sa Spotify, YouTube o Apple Music ang link na iyan.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.saved': 'Na-save ang kanta.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.none': 'Wala pang kanta.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.play': 'Play',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.find': 'Hanapin',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.k': 'Anthem',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.an.homeH': 'Batch anthem ng linggo',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.liedetector': 'Lie detector',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.liedetector.how': 'Makahuli ng 5 lies sa Two truths and a lie.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.quizmaster': 'Best friend material',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.quizmaster.how': 'Tamang lahat ng sagot sa isang How well do you know…? quiz.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.babyface': 'Baby whisperer',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.babyface.how': 'Mahulaan lahat ng baby photo sa isang round (3 o higit pa).',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.pollster': 'Decisive',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.pollster.how': 'Sagutin lahat ng This or that.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.voter': 'Botante',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.voter.how': 'Bumoto sa bawat batch superlative.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.qotw': 'Weekly regular',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.qotw.how': 'Sumagot sa isang Tanong ng linggo.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.timekeeper': 'Time traveller',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.timekeeper.how': 'Mag-seal ng time capsule letter.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.dj': 'Batch DJ',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.dj.how': 'Idagdag ang kanta mo sa batch anthem.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.foodie': 'Food tripper',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.badge.foodie.how': 'Mag-spin sa Saan tayo kakain?'  // Tagalog draft — Dr. Navarro reviews before release
   }
 };

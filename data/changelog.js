@@ -4,6 +4,26 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.15.0',
+    date: '2026-11-10',
+    title: 'Twelve new ways to play with the batch',
+    items: [
+      { type: 'feature', text: 'Two truths and a lie: write yours, then spot your batchmates’ lies.', href: '#/truths' },
+      { type: 'feature', text: 'How well do you know…?: a quiz made from one batchmate’s card — send them your score.', href: '#/quiz' },
+      { type: 'feature', text: 'Baby photo guess: add a childhood photo and match the babies to the batch.', href: '#/baby' },
+      { type: 'feature', text: 'Share result: Guess who, Who said it?, Bingo and the new games give you an emoji line for the group chat.' },
+      { type: 'feature', text: 'This or that: quick picks (coffee or milk tea…) and a Batch split showing how everyone answered.', href: '#/thisorthat' },
+      { type: 'feature', text: 'Batch superlatives: yearbook-style awards. Your votes travel with your card.', href: '#/superlatives' },
+      { type: 'feature', text: 'Question of the week on Home — a new one every Monday.', href: '#/qotw' },
+      { type: 'feature', text: 'Birthday wall: leave a message on a batchmate’s card; they see it on their birthday.' },
+      { type: 'feature', text: 'Time capsule: letters to future you or to the batch, sealed until a date you pick.', href: '#/capsule' },
+      { type: 'feature', text: 'Trading card: your card as a picture to post. Open it from any person’s page.', href: '#/tcard' },
+      { type: 'feature', text: 'Where should we eat?: spin through everyone’s favourite food spots.', href: '#/eat' },
+      { type: 'feature', text: 'Batch anthem: one song per person, with a song of the week on Home.', href: '#/anthem' },
+      { type: 'update', text: '9 new badges.', href: '#/badges' }
+    ]
+  },
+  {
     version: '1.14.1',
     date: '2026-11-10',
     title: 'Monito-monita is now Kris Kringle',
