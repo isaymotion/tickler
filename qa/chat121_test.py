@@ -193,6 +193,11 @@ with sync_playwright() as p:
     go(A, '#/', 200); A.evaluate("()=>{var c=JSON.parse(localStorage.getItem('bt:v1:cloud'));c.lastSync='';localStorage.setItem('bt:v1:cloud',JSON.stringify(c));}")
     A.reload(); A.wait_for_timeout(1800)
     ok(A.locator('.tabbar [data-badge="chat"]').inner_text() == '1' and A.locator('.tabbar [data-badge="chat"]').is_visible(), 'admin: Chat tab badge shows 1 unread channel after sync')
+    ok(A.locator('.home-chat').count() == 1 and A.locator('.home-chat').evaluate("e=>e.parentElement.firstElementChild===e"), '1.21.1: Batch chat card first on Home')
+    ok('New messages in #general from Bea Cruz' in A.inner_text('.home-chat') and A.locator('.home-chat__n').inner_text() == '1', 'Home card: unread count + who wrote')
+    ok(A.locator('.home-chat__chip').first.get_attribute('href') == '#/chat/general' and A.locator('.home-chat__chip.is-unread').count() == 1, 'Home card: unread channel chip first')
+    go(C, '#/', 300); ok(C.locator('.home-chat').count() == 0 and C.locator('.sync-strip').count() == 1, 'not a member: no chat card, Cloud sync nudge instead')
+    A.screenshot(path=out + '/home-chat-light.png', full_page=False)
     go(A, '#/chat', 900); ok(A.locator('.ch-row.is-unread').count() == 1 and 'Bea Cruz' in A.locator('.ch-row.is-unread').inner_text(), 'unread dot on #general with last sender')
     go(A, '#/chat/general', 1000)
     ok('Hi batch!' in txt(A) and A.locator('.chat-msg.is-me').count() == 0 and A.locator('.chat-msg__h').first.inner_text().startswith('Bea Cruz'), "admin sees Bea's message with her name")
@@ -309,6 +314,7 @@ with sync_playwright() as p:
     go(A, '#/chat', 600); A.screenshot(path=out + '/chat-list-light.png', full_page=True)
     ok(not A.evaluate('document.documentElement.scrollWidth>innerWidth+1'), 'no sideways scroll on the channel list (phone, light)')
 
+    go(A, '#/', 900); ok('Latest:' in A.inner_text('.home-chat') and A.locator('.home-chat__n').count() == 0, 'Home card after reading: latest message line, no badge')
     # --- badge for the first message
     ok('chatter' in json.loads(Bp.evaluate("localStorage.getItem('bt:v1:badges')") or '{}'), 'Chatterbox badge after the first message')
 
