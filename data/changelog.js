@@ -4,6 +4,12 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.21.2', date: '2026-11-10', title: 'My card keeps your unsaved changes',
+    items: [
+      { type: 'update', text: 'My card now keeps what you type on this phone even before you tap Save. If you leave the screen, change the text size or the app closes in the background, your changes come back the next time you open My card, with a note to tap Save (or discard them).', href: '#/me' }
+    ]
+  },
+  {
     version: '1.21.1', date: '2026-11-10', title: 'Chat on the Home screen',
     items: [
       { type: 'update', text: 'A Batch chat card now sits at the top of Home: it shows how many channels have new messages and who wrote last, with quick buttons for the busiest channels.', href: '#/chat' }

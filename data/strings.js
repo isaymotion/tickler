@@ -168,6 +168,11 @@ window.STRINGS = {
     'bt.me.badBirthday': 'That birthday is not a real date.',
     'bt.me.photoTooBig': 'That photo could not be read. Try a smaller image.',
     'bt.me.clear': 'Clear my card',
+    'bt.me.draftH': 'Unsaved changes restored',
+    'bt.me.draftText': 'These are the edits you made on {when}. They are kept on this phone but not on your card yet — tap Save to keep them.',
+    'bt.me.draftDiscard': 'Discard these changes',
+    'bt.me.draftConfirm': 'Discard your unsaved changes and go back to your saved card?',
+    'bt.me.draftNote': 'Changes kept on this phone · tap Save',
     'bt.me.confirmClear': 'Clear everything on your card? Your batchmates’ cards stay.',
     'bt.f.nickname': 'Nickname',
     'bt.f.hometown': 'Hometown',
@@ -1334,6 +1339,11 @@ window.STRINGS = {
     'bt.me.badBirthday': 'Hindi totoong petsa ang kaarawang iyan.',
     'bt.me.photoTooBig': 'Hindi mabasa ang larawang iyan. Sumubok ng mas maliit na larawan.',
     'bt.me.clear': 'Burahin ang card ko',
+    'bt.me.draftH': 'Naibalik ang mga hindi pa na-save',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.me.draftText': 'Ito ang mga binago mo noong {when}. Nakatabi ito sa phone na ito pero wala pa sa card mo — i-tap ang Save para manatili.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.me.draftDiscard': 'Itapon ang mga pagbabagong ito',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.me.draftConfirm': 'Itapon ang mga hindi pa na-save at bumalik sa naka-save mong card?',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.me.draftNote': 'Nakatabi sa phone na ito · i-tap ang Save',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.me.confirmClear': 'Burahin ang lahat sa card mo? Mananatili ang mga card ng mga kabatch mo.',
     'bt.f.nickname': 'Palayaw',
     'bt.f.hometown': 'Bayan',

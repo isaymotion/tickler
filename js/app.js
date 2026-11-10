@@ -941,7 +941,7 @@
     return '<div class="custom-row nf-row"><span class="nf-row__n" aria-hidden="true"></span><label class="field field--sm"><span class="field__l">' + esc(t('bt.l.' + L.key + '.item')) + '</span><input type="text" name="lTitle" maxlength="80" value="' + esc(title || '') + '"></label><label class="field"><span class="field__l">' + esc(t('bt.l.' + L.key + '.url')) + '</span><input type="text" name="lUrl" inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="300" placeholder="' + esc(L.ph || 'https://…') + '" value="' + esc(url || '') + '"></label><span class="nf-row__acts"><button type="button" class="link-btn nf-up">' + esc(t('bt.l.up')) + '</button><button type="button" class="link-btn custom-rm">' + esc(t('bt.custom.remove')) + '</button></span></div>';
   }
   VIEWS.me = function () {
-    var me = getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [], netflix: [], lists: {} };
+    var me = meDraftRead() || getMe() || { id: '', name: '', bmonth: 0, bday: 0, byear: 0, photo: '', custom: [], playlists: [], netflix: [], lists: {} };
     var comp = completeness(me);
     pendingPhoto = null;
     var months = MONTHS_EN.map(function (m, i) { return [i + 1, monthName(i + 1)]; });
@@ -3820,6 +3820,96 @@
   })();
   if (BADGE_IDS.indexOf('chatter') < 0) { BADGES.push(['chatter', 'chat']); BADGE_IDS.push('chatter'); }
 
+
+  /* ===================== 1.21.2: MY CARD DRAFT =====================
+     Unsaved My card edits are kept on the phone (store `meDraft`) so they survive leaving the screen,
+     a language/text-size re-render, or iOS closing the app in the background. Written 400 ms after typing,
+     on every route change (route() calls meDraftFlush first), on pagehide and when the app is hidden.
+     Draft = the form collected without validation + base (the saved card's `updated` when it was written),
+     pp (pending photo: null unchanged, '' removed, data URL new), role (resident|partner), at (ms).
+     It is used only while base still matches the saved card, so a Save, Clear my card or a newer card
+     arriving from another device retires it. Discard button on the banner. */
+  var meDirty = false, meDraftT = null;
+  function meDraftCollect(form) {
+    var old = getMe() || {}, c = { id: old.id || '', name: form.name.value, base: old.updated || '', at: Date.now(), pp: pendingPhoto };
+    FIELDS.forEach(function (f) { if (form.elements[f.key]) c[f.key] = form.elements[f.key].value; });
+    c.bmonth = form.bmonth.value; c.bday = form.bday.value; c.byear = form.byear.value;
+    c.custom = []; c.playlists = []; c.netflix = []; c.lists = {};
+    form.querySelectorAll('#custom-rows .custom-row').forEach(function (r) { c.custom.push({ label: r.querySelector('[name=customLabel]').value, value: r.querySelector('[name=customValue]').value }); });
+    form.querySelectorAll('#pl-rows .custom-row').forEach(function (r) { c.playlists.push({ label: r.querySelector('[name=plLabel]').value, url: r.querySelector('[name=plUrl]').value.trim() }); });
+    LISTS.forEach(function (L) {
+      var arr = [];
+      form.querySelectorAll('#rows-' + L.key + ' .custom-row').forEach(function (r) { var ti = r.querySelector('[name=lTitle]').value.trim(), u = r.querySelector('[name=lUrl]').value.trim(); if (ti || u) arr.push({ title: ti || u, url: u }); });
+      if (L.key === 'netflix') c.netflix = arr; else c.lists[L.key] = arr;
+    });
+    var role = form.querySelector('input[name="cardRole"]:checked'); c.role = role ? role.value : 'resident';
+    c.partnerOf = form.elements.partnerOf ? form.elements.partnerOf.value : ''; c.partnerName = form.elements.partnerName ? form.elements.partnerName.value : '';
+    return c;
+  }
+  function meDraftWrite() {
+    clearTimeout(meDraftT); meDraftT = null;
+    var form = document.getElementById('me-form'); if (!form || !meDirty) return;
+    try { store.set('meDraft', meDraftCollect(form)); meDirty = false; var n = document.getElementById('me-draft-note'); if (n) n.hidden = false; } catch (e) {}
+  }
+  function meDraftFlush() { if (meDirty) meDraftWrite(); }
+  function meDraftRaw() {
+    var raw = store.get('meDraft', null), me = getMe();
+    if (!raw || typeof raw !== 'object') return null;
+    if ((raw.base || '') !== ((me && me.updated) || '')) { store.del('meDraft'); return null; }
+    return raw;
+  }
+  function meDraftRead() {
+    var raw = meDraftRaw(); if (!raw) return null;
+    var old = getMe() || {}, x = {};
+    Object.keys(raw).forEach(function (k) { x[k] = raw[k]; });
+    x.id = raw.id || 'draft'; x.name = cleanText(raw.name, 80) || '~';
+    x.photo = raw.pp === null || raw.pp === undefined ? (old.photo || '') : raw.pp;
+    x.updated = old.updated;
+    var c = sanitizeCard(x); if (!c) return null;
+    c.id = raw.id || ''; c.name = cleanText(raw.name, 80);
+    c.bmonth = toInt(raw.bmonth, 1, 12); c.bday = toInt(raw.bday, 1, 31); c.byear = toInt(raw.byear, 1900, 2100);
+    c.custom = (raw.custom || []).filter(function (r) { return r && (r.label || r.value); }).slice(0, MAX_CUSTOM).map(function (r) { return { label: cleanText(r.label, 60), value: cleanText(r.value, MAX_TEXT) }; });
+    c.playlists = (raw.playlists || []).filter(function (r) { return r && (r.label || r.url); }).slice(0, PLAYLIST_MAX).map(function (r) { return { label: cleanText(r.label, 60), url: cleanText(r.url, 300) }; });
+    function rawList(a, L) { return (Array.isArray(a) ? a : []).slice(0, L.max).map(function (r) { return { title: cleanText(r && r.title, 80), url: cleanText(r && r.url, 300) }; }); }
+    c.netflix = rawList(raw.netflix, LIST_BY.netflix); c.lists = {};
+    LISTS.forEach(function (L) { if (L.key !== 'netflix' && raw.lists) c.lists[L.key] = rawList(raw.lists[L.key], L); });
+    FUN_KEYS.forEach(function (k) { if (old[k] !== undefined) c[k] = old[k]; });
+    return c;
+  }
+  window.addEventListener('pagehide', meDraftFlush);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') meDraftFlush(); });
+  (function () {
+    var view0 = VIEWS.me, after0 = AFTER.me;
+    VIEWS.me = function () {
+      var raw = meDraftRaw(), html = view0.apply(null, arguments);
+      html = html.replace('<button type="submit" class="btn btn--solid">', '<span class="me-draft-note muted" id="me-draft-note"' + (raw ? '' : ' hidden') + '>' + esc(t('bt.me.draftNote')) + '</span><button type="submit" class="btn btn--solid">');
+      if (!raw) return html;
+      var bar = '<div class="callout me-draft" id="me-draft"><p class="callout__title">' + esc(t('bt.me.draftH')) + '</p><p style="margin:0 0 10px">' + esc(tf('bt.me.draftText', { when: new Date(raw.at || Date.now()).toLocaleString(locale(), { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) })) + '</p><button type="button" class="link-btn" id="me-draft-discard">' + esc(t('bt.me.draftDiscard')) + '</button></div>';
+      return html.replace('<form id="me-form"', bar + '<form id="me-form"');
+    };
+    AFTER.me = function () {
+      var raw = meDraftRaw();
+      after0.apply(null, arguments);
+      meDirty = false;
+      var form = document.getElementById('me-form'); if (!form) return;
+      if (raw) {
+        if (raw.pp !== null && raw.pp !== undefined) pendingPhoto = raw.pp;
+        if (raw.role === 'partner') { var r = form.querySelector('input[name="cardRole"][value="partner"]'), who = form.querySelector('.pt-who'); if (r) r.checked = true; if (who) who.hidden = false; }
+      }
+      function dirty() { meDirty = true; clearTimeout(meDraftT); meDraftT = setTimeout(meDraftWrite, 400); }
+      form.addEventListener('input', dirty); form.addEventListener('change', dirty);
+      form.addEventListener('click', function (e) { if (e.target.closest('.custom-rm, .nf-up, #custom-add, #pl-add, [data-ladd], #me-photo-rm')) dirty(); });
+      var fi = document.getElementById('me-photo'); if (fi) fi.addEventListener('change', function () { setTimeout(dirty, 800); });
+      var before = (getMe() || {}).updated || '';
+      form.addEventListener('submit', function () {
+        if (((getMe() || {}).updated || '') !== before) { clearTimeout(meDraftT); meDirty = false; store.del('meDraft'); var n = document.getElementById('me-draft-note'); if (n) n.hidden = true; var b = document.getElementById('me-draft'); if (b) b.remove(); }
+        else meDraftWrite();
+      });
+      var dis = document.getElementById('me-draft-discard');
+      if (dis) dis.addEventListener('click', function () { if (!window.confirm(t('bt.me.draftConfirm'))) return; clearTimeout(meDraftT); meDirty = false; store.del('meDraft'); pendingPhoto = null; route({ keepScroll: false }); });
+    };
+  })();
+
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();
 
@@ -3842,6 +3932,7 @@
   }
   function route(opts) {
     opts = opts || {};
+    try { meDraftFlush(); } catch (e) {}
     closeSuggest(); closeDrawer();
     var p = parts(), key = p.length ? p[0] : 'home', restoreY = null;
     if (!opts.keepScroll) {

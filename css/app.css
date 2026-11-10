@@ -939,3 +939,8 @@ body.is-chat-room .site-foot{padding-bottom:env(safe-area-inset-bottom,0px)}
 .home-chat__chip .ch-dot{width:8px;height:8px}
 @media print{.home-chat{display:none}}
 .home-chat__t span{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* 1.21.2 My card draft */
+.me-draft{margin-bottom:16px;border-left:4px solid var(--accent, #1D4EAF)}
+.me-draft-note{font-size:.85rem}
+.me-draft-note[hidden]{display:none}
