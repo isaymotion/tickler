@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.11.1',
+    date: '2026-11-10',
+    title: 'Residency starts 1 January 2027',
+    items: [
+      { type: 'update', text: 'The residency day counter on Home now counts down to 1 January 2027 on every phone, with no setup. You can still change the date in About › Settings if yours is different.', href: '#/' }
+    ]
+  },
+  {
     version: '1.11.0',
     date: '2026-11-10',
     title: 'Fun pack: bingo, map, Wrapped and more',

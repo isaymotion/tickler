@@ -15,5 +15,6 @@ window.HOSPITAL = {
     { code: 'OPU', name: 'OPU' }
   ],
   yearLevels: [1, 2, 3],
+  residencyStart: '2027-01-01',   // first day of residency for the incoming batch (YYYY-MM-DD); Batch Tickler's day counter
   formPrefix: 'MMH-'
 };

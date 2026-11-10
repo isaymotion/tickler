@@ -1440,7 +1440,7 @@
   function personLink(c) { return '<a href="#/person/' + encodeURIComponent(c.id) + '">' + esc(c.name) + '</a>'; }
 
   /* ---- 9. Residency day counter ---- */
-  function startDate() { var v = String(store.get('startDate', '') || ''); return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; }
+  function startDate() { var re = /^\d{4}-\d{2}-\d{2}$/, v = String(store.get('startDate', '') || ''), d = String(HOSP.residencyStart || ''); return re.test(v) ? v : re.test(d) ? d : ''; }
   function residencyDay(today) {
     var s = startDate(); if (!s) return null;
     var p = s.split('-'), start = new Date(+p[0], +p[1] - 1, +p[2]);

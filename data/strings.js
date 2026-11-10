@@ -28,7 +28,7 @@ window.STRINGS = {
     'bt.day.mN': 'Day {n}: a milestone!',
     'bt.day.mYear': '{n} year(s) of residency today!',
     'bt.day.setting': 'Residency start date',
-    'bt.day.hint': 'For the day counter on the home screen. Stays on this device.',
+    'bt.day.hint': 'The batch starts on 1 January 2027. Change this only if your own start date is different; clear it to go back to 1 January 2027.',
     'bt.bdt.kicker': 'Birthday today',
     'bt.bdt.title': 'Happy birthday, {names}!',
     'bt.bdt.you': 'Happy birthday to you!',
@@ -595,7 +595,7 @@ window.STRINGS = {
     'bt.day.mN': 'Araw {n}: isang milestone!',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.day.mYear': '{n} taon na ng residency ngayon!',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.day.setting': 'Petsa ng simula ng residency',  // Tagalog draft — Dr. Navarro reviews before release
-    'bt.day.hint': 'Para sa bilang ng araw sa home screen. Nasa device na ito lang.',  // Tagalog draft — Dr. Navarro reviews before release
+    'bt.day.hint': 'Magsisimula ang batch sa 1 Enero 2027. Palitan lang kung iba ang petsa mo; burahin para bumalik sa 1 Enero 2027.',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bdt.kicker': 'Kaarawan ngayon',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bdt.title': 'Maligayang kaarawan, {names}!',  // Tagalog draft — Dr. Navarro reviews before release
     'bt.bdt.you': 'Maligayang kaarawan sa iyo!',  // Tagalog draft — Dr. Navarro reviews before release

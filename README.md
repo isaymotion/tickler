@@ -12,7 +12,7 @@ A shared batch directory for incoming psychiatry residents: fill in your own car
 - **The batch** — everyone's cards in one grid, with a quick filter and sorting by name, next birthday or hometown. Tap a card for the full page (contact buttons: call, message, email).
 - **Today in the batch** (Home) — a featured Spotify playlist and a featured fact of the day (one question, everyone's answers). Picks change at midnight and match on every phone with the same cards; *Show another* browses more.
 - **Birthday banner** (Home) — confetti and a *Greet them* button (share sheet / copy) on a batchmate's birthday.
-- **Spotlight of the week** (Home) — one batchmate per week; **Residency day counter** (Home, start date set in About).
+- **Spotlight of the week** (Home) — one batchmate per week; **Residency day counter** (Home; counts from 1 January 2027 — `residencyStart` in data/hospital.js — and can be changed per phone in About).
 - **Play** — *Guess who*, *Who said it?* (guess whose answer it is), *Batch Bingo* (board built from the cards, saved on the phone), *Icebreakers* (36 questions + questions from the cards), *Batch Wrapped* (swipeable year-in-review slides).
 - **Hometown map** — offline map of the Philippines (`data/places.js`, Natural Earth outline + ~240 places) with dots per hometown; unrecognised hometowns listed separately.
 - **Batch twins** (Batch stats) — the pairs with the most things in common.
