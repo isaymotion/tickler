@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.15.1',
+    date: '2026-11-10',
+    title: 'Home-screen name is now Batch Tickler',
+    items: [
+      { type: 'update', text: 'When you add the app to your home screen (iPhone or Android), its name now shows as “Batch Tickler” instead of “Batch”. Already installed on iPhone? First tap Export backup (bottom of any page), then remove the icon, add the app again from Safari, and Import backup — removing a home-screen app on iPhone also removes its saved data. On Android the name updates by itself within a day or two.' }
+    ]
+  },
+  {
     version: '1.15.0',
     date: '2026-11-10',
     title: 'Twelve new ways to play with the batch',

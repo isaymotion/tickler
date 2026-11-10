@@ -1,6 +1,6 @@
 {
   "name": "Batch Tickler",
-  "short_name": "Batch",
+  "short_name": "Batch Tickler",
   "description": "A shared batch directory for incoming psychiatry residents: fill in your own card on your phone, share it with the batch, and get to know everyone's hometowns, hobbies, birthdays and favourites.",
   "start_url": "./",
   "scope": "./",
