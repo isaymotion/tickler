@@ -1008,3 +1008,44 @@ body.is-chat-room .site-foot{padding-bottom:env(safe-area-inset-bottom,0px)}
 .nv-save .btn{white-space:nowrap}
 .nv-save .btn--solid{flex:1 1 auto;justify-content:center}
 .nv-save .me-draft-note{flex:1 1 100%;order:-1;font-size:.78rem;line-height:1.25}
+
+/* 1.24.0 Look refresh (PREVIEW): one-row top bar on phones, lighter buttons, calmer type, tighter cards */
+.icon-btn,.hist-btn{border-color:transparent}
+.icon-btn:hover,.hist-btn:hover:not(:disabled){background:rgba(255,255,255,.12)}
+.lk-search-btn{display:none}
+.fact__v,.common ul{font-family:var(--sans);font-size:1rem}
+.field__l{text-transform:none;letter-spacing:0;font-size:.88rem;color:var(--ink-2)}
+.fgroup__sub,.facts__sub{letter-spacing:.04em}
+.card{box-shadow:0 1px 2px rgba(16,40,44,.04)}
+@media (max-width:720px){
+ .topbar__inner{flex-wrap:nowrap;min-height:52px;padding-top:6px;padding-bottom:6px;gap:2px}
+ .topbar .icon-btn{width:38px;height:38px}
+ .topbar .hist-btn{width:32px;height:38px}
+ .histnav{gap:0}
+ .brand{margin:0 auto 0 4px;min-width:0;gap:8px}
+ .brand img{width:30px;height:30px}
+ .brand__name{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .lk-search-btn{display:grid}
+ .search{display:none}
+ body.lk-search .topbar__inner{flex-wrap:wrap}
+ body.lk-search .search{display:block;order:10;flex:1 1 100%;max-width:none;margin:4px 4px 4px}
+ .search__kbd{display:none}
+ .page{padding-top:18px}
+ .crumb{margin-bottom:8px;font-size:.82rem}
+ .page__head{margin-bottom:16px}
+ .page__head h1,.person__head h1{font-size:1.45rem}
+ .page__head p{font-size:.95rem}
+ .card{padding:16px 16px;border-radius:var(--r-md)}
+ .nv-save{margin:0 -16px -16px;padding:10px 16px;border-radius:0 0 var(--r-md) var(--r-md)}
+ .hero--banner{min-height:0}
+ .hero--banner .hero__inner{padding-top:46vw;padding-bottom:16px}
+ .hero--banner h1{font-size:1.5rem;margin-bottom:10px}
+ .hero--banner .hero__lead{display:none}
+ .hero .btn{min-height:40px}
+ .person__head{gap:14px;align-items:flex-start;flex-wrap:nowrap}
+ .person__head .avatar--lg{width:76px;height:76px;font-size:1.5rem;flex-shrink:0}
+ .person__head>div{min-width:0}
+ .form__photo .avatar--lg{width:84px;height:84px;font-size:1.6rem}
+ h2{font-size:1.15rem}
+}
+@media (max-width:440px){.brand__name{display:none}}

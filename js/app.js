@@ -4333,6 +4333,20 @@
     };
   })();
 
+  /* ===================== 1.24.0 LOOK REFRESH (preview): search folds into a button on phones ===================== */
+  (function () {
+    var box = document.querySelector('.topbar .search'), q = document.getElementById('q'); if (!box || !q) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'icon-btn lk-search-btn'; b.id = 'lk-search-btn'; b.setAttribute('aria-expanded', 'false');
+    b.setAttribute('aria-label', t('search.label'));
+    b.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    box.parentNode.insertBefore(b, box);
+    function set(on) { document.body.classList.toggle('lk-search', on); b.setAttribute('aria-expanded', on ? 'true' : 'false'); if (on) q.focus(); }
+    b.addEventListener('click', function () { set(!document.body.classList.contains('lk-search')); });
+    q.addEventListener('blur', function () { setTimeout(function () { if (!q.value && document.activeElement !== q) set(false); }, 200); });
+    window.addEventListener('hashchange', function () { if (!q.value) set(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === '/' && !/input|textarea|select/i.test((document.activeElement || {}).tagName || '')) document.body.classList.add('lk-search'); }, true);
+  })();
+
   TITLES.person = function () { return t('nav.batch'); };
   rebuildIndex();
 
