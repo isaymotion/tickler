@@ -1009,7 +1009,7 @@ body.is-chat-room .site-foot{padding-bottom:env(safe-area-inset-bottom,0px)}
 .nv-save .btn--solid{flex:1 1 auto;justify-content:center}
 .nv-save .me-draft-note{flex:1 1 100%;order:-1;font-size:.78rem;line-height:1.25}
 
-/* 1.24.0 Look refresh (PREVIEW): one-row top bar on phones, lighter buttons, calmer type, tighter cards */
+/* 1.24.0 Look refresh: one-row top bar on phones, lighter buttons, calmer type, tighter cards */
 .icon-btn,.hist-btn{border-color:transparent}
 .icon-btn:hover,.hist-btn:hover:not(:disabled){background:rgba(255,255,255,.12)}
 .lk-search-btn{display:none}

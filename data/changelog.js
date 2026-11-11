@@ -4,6 +4,14 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.24.0', date: '2026-11-11', title: 'A cleaner look',
+    items: [
+      { type: 'update', text: 'On phones the top bar is now one slim row. Tap the magnifying glass to search.' },
+      { type: 'update', text: 'Home: the batch picture is shorter and no longer has text over the faces.' },
+      { type: 'update', text: 'Tidier pages everywhere: lighter buttons, tighter cards, labels no longer in ALL CAPS, and each person\'s photo now sits beside their name.' }
+    ]
+  },
+  {
     version: '1.23.0', date: '2026-11-11', title: 'My card is easier to find and edit',
     items: [
       { type: 'feature', text: 'My card now has its own button in the middle of the bottom bar (it shows your photo) and a "Your card" box near the top of Home, right under Batch chat. In the menu, Chat and My card now come first, right after Home.', href: '#/me' },

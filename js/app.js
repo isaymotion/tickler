@@ -4333,7 +4333,7 @@
     };
   })();
 
-  /* ===================== 1.24.0 LOOK REFRESH (preview): search folds into a button on phones ===================== */
+  /* ===================== 1.24.0 LOOK REFRESH: search folds into a button on phones ===================== */
   (function () {
     var box = document.querySelector('.topbar .search'), q = document.getElementById('q'); if (!box || !q) return;
     var b = document.createElement('button'); b.type = 'button'; b.className = 'icon-btn lk-search-btn'; b.id = 'lk-search-btn'; b.setAttribute('aria-expanded', 'false');
