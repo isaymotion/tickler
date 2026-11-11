@@ -114,7 +114,7 @@ with sync_playwright() as p:
         rep('6 remove',h=='#/batch' and n==4 and dlg['n']==d0+1,'hash=%s cards=%d dialogs=%d'%(h,n,dlg['n']-d0))
     step('6',t6)
     def t7():
-        go(pg,'#/'); pg.focus('#q'); pg.keyboard.type('Balanga',delay=40); pg.wait_for_timeout(500)
+        go(pg,'#/'); pg.evaluate("(()=>{var b=document.getElementById('lk-search-btn');if(b&&b.offsetParent&&!document.body.classList.contains('lk-search'))b.click()})()"); pg.wait_for_timeout(150); pg.focus('#q'); pg.keyboard.type('Balanga',delay=40); pg.wait_for_timeout(500)
         sg=pg.locator('#suggest')
         vis=sg.is_visible(); txt=sg.inner_text() if vis else ''
         rep('7a suggest',vis and 'Ana' in txt,txt.replace('\n',' | ')[:200])
@@ -122,6 +122,7 @@ with sync_playwright() as p:
         pg.keyboard.press('Enter'); pg.wait_for_timeout(500)
         h=pg.evaluate('decodeURIComponent(location.hash)')
         rep('7b enter -> search',h=='#/search/Balanga' and 'Ana Reyes' in pg.locator('main').inner_text(),h)
+        pg.evaluate("(()=>{var q=document.getElementById('q');q.value='';q.blur()})()"); pg.wait_for_timeout(350)   # 1.24.0: fold the phone search row away again
     step('7',t7)
     def t8():
         go(pg,'#/guess'); pg.wait_for_timeout(300)

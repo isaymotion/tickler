@@ -65,6 +65,7 @@ with sync_playwright() as p:
             go(h); tx = txt(); ok('Paolo' not in tx and 'Gina' not in tx, 'partners not in %s%s' % (h, T))
         if theme == 'light':
             # search
+            pg.evaluate("(()=>{var b=document.getElementById('lk-search-btn');if(b&&b.offsetParent&&!document.body.classList.contains('lk-search'))b.click()})()"); pg.wait_for_timeout(150); 
             ok(pg.evaluate("(()=>{var i=document.querySelector('.search input');i.value='Paolo';i.dispatchEvent(new Event('input',{bubbles:true}));return true})()"), 'typed search')
             pg.wait_for_timeout(400)
             ok('Paolo Jowa' in pg.inner_text('body'), 'search finds a partner')
