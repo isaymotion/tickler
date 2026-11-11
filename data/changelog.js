@@ -4,6 +4,15 @@
    then bump APP_META.version, VERSION in sw.js, and "Latest version" in the footer / README. */
 window.APP_CHANGELOG = [
   {
+    version: '1.23.0', date: '2026-11-11', title: 'My card is easier to find and edit',
+    items: [
+      { type: 'feature', text: 'My card now has its own button in the middle of the bottom bar (it shows your photo) and a "Your card" box near the top of Home, right under Batch chat. In the menu, Chat and My card now come first, right after Home.', href: '#/me' },
+      { type: 'feature', text: 'On your own page, every section has an Edit button that opens just that part of your card. Sections you have not filled in yet are listed at the bottom; tap one to add it.' },
+      { type: 'feature', text: 'My card: tap a section name at the top to jump to it, or tap "Next empty question" to go straight to what is still blank. The Save button now stays on screen while you scroll.', href: '#/me' },
+      { type: 'update', text: 'Bottom bar is now Home, Chat, My card, Emergency, Menu. About moved to the menu and the bottom of every page.' }
+    ]
+  },
+  {
     version: '1.22.0', date: '2026-11-11', title: 'Make PDF + a tidier print sheet',
     items: [
       { type: 'feature', text: 'Print screen: new Make PDF button. It makes the PDF on your phone so you can save it to Files, send it in Messenger, or print it. Print is still there as a backup.', href: '#/print' },
