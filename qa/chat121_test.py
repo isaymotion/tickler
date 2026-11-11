@@ -158,7 +158,7 @@ with sync_playwright() as p:
 
     # --- tab bar + menu
     tabs = A.locator('.tabbar [data-tab]').evaluate_all("l=>l.map(e=>e.getAttribute('data-tab'))")
-    ok(tabs == ['home', 'emergency', 'menu', 'chat', 'about'], 'tab bar: Home, Emergency, Menu, Chat, About (%s)' % tabs)
+    ok(tabs == ['home', 'chat', 'me', 'emergency', 'menu'], 'tab bar: Home, Chat, My card, Emergency, Menu (%s)' % tabs)
     hrefs = A.locator('#sidenav a').evaluate_all("l=>l.map(e=>e.getAttribute('href'))")
     ok('#/chat' in hrefs and '#/whats-new' in hrefs, "menu has Chat and still has What's new")
 
@@ -204,6 +204,7 @@ with sync_playwright() as p:
     A.reload(); A.wait_for_timeout(1800)
     ok(A.locator('.tabbar [data-badge="chat"]').inner_text() == '1' and A.locator('.tabbar [data-badge="chat"]').is_visible(), 'admin: Chat tab badge shows 1 unread channel after sync')
     ok(A.locator('.home-chat').count() == 1 and A.locator('.home-chat').evaluate("e=>e.parentElement.firstElementChild===e"), '1.21.1: Batch chat card first on Home')
+    ok(A.locator('.home-chat').evaluate("e=>!!e.nextElementSibling&&e.nextElementSibling.classList.contains('nv-me')"), '1.23.0: Your card strip right after the chat card')
     ok('New messages in #general from Bea Cruz' in A.inner_text('.home-chat') and A.locator('.home-chat__n').inner_text() == '1', 'Home card: unread count + who wrote')
     ok(A.locator('.home-chat__chip').first.get_attribute('href') == '#/chat/general' and A.locator('.home-chat__chip.is-unread').count() == 1, 'Home card: unread channel chip first')
     go(C, '#/', 300); ok(C.locator('.home-chat').count() == 0 and C.locator('.sync-strip').count() == 1, 'not a member: no chat card, Cloud sync nudge instead')
